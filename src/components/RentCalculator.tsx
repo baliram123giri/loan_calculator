@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { DollarSign, RefreshCw, PieChart as PieChartIcon } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { DollarSign, RefreshCw, PieChart as PieChartIcon, AlertCircle, CheckCircle, Info, TrendingUp } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 type CalculationMode = 'affordability' | 'income-needed';
 
@@ -12,46 +12,67 @@ export default function RentCalculator() {
     const [debt, setDebt] = useState<number>(0);
     const [rent, setRent] = useState<number>(1500);
     const [ratio, setRatio] = useState<number>(30); // 30% rule default
+    const [utilities, setUtilities] = useState<number>(150);
+    const [savings, setSavings] = useState<number>(500);
 
     const [result, setResult] = useState<any>(null);
 
     useEffect(() => {
         calculate();
-    }, [income, debt, rent, ratio, mode]);
+    }, [income, debt, rent, ratio, mode, utilities, savings]);
 
     const calculate = () => {
         if (mode === 'affordability') {
             // Calculate Affordable Rent
-            // Method 1: Gross Income Rule (e.g. 30%)
             const monthlyIncome = income / 12;
             const affordableRentByRatio = monthlyIncome * (ratio / 100);
 
-            // Method 2: DTI Rule (e.g. 43% - Debt)
-            // Standard conservative DTI for housing + debt is often 36% or 43%
-            // Let's use a standard "backend ratio" approach if we were strictly following mortgage rules, 
-            // but for rent, usually landlords look for 3x rent in gross income (which is 33%).
-            // We will stick to the user defined ratio for the primary result, but can show DTI context.
+            // Calculate DTI (Debt-to-Income)
+            const totalHousingCost = affordableRentByRatio + utilities;
+            const totalMonthlyObligations = totalHousingCost + debt;
+            const dti = (totalMonthlyObligations / monthlyIncome) * 100;
 
-            // Let's calculate the "Remaining for Life"
-            const remaining = monthlyIncome - affordableRentByRatio - debt;
+            // Calculate remaining after all expenses
+            const remaining = monthlyIncome - affordableRentByRatio - debt - utilities - savings;
+
+            // Affordability Score (0-100)
+            let score = 100;
+            if (dti > 43) score -= 30;
+            else if (dti > 36) score -= 15;
+            if (remaining < 0) score -= 40;
+            else if (remaining < 500) score -= 20;
+            if (savings < 300) score -= 10;
 
             setResult({
                 affordableRent: affordableRentByRatio,
                 monthlyIncome,
                 debt,
+                utilities,
+                savings,
                 remaining: Math.max(0, remaining),
-                isAffordable: remaining > 0
+                dti,
+                score: Math.max(0, score),
+                isAffordable: remaining > 0 && dti < 43
             });
         } else {
             // Calculate Income Needed
-            // Rent should be X% of Income => Income = Rent / (X/100)
             const requiredMonthlyIncome = rent / (ratio / 100);
             const requiredAnnualIncome = requiredMonthlyIncome * 12;
+
+            // Calculate what's left after rent
+            const totalHousingCost = rent + utilities;
+            const remaining = requiredMonthlyIncome - totalHousingCost - debt - savings;
+            const dti = ((totalHousingCost + debt) / requiredMonthlyIncome) * 100;
 
             setResult({
                 requiredAnnualIncome,
                 requiredMonthlyIncome,
                 rent,
+                utilities,
+                debt,
+                savings,
+                remaining: Math.max(0, remaining),
+                dti,
                 ratio
             });
         }
@@ -65,27 +86,77 @@ export default function RentCalculator() {
         }).format(val);
     };
 
-    const COLORS = ['#3b82f6', '#ef4444', '#10b981']; // Blue (Rent), Red (Debt), Green (Remaining)
+    const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6']; // Blue, Red, Orange, Green, Purple
 
-    const getDataForChart = () => {
+    const getDataForPieChart = () => {
         if (!result) return [];
         if (mode === 'affordability') {
             return [
                 { name: 'Rent', value: result.affordableRent },
                 { name: 'Debt', value: result.debt },
+                { name: 'Utilities', value: result.utilities },
+                { name: 'Savings', value: result.savings },
                 { name: 'Remaining', value: result.remaining },
-            ];
+            ].filter(item => item.value > 0);
         } else {
-            // For reverse mode, show the breakdown of the REQUIRED income
-            const debtPart = debt; // We assume debt stays same? Or just show Rent vs Rest
-            // Actually, in reverse mode we just calculated income based on rent ratio. 
-            // We don't necessarily know debt unless we ask for it in reverse mode too.
-            // Let's just show Rent vs Remaining (which covers Debt + Life)
-            const remaining = result.requiredMonthlyIncome - result.rent;
             return [
                 { name: 'Rent', value: result.rent },
-                { name: 'Remaining (Debt + Living)', value: remaining },
+                { name: 'Debt', value: result.debt },
+                { name: 'Utilities', value: result.utilities },
+                { name: 'Savings', value: result.savings },
+                { name: 'Remaining', value: result.remaining },
+            ].filter(item => item.value > 0);
+        }
+    };
+
+    const getDataForBarChart = () => {
+        if (!result) return [];
+        if (mode === 'affordability') {
+            return [
+                { category: 'Rent', amount: result.affordableRent },
+                { category: 'Debt', amount: result.debt },
+                { category: 'Utilities', amount: result.utilities },
+                { category: 'Savings', amount: result.savings },
+                { category: 'Remaining', amount: result.remaining },
             ];
+        } else {
+            return [
+                { category: 'Rent', amount: result.rent },
+                { category: 'Debt', amount: result.debt },
+                { category: 'Utilities', amount: result.utilities },
+                { category: 'Savings', amount: result.savings },
+                { category: 'Remaining', amount: result.remaining },
+            ];
+        }
+    };
+
+    const getAffordabilityMessage = () => {
+        if (!result || mode !== 'affordability') return null;
+
+        if (result.score >= 80) {
+            return {
+                icon: <CheckCircle className="text-green-500" size={20} />,
+                text: "Excellent! This rent is very affordable for your income.",
+                color: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+            };
+        } else if (result.score >= 60) {
+            return {
+                icon: <Info className="text-blue-500" size={20} />,
+                text: "Good. This rent is manageable but leaves limited room for unexpected expenses.",
+                color: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+            };
+        } else if (result.score >= 40) {
+            return {
+                icon: <AlertCircle className="text-orange-500" size={20} />,
+                text: "Caution! This rent may strain your budget. Consider reducing expenses or finding a lower rent.",
+                color: "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+            };
+        } else {
+            return {
+                icon: <AlertCircle className="text-red-500" size={20} />,
+                text: "Warning! This rent is not affordable with your current income and expenses.",
+                color: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+            };
         }
     };
 
@@ -174,6 +245,42 @@ export default function RentCalculator() {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Monthly Utilities (Estimated)
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    value={utilities}
+                                    onChange={(e) => setUtilities(Number(e.target.value))}
+                                    className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">Electric, gas, water, internet, etc.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Monthly Savings Goal
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input
+                                    type="number"
+                                    value={savings}
+                                    onChange={(e) => setSavings(Number(e.target.value))}
+                                    className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">Emergency fund, retirement, investments</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Rent-to-Income Ratio (%)
                             </label>
                             <div className="flex items-center gap-4">
@@ -196,10 +303,10 @@ export default function RentCalculator() {
                     </div>
 
                     {/* Results Section */}
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 flex flex-col justify-center">
+                    <div className="space-y-6">
                         {result && (
                             <>
-                                <div className="text-center mb-6">
+                                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-100 dark:border-blue-800">
                                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
                                         {mode === 'affordability' ? 'You Can Afford' : 'You Need Annual Income'}
                                     </p>
@@ -211,35 +318,78 @@ export default function RentCalculator() {
                                     </div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                         {mode === 'affordability'
-                                            ? '/ month'
+                                            ? '/ month in rent'
                                             : `(approx. ${formatCurrency(result.requiredMonthlyIncome)} / month)`
                                         }
                                     </p>
                                 </div>
 
-                                <div className="h-64 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={getDataForChart()}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                            >
-                                                {getDataForChart().map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip
-                                                formatter={(value: number) => formatCurrency(value)}
-                                                contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                {mode === 'affordability' && (
+                                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Affordability Score</span>
+                                            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{result.score}/100</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
+                                            <div
+                                                className={`h-3 rounded-full transition-all ${result.score >= 80 ? 'bg-green-500' :
+                                                    result.score >= 60 ? 'bg-blue-500' :
+                                                        result.score >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                                                    }`}
+                                                style={{ width: `${result.score}%` }}
                                             />
-                                            <Legend verticalAlign="bottom" height={36} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="flex justify-between mb-1">
+                                                <span>Debt-to-Income Ratio:</span>
+                                                <span className="font-semibold">{result.dti.toFixed(1)}%</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Monthly Remaining:</span>
+                                                <span className="font-semibold">{formatCurrency(result.remaining)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {mode === 'affordability' && getAffordabilityMessage() && (
+                                    <div className={`rounded-xl p-4 border flex items-start gap-3 ${getAffordabilityMessage()?.color}`}>
+                                        {getAffordabilityMessage()?.icon}
+                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {getAffordabilityMessage()?.text}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6">
+                                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                                        <PieChartIcon size={16} />
+                                        Monthly Budget Breakdown
+                                    </h3>
+                                    <div className="h-64 w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={getDataForPieChart()}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={50}
+                                                    outerRadius={80}
+                                                    paddingAngle={5}
+                                                    dataKey="value"
+                                                >
+                                                    {getDataForPieChart().map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip
+                                                    formatter={(value: number) => formatCurrency(value)}
+                                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                                />
+                                                <Legend verticalAlign="bottom" height={36} />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
                             </>
                         )}
