@@ -9,7 +9,6 @@ import {
     PiggyBank,
     ArrowRight,
     Info,
-    Info,
     ChevronDown,
     ChevronUp,
     ChevronLeft,
@@ -312,21 +311,20 @@ export default function RefinanceCalculator() {
                                         <div className="h-64 w-full">
                                             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Cumulative Savings</h4>
                                             <ResponsiveContainer width="100%" height="100%">
-                                                <ResponsiveContainer width="100%" height="100%">
-                                                    <LineChart data={result.projections} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                                        <XAxis
-                                                            dataKey="year"
-                                                            stroke="#9CA3AF"
-                                                            tickFormatter={(val) => `Y${val}`}
-                                                            dy={10}
-                                                        />
-                                                        <YAxis stroke="#9CA3AF" tickFormatter={(value) => `$${value / 1000}k`} />
-                                                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                                                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                                        <Line type="monotone" dataKey="cumulativeSavings" stroke="#3B82F6" strokeWidth={2} dot={false} name="Net Savings" />
-                                                    </LineChart>
-                                                </ResponsiveContainer>
+                                                <LineChart data={result.projections} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                                    <XAxis
+                                                        dataKey="year"
+                                                        stroke="#9CA3AF"
+                                                        tickFormatter={(val) => `Y${val}`}
+                                                        dy={10}
+                                                    />
+                                                    <YAxis stroke="#9CA3AF" tickFormatter={(value) => `$${value / 1000}k`} />
+                                                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                                    <Line type="monotone" dataKey="cumulativeSavings" stroke="#3B82F6" strokeWidth={2} dot={false} name="Net Savings" />
+                                                </LineChart>
+                                            </ResponsiveContainer>
                                         </div>
                                     </div>
                                 </div>
