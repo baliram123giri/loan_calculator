@@ -52,7 +52,7 @@ export default function NavBar() {
                 { href: '/calculators/mortgage', label: 'Mortgage', description: 'Monthly mortgage payments' },
                 { href: '/calculators/house-affordability', label: 'Affordability', description: 'How much house you can afford' },
                 { href: '/calculators/rent-calculator', label: 'Rent Calculator', description: 'Rent vs buy analysis' },
-                { href: '/calculators/real-estate-calculator', label: 'Investment Calculator', description: 'Analyze rental properties' },
+                { href: '/calculators/real-estate-calculator', label: 'Real Estate Calculator', description: 'Analyze rental properties' },
             ]
         },
         {
