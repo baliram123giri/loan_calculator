@@ -106,6 +106,20 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
             'debt ratio calculator'
         ],
         canonical: `${BASE_URL}/calculators/dti-calculator`
+    },
+    'real-estate-calculator': {
+        title: 'Free Real Estate Investment Calculator (USA) | Rental Property Analysis - Loanly',
+        description: 'Calculate Cash on Cash Return, Cap Rate, and Cash Flow for US rental properties. Best free tool for real estate investors to analyze deals.',
+        keywords: [
+            'Real Estate Calculator',
+            'Rental Property Calculator',
+            'Cash on Cash Return',
+            'Cap Rate Calculator',
+            'BRRRR Calculator',
+            'US Real Estate Investment',
+            'Investment Property Calculator'
+        ],
+        canonical: `${BASE_URL}/calculators/real-estate-calculator`
     }
 };
 

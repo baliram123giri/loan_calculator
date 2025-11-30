@@ -168,5 +168,17 @@ export const calculatorSchemas = {
             { name: 'Calculators', url: `${BASE_URL}/calculators` },
             { name: 'DTI Calculator', url: `${BASE_URL}/calculators/dti-calculator` }
         ])
+    },
+    'real-estate-calculator': {
+        software: generateSoftwareApplicationSchema(
+            'Real Estate Investment Calculator',
+            'Analyze rental property deals with precision. Calculate Cash Flow, Cap Rate, and Cash on Cash Return for US market.',
+            `${BASE_URL}/calculators/real-estate-calculator`
+        ),
+        breadcrumb: generateBreadcrumbSchema([
+            { name: 'Home', url: BASE_URL },
+            { name: 'Calculators', url: `${BASE_URL}/calculators` },
+            { name: 'Real Estate Calculator', url: `${BASE_URL}/calculators/real-estate-calculator` }
+        ])
     }
 };

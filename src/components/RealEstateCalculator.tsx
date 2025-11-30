@@ -11,7 +11,9 @@ import {
     PiggyBank,
     ChevronDown,
     ChevronUp,
-    Info
+    Info,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import {
     calculateRealEstateMetrics,
@@ -37,6 +39,10 @@ import {
 export default function RealEstateCalculator() {
     const [activeTab, setActiveTab] = useState<'overview' | 'projections'>('overview');
     const [showAdvanced, setShowAdvanced] = useState(false);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 10;
 
     const [input, setInput] = useState<RealEstateInput>({
         purchasePrice: 200000,
@@ -252,8 +258,8 @@ export default function RealEstateCalculator() {
                             <button
                                 onClick={() => setActiveTab('overview')}
                                 className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'overview'
-                                        ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
-                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                    ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
                             >
                                 Overview & Charts
@@ -261,8 +267,8 @@ export default function RealEstateCalculator() {
                             <button
                                 onClick={() => setActiveTab('projections')}
                                 className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'projections'
-                                        ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
-                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                    ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
                             >
                                 30-Year Projections
@@ -346,39 +352,73 @@ export default function RealEstateCalculator() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                            <tr>
-                                                <th className="px-6 py-3">Year</th>
-                                                <th className="px-6 py-3">Cash Flow</th>
-                                                <th className="px-6 py-3">Equity</th>
-                                                <th className="px-6 py-3">Property Value</th>
-                                                <th className="px-6 py-3">ROI</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {result.projections.map((year) => (
-                                                <tr key={year.year} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                                        {year.year}
-                                                    </td>
-                                                    <td className={`px-6 py-4 ${year.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {formatCurrency(year.cashFlow)}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                                        {formatCurrency(year.equity)}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                                        {formatCurrency(year.propertyValue)}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-blue-600 dark:text-blue-400">
-                                                        {formatPercent(year.roi)}
-                                                    </td>
+                                <div className="space-y-4">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                                <tr>
+                                                    <th className="px-6 py-3">Year</th>
+                                                    <th className="px-6 py-3">Cash Flow</th>
+                                                    <th className="px-6 py-3">Equity</th>
+                                                    <th className="px-6 py-3">Property Value</th>
+                                                    <th className="px-6 py-3">ROI</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {result.projections.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((year) => (
+                                                    <tr key={year.year} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                                            {year.year}
+                                                        </td>
+                                                        <td className={`px-6 py-4 ${year.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                            {formatCurrency(year.cashFlow)}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                                            {formatCurrency(year.equity)}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                                            {formatCurrency(year.propertyValue)}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-blue-600 dark:text-blue-400">
+                                                            {formatPercent(year.roi)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Pagination Controls */}
+                                    {result.projections.length > rowsPerPage && (
+                                        <div className="flex items-center justify-between px-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, result.projections.length)} of {result.projections.length} years
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                    disabled={currentPage === 1}
+                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    aria-label="Previous Page"
+                                                >
+                                                    <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
+                                                </button>
+
+                                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                    Page {currentPage} of {Math.ceil(result.projections.length / rowsPerPage)}
+                                                </span>
+
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(result.projections.length / rowsPerPage)))}
+                                                    disabled={currentPage === Math.ceil(result.projections.length / rowsPerPage)}
+                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    aria-label="Next Page"
+                                                >
+                                                    <ChevronRight size={20} className="text-gray-600 dark:text-gray-400" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
