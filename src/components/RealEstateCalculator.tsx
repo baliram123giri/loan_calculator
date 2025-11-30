@@ -330,7 +330,7 @@ export default function RealEstateCalculator() {
                                     <div className="h-80 w-full">
                                         <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Equity vs Loan Balance (30 Years)</h4>
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={result.projections}>
+                                            <AreaChart data={result.projections} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                                 <defs>
                                                     <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                                                         <stop offset="5%" stopColor="#10B981" stopOpacity={0.8} />
