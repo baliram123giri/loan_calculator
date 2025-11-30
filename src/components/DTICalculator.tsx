@@ -218,13 +218,13 @@ export default function DTICalculator() {
                                             symbol="$"
                                         />
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                                 Type
                                             </label>
                                             <select
                                                 value={debt.type}
                                                 onChange={(e) => updateDebt(debt.id, 'type', e.target.value)}
-                                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                                className="w-full h-10 px-3 py-2 bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-md text-sm text-gray-900 dark:text-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             >
                                                 <option value="auto">Auto Loan</option>
                                                 <option value="student">Student Loan</option>
@@ -264,8 +264,8 @@ export default function DTICalculator() {
                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                                 <div
                                     className={`h-3 rounded-full transition-all ${dtiResult.frontEndRatio <= 28 ? 'bg-green-500' :
-                                            dtiResult.frontEndRatio <= 31 ? 'bg-yellow-500' :
-                                                'bg-red-500'
+                                        dtiResult.frontEndRatio <= 31 ? 'bg-yellow-500' :
+                                            'bg-red-500'
                                         }`}
                                     style={{ width: `${Math.min(dtiResult.frontEndRatio, 100)}%` }}
                                 />
@@ -286,9 +286,9 @@ export default function DTICalculator() {
                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                                 <div
                                     className={`h-3 rounded-full transition-all ${dtiResult.backEndRatio <= 36 ? 'bg-green-500' :
-                                            dtiResult.backEndRatio <= 43 ? 'bg-yellow-500' :
-                                                dtiResult.backEndRatio <= 50 ? 'bg-orange-500' :
-                                                    'bg-red-500'
+                                        dtiResult.backEndRatio <= 43 ? 'bg-yellow-500' :
+                                            dtiResult.backEndRatio <= 50 ? 'bg-orange-500' :
+                                                'bg-red-500'
                                         }`}
                                     style={{ width: `${Math.min(dtiResult.backEndRatio, 100)}%` }}
                                 />
@@ -355,9 +355,9 @@ export default function DTICalculator() {
                         </h3>
                         <div className="space-y-3">
                             {dtiResult.recommendations.map((rec, index) => (
-                                <div key={index} className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                    <span className="text-lg">{rec.split(' ')[0]}</span>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                    <span className="text-lg flex-shrink-0 mt-0.5">{rec.split(' ')[0]}</span>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                         {rec.split(' ').slice(1).join(' ')}
                                     </p>
                                 </div>
