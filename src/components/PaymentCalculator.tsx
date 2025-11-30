@@ -73,8 +73,8 @@ export default function PaymentCalculator() {
                                 {calcParams.mode === 'fixed-payment' && (
                                     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                                         <p className="text-sm text-blue-800 dark:text-blue-200">
-                                            With a monthly payment of <strong>${calcParams.monthlyPayment.toLocaleString()}</strong>,
-                                            you will pay off this loan in <strong>{Math.floor(result.calculatedTermMonths! / 12)} years and {result.calculatedTermMonths! % 12} months</strong>.
+                                            With a monthly payment of <strong>${calcParams.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>,
+                                            you will pay off this loan in <strong>{(result.calculatedTermMonths! / 12).toFixed(2)} years</strong> (or <strong>{result.calculatedTermMonths!.toFixed(2)} months</strong>).
                                         </p>
                                     </div>
                                 )}

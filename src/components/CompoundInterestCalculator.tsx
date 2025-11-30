@@ -39,7 +39,7 @@ export default function CompoundInterestCalculator() {
         setApy(calculateAPY(rate, frequency));
     }, [principal, rate, time, frequency]);
 
-    const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
     const handleExportPDF = () => {
         if (!result) return;
