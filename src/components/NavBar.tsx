@@ -53,6 +53,7 @@ export default function NavBar() {
                 { href: '/calculators/house-affordability', label: 'Affordability', description: 'How much house you can afford' },
                 { href: '/calculators/rent-calculator', label: 'Rent Calculator', description: 'Rent vs buy analysis' },
                 { href: '/calculators/real-estate-calculator', label: 'Real Estate Calculator', description: 'Analyze rental properties' },
+                { href: '/calculators/refinance-calculator', label: 'Refinance Calculator', description: 'Refinance savings & break-even' },
             ]
         },
         {

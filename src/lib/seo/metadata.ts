@@ -101,25 +101,25 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
             'DTI ratio calculator',
             'mortgage qualification calculator',
             'loan qualification calculator',
-            'front-end DTI',
-            'back-end DTI',
-            'debt ratio calculator'
-        ],
-        canonical: `${BASE_URL}/calculators/dti-calculator`
-    },
-    'real-estate-calculator': {
-        title: 'Free Real Estate Investment Calculator (USA) | Rental Property Analysis - Loanly',
-        description: 'Calculate Cash on Cash Return, Cap Rate, and Cash Flow for US rental properties. Best free tool for real estate investors to analyze deals.',
-        keywords: [
-            'Real Estate Calculator',
-            'Rental Property Calculator',
-            'Cash on Cash Return',
             'Cap Rate Calculator',
             'BRRRR Calculator',
             'US Real Estate Investment',
             'Investment Property Calculator'
         ],
         canonical: `${BASE_URL}/calculators/real-estate-calculator`
+    },
+    'refinance-calculator': {
+        title: 'Refinance Calculator | Mortgage Refinance Savings & Break-Even - Loanly',
+        description: 'Calculate your mortgage refinance savings. Compare current vs new loan, see monthly and lifetime savings, and find your break-even point with our free refinance calculator.',
+        keywords: [
+            'refinance calculator',
+            'mortgage refinance calculator',
+            'refinance savings calculator',
+            'refinance break even calculator',
+            'should i refinance',
+            'mortgage refinance analysis'
+        ],
+        canonical: `${BASE_URL}/calculators/refinance-calculator`
     }
 };
 

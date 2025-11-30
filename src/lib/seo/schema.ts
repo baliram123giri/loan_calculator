@@ -180,5 +180,17 @@ export const calculatorSchemas = {
             { name: 'Calculators', url: `${BASE_URL}/calculators` },
             { name: 'Real Estate Calculator', url: `${BASE_URL}/calculators/real-estate-calculator` }
         ])
+    },
+    'refinance-calculator': {
+        software: generateSoftwareApplicationSchema(
+            'Refinance Calculator',
+            'Calculate mortgage refinance savings, break-even point, and lifetime interest savings. Compare current and new loan offers.',
+            `${BASE_URL}/calculators/refinance-calculator`
+        ),
+        breadcrumb: generateBreadcrumbSchema([
+            { name: 'Home', url: BASE_URL },
+            { name: 'Calculators', url: `${BASE_URL}/calculators` },
+            { name: 'Refinance Calculator', url: `${BASE_URL}/calculators/refinance-calculator` }
+        ])
     }
 };
