@@ -11,6 +11,7 @@ export default function NavBar() {
     const tabs = [
         { href: '/calculators/mortgage', label: 'Mortgage', icon: Home },
         { href: '/calculators/loan', label: 'Loan', icon: Calculator },
+        { href: '/calculators/dti-calculator', label: 'DTI Ratio', icon: Scale },
         { href: '/calculators/compare', label: 'Compare', icon: Scale },
         { href: '/calculators/simple-interest', label: 'Simple Interest', icon: Percent },
         { href: '/calculators/compound-interest', label: 'Compound Interest', icon: Percent },
