@@ -741,22 +741,4 @@ export default function RentalPropertyCalculator() {
                                 </button>
                             </div>
                         )}
-                    </div>
-
-                </div>
-
-                {/* Sidebar for Ads */}
-                <div className="lg:col-span-4 space-y-6">
-                    {/* AD PLACEHOLDER - Sidebar Top */}
-                    <div className="bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center sticky top-4">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Advertisement Space</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">(300x250 or 300x600)</p>
-                        <div className="h-64 flex items-center justify-center">
-                            <p className="text-gray-400">Ad Content</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div >
-    );
 }
