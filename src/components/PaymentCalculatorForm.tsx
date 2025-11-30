@@ -146,14 +146,14 @@ export default function PaymentCalculatorForm({
 
     return (
         <div className="space-y-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Payment Calculator</h2>
 
                 {/* Mode Toggle */}
-                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
                     <button
                         onClick={() => setMode('fixed-term')}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${mode === 'fixed-term'
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors cursor-pointer ${mode === 'fixed-term'
                             ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
@@ -162,7 +162,7 @@ export default function PaymentCalculatorForm({
                     </button>
                     <button
                         onClick={() => setMode('fixed-payment')}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${mode === 'fixed-payment'
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors cursor-pointer ${mode === 'fixed-payment'
                             ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
