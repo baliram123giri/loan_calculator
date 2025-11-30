@@ -259,8 +259,8 @@ export default function CompoundInterestPage() {
                                 </h3>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Compare interest rates. If you have credit card debt at 18%, pay that off first—you're guaranteed
-                                    an 18% "return" by eliminating that interest. Low-rate debt like a 3% mortgage? Invest instead, as 
-                                    you can likely earn 7-8% in the market. Always pay off high-interest debt (>7%) before investing,
+                                    an 18% "return" by eliminating that interest. Low-rate debt like a 3% mortgage? Invest instead, as
+                                    you can likely earn 7-8% in the market. Always pay off high-interest debt (&gt;7%) before investing,
                                     and build a 3-6 month emergency fund first.
                                 </p>
                             </div>
