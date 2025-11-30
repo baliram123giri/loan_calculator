@@ -192,5 +192,17 @@ export const calculatorSchemas = {
             { name: 'Calculators', url: `${BASE_URL}/calculators` },
             { name: 'Refinance Calculator', url: `${BASE_URL}/calculators/refinance-calculator` }
         ])
+    },
+    'rental-property-calculator': {
+        software: generateSoftwareApplicationSchema(
+            'Rental Property Calculator',
+            'Analyze rental property investments with cash flow, ROI, cap rate, NOI, and DSCR calculations. Get 30-year projections and tax benefit analysis.',
+            `${BASE_URL}/calculators/rental-property-calculator`
+        ),
+        breadcrumb: generateBreadcrumbSchema([
+            { name: 'Home', url: BASE_URL },
+            { name: 'Calculators', url: `${BASE_URL}/calculators` },
+            { name: 'Rental Property Calculator', url: `${BASE_URL}/calculators/rental-property-calculator` }
+        ])
     }
 };

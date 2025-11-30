@@ -133,6 +133,26 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
             'mortgage refinance analysis'
         ],
         canonical: `${BASE_URL}/calculators/refinance-calculator`
+    },
+    'rental-property-calculator': {
+        title: 'Rental Property Calculator | ROI, Cash Flow & Cap Rate Analysis - Loanly',
+        description: 'Free rental property calculator for real estate investors. Calculate cash flow, cash-on-cash return, cap rate, NOI, and DSCR. Analyze rental properties with 30-year projections and tax benefits.',
+        keywords: [
+            'rental property calculator',
+            'rental property ROI calculator',
+            'cash flow calculator',
+            'cap rate calculator',
+            'cash on cash return calculator',
+            'rental income calculator',
+            'investment property calculator',
+            'NOI calculator',
+            'DSCR calculator',
+            'real estate investment calculator',
+            'rental property analysis',
+            'buy and hold calculator',
+            'BRRRR calculator'
+        ],
+        canonical: `${BASE_URL}/calculators/rental-property-calculator`
     }
 };
 
