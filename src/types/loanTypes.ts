@@ -10,6 +10,7 @@ export interface LoanTypeConfig {
     minTenure: number;
     maxTenure: number;
     description: string;
+    defaultRate?: number;
 }
 
 export const LOAN_TYPES: Record<LoanType, LoanTypeConfig> = {

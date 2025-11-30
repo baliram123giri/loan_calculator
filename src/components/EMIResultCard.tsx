@@ -3,17 +3,18 @@ import { EMIResult } from '@/lib/calc/emi';
 
 interface EMIResultCardProps {
     result: EMIResult | null;
+    currencySymbol?: string;
 }
 
-export default function EMIResultCard({ result }: EMIResultCardProps) {
+export default function EMIResultCard({ result, currencySymbol = "$" }: EMIResultCardProps) {
     if (!result) return null;
 
     const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('en-IN', {
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'INR',
+            currency: 'USD',
             maximumFractionDigits: 0,
-        }).format(value);
+        }).format(value).replace('$', currencySymbol);
     };
 
     return (

@@ -103,3 +103,21 @@ export function calculateCompoundInterest(
         breakdown
     };
 }
+
+export function calculateAPY(
+    nominalRate: number,
+    compoundingFrequency: 'yearly' | 'half-yearly' | 'quarterly' | 'monthly' | 'daily'
+): number {
+    let n: number;
+    switch (compoundingFrequency) {
+        case 'yearly': n = 1; break;
+        case 'half-yearly': n = 2; break;
+        case 'quarterly': n = 4; break;
+        case 'monthly': n = 12; break;
+        case 'daily': n = 365; break;
+    }
+
+    const r = nominalRate / 100;
+    const apy = Math.pow(1 + r / n, n) - 1;
+    return Number((apy * 100).toFixed(2));
+}

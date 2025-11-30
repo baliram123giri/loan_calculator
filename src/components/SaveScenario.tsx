@@ -23,9 +23,10 @@ interface SaveScenarioProps {
     tenureMonths: number;
     result: EMIResult;
     onLoad?: (scenario: SavedScenario) => void;
+    currencySymbol?: string;
 }
 
-export default function SaveScenario({ loanType, principal, rate, tenureMonths, result, onLoad }: SaveScenarioProps) {
+export default function SaveScenario({ loanType, principal, rate, tenureMonths, result, onLoad, currencySymbol = "$" }: SaveScenarioProps) {
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [showLoadModal, setShowLoadModal] = useState(false);
     const [scenarioTitle, setScenarioTitle] = useState('');
@@ -184,13 +185,13 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
                                             </div>
                                         </div>
                                         <div className="text-sm text-gray-600 dark:text-gray-400">
-                                            <span>₹{scenario.principal.toLocaleString()}</span>
+                                            <span>{currencySymbol}{scenario.principal.toLocaleString()}</span>
                                             <span className="mx-2">•</span>
                                             <span>{scenario.rate}% p.a.</span>
                                             <span className="mx-2">•</span>
                                             <span>{scenario.tenureMonths} months</span>
                                             <span className="mx-2">•</span>
-                                            <span>EMI: ₹{scenario.result.emi.toLocaleString()}</span>
+                                            <span>EMI: {currencySymbol}{scenario.result.emi.toLocaleString()}</span>
                                         </div>
                                     </div>
                                 ))}

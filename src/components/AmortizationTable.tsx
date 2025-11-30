@@ -4,9 +4,10 @@ import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface AmortizationTableProps {
     schedule: AmortizationRow[];
+    currencySymbol?: string;
 }
 
-export default function AmortizationTable({ schedule }: AmortizationTableProps) {
+export default function AmortizationTable({ schedule, currencySymbol = "$" }: AmortizationTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [yearView, setYearView] = useState<'CY' | 'FY' | 'none'>('none');
     const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set());
@@ -67,16 +68,16 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
     }, [yearView]);
 
     const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('en-IN', {
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'INR',
+            currency: 'USD',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
-        }).format(value);
+        }).format(value).replace('$', currencySymbol);
     };
 
     const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat('en-IN', {
+        return new Intl.DateTimeFormat('en-US', {
             month: 'short',
             year: 'numeric'
         }).format(new Date(date));
@@ -102,8 +103,8 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                 <button
                     onClick={() => setYearView('none')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'none'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
                 >
                     All Months
@@ -111,8 +112,8 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                 <button
                     onClick={() => setYearView('CY')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'CY'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
                 >
                     Calendar Year
@@ -120,8 +121,8 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                 <button
                     onClick={() => setYearView('FY')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'FY'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
                 >
                     Financial Year

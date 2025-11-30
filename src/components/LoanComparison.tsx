@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { calculateEMI, EMIResult } from '@/lib/calc/emi';
 import { ArrowRight, TrendingDown, TrendingUp } from 'lucide-react';
 
-export default function LoanComparison() {
+export default function LoanComparison({ currencySymbol = "$" }: { currencySymbol?: string }) {
     const [loanA, setLoanA] = useState({ principal: 1000000, rate: 7.5, tenure: 20 });
     const [loanB, setLoanB] = useState({ principal: 1000000, rate: 8.0, tenure: 20 });
     const [resultA, setResultA] = useState<EMIResult | null>(null);
@@ -26,7 +26,7 @@ export default function LoanComparison() {
         }
     }, [loanA, loanB]);
 
-    const formatCurrency = (val: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+    const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val).replace('$', currencySymbol);
 
     const ComparisonCard = ({ title, loan, setLoan, result }: { title: string, loan: any, setLoan: any, result: EMIResult | null }) => (
         <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">

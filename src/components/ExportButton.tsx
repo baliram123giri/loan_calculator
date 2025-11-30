@@ -9,9 +9,10 @@ interface ExportButtonProps {
     principal: number;
     rate: number;
     tenureMonths: number;
+    currencySymbol?: string;
 }
 
-export default function ExportButton({ result, principal, rate, tenureMonths }: ExportButtonProps) {
+export default function ExportButton({ result, principal, rate, tenureMonths, currencySymbol = "$" }: ExportButtonProps) {
     const handleExportCSV = async () => {
         try {
             const response = await fetch('/api/export/csv', {
@@ -58,14 +59,14 @@ export default function ExportButton({ result, principal, rate, tenureMonths }: 
 
         // Loan Details
         doc.setFontSize(12);
-        doc.text(`Principal: ${principal.toLocaleString()}`, 14, 32);
+        doc.text(`Principal: ${currencySymbol}${principal.toLocaleString()}`, 14, 32);
         doc.text(`Interest Rate: ${rate}%`, 14, 38);
         doc.text(`Tenure: ${tenureMonths} months`, 14, 44);
-        doc.text(`EMI: ${result.emi.toLocaleString()}`, 14, 50);
+        doc.text(`EMI: ${currencySymbol}${result.emi.toLocaleString()}`, 14, 50);
 
         // Summary
-        doc.text(`Total Interest: ${result.totalInterest.toLocaleString()}`, 14, 60);
-        doc.text(`Total Payment: ${result.totalPayment.toLocaleString()}`, 14, 66);
+        doc.text(`Total Interest: ${currencySymbol}${result.totalInterest.toLocaleString()}`, 14, 60);
+        doc.text(`Total Payment: ${currencySymbol}${result.totalPayment.toLocaleString()}`, 14, 66);
 
         // Table
         const tableColumn = ["Month", "EMI", "Principal", "Interest", "Balance"];

@@ -1,176 +1,97 @@
-'use client';
+import React from 'react';
+import Link from 'next/link';
+import { Calculator, Scale, Percent, Receipt, PiggyBank, Home, DollarSign } from 'lucide-react';
 
-import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-import CalculatorForm from '@/components/CalculatorForm';
-import EMIResultCard from '@/components/EMIResultCard';
-import AmortizationTable from '@/components/AmortizationTable';
-import ExportButton from '@/components/ExportButton';
-import LoanTypeSelector from '@/components/LoanTypeSelector';
-import SaveScenario from '@/components/SaveScenario';
-import LoanComparison from '@/components/LoanComparison';
-import GSTCalculator from '@/components/GSTCalculator';
-import InterestCalculator from '@/components/InterestCalculator';
-import ChitFundCalculator from '@/components/ChitFundCalculator';
-import { EMIResult } from '@/lib/calc/emi';
-import { LoanType, LOAN_TYPES } from '@/types/loanTypes';
-import { Calculator, Scale, Percent, Receipt, PiggyBank } from 'lucide-react';
-
-const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
-const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
-
-type TabType = 'emi' | 'compare' | 'interest' | 'gst' | 'chit';
-
-export default function Home() {
-  const [result, setResult] = useState<EMIResult | null>(null);
-  const [loanParams, setLoanParams] = useState({ principal: 1000000, rate: 7.5, tenureMonths: 240 });
-  const [selectedLoanType, setSelectedLoanType] = useState<LoanType>('home');
-  const [activeTab, setActiveTab] = useState<TabType>('emi');
-
-  const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
-    setResult(newResult);
-    setLoanParams(params);
-  }, []);
-
-  const tabs = [
-    { id: 'emi', label: 'EMI Calculator', icon: Calculator },
-    { id: 'compare', label: 'Compare Loans', icon: Scale },
-    { id: 'interest', label: 'Interest Calc', icon: Percent },
-    { id: 'gst', label: 'GST Calc', icon: Receipt },
-    { id: 'chit', label: 'Chit Fund', icon: PiggyBank },
+export default function LandingPage() {
+  const tools = [
+    {
+      title: 'Mortgage Calculator',
+      description: 'Calculate monthly mortgage payments with taxes and insurance.',
+      icon: Home,
+      href: '/calculators/mortgage',
+      color: 'bg-blue-500'
+    },
+    {
+      title: 'Loan Calculator',
+      description: 'Generic loan calculator for personal, car, or education loans.',
+      icon: Calculator,
+      href: '/calculators/loan',
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Simple Interest',
+      description: 'Calculate simple interest with yearly breakdown.',
+      icon: Percent,
+      href: '/calculators/simple-interest',
+      color: 'bg-purple-500'
+    },
+    {
+      title: 'Compound Interest',
+      description: 'Calculate compound interest with multiple frequencies.',
+      icon: Percent,
+      href: '/calculators/compound-interest',
+      color: 'bg-indigo-500'
+    },
+    {
+      title: 'Sales Tax',
+      description: 'Calculate sales tax for any US state.',
+      icon: Receipt,
+      href: '/calculators/sales-tax',
+      color: 'bg-orange-500'
+    },
+    {
+      title: 'Property Tax',
+      description: 'Estimate property taxes based on home value.',
+      icon: DollarSign,
+      href: '/calculators/property-tax',
+      color: 'bg-teal-500'
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans text-gray-900 dark:text-gray-100">
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-              L
-            </div>
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              Loanly
-            </h1>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
+          US Finance Calculator Suite
+        </h1>
+        <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500 dark:text-gray-400">
+          Free, accurate, and easy-to-use financial calculators for your everyday needs.
+        </p>
+      </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
-                      ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                >
-                  <Icon size={18} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Mobile Navigation (Scrollable) */}
-        <div className="md:hidden overflow-x-auto border-t border-gray-100 dark:border-gray-800">
-          <div className="flex p-2 gap-2 min-w-max">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab.id
-                      ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                >
-                  <Icon size={18} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'emi' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Column: Inputs */}
-            <div className="lg:col-span-4 space-y-6">
-              <LoanTypeSelector
-                selectedType={selectedLoanType}
-                onTypeChange={setSelectedLoanType}
-              />
-              <CalculatorForm
-                onResultChange={handleResultChange}
-                loanTypeConfig={LOAN_TYPES[selectedLoanType]}
-              />
-            </div>
-
-            {/* Right Column: Results */}
-            <div className="lg:col-span-8 space-y-8">
-              {result && (
-                <>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1">
-                      <EMIResultCard result={result} />
-                    </div>
-                    <div className="flex items-start pt-2">
-                      <SaveScenario
-                        loanType={selectedLoanType}
-                        principal={loanParams.principal}
-                        rate={loanParams.rate}
-                        tenureMonths={loanParams.tenureMonths}
-                        result={result}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Charts */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
-                      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Total Payment Breakup</h3>
-                      <ChartBreakup
-                        principal={result.totalPayment - result.totalInterest}
-                        interest={result.totalInterest}
-                      />
-                    </div>
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
-                      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Balance Over Time</h3>
-                      <ChartBalance data={result.amortization} />
-                    </div>
-                  </div>
-
-                  <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                      <h3 className="text-lg font-bold">Amortization Schedule</h3>
-                      <ExportButton
-                        result={result}
-                        principal={loanParams.principal}
-                        rate={loanParams.rate}
-                        tenureMonths={loanParams.tenureMonths}
-                      />
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
-                      <AmortizationTable schedule={result.amortization} />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'compare' && <LoanComparison />}
-        {activeTab === 'interest' && <InterestCalculator />}
-        {activeTab === 'gst' && <GSTCalculator />}
-        {activeTab === 'chit' && <ChitFundCalculator />}
-      </main>
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className="relative group bg-white dark:bg-gray-900 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-800"
+            >
+              <div className={`rounded-lg inline-flex p-3 ring-4 ring-white dark:ring-gray-900 ${tool.color} text-white`}>
+                <Icon className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <div className="mt-8">
+                <h3 className="text-lg font-medium">
+                  <span className="absolute inset-0" aria-hidden="true" />
+                  {tool.title}
+                </h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {tool.description}
+                </p>
+              </div>
+              <span
+                className="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400"
+                aria-hidden="true"
+              >
+                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 4h1a1 1 0 00-1-1v1zm-1 12a1 1 0 102 0h-2zM8 3a1 1 0 000 2V3zM3.293 19.293a1 1 0 101.414 1.414l-1.414-1.414zM19 4v12h2V4h-2zm1-1H8v2h12V3zm-.707.293l-16 16 1.414 1.414 16-16-1.414-1.414z" />
+                </svg>
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
