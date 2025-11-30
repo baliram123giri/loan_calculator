@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
-import { Slider } from './Shared/Slider';
+
 import { AdvancedOptions } from './AdvancedOptions';
 import { calculateMonthlyPayment, calculateLoanTerm, generatePaymentAmortization, PaymentResult, Prepayment, RateChange } from '@/lib/calc/paymentCalc';
 
