@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
-import { calculateEMI, EMIResult, ExtraPayment } from '@/lib/calc/emi';
+import { calculateEMI, EMIResult, ExtraPayment, RateChange } from '@/lib/calc/emi';
 import { LoanTypeConfig } from '@/types/loanTypes';
 
 interface CalculatorFormProps {
@@ -26,24 +26,32 @@ export default function CalculatorForm({ onResultChange, loanTypeConfig }: Calcu
     const [newExtraStartMonth, setNewExtraStartMonth] = useState(1);
     const [showExtraForm, setShowExtraForm] = useState(false);
 
+    // Rate Changes state
+    const [rateChanges, setRateChanges] = useState<RateChange[]>([]);
+    const [newRateChangeMonth, setNewRateChangeMonth] = useState(13);
+    const [newRateChangeRate, setNewRateChangeRate] = useState(rate);
+    const [showRateForm, setShowRateForm] = useState(false);
+
     // Reset values when loan type changes
     useEffect(() => {
         setPrincipal(loanTypeConfig.minAmount);
         setRate((loanTypeConfig.minRate + loanTypeConfig.maxRate) / 2);
         setTenureYears(Math.floor((loanTypeConfig.minTenure + loanTypeConfig.maxTenure) / 2));
         setStartDate(new Date());
+        setStartDate(new Date());
         setExtraPayments([]);
+        setRateChanges([]);
     }, [loanTypeConfig]);
 
     useEffect(() => {
         try {
             const tenureMonths = tenureYears * 12;
-            const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate);
+            const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate, rateChanges);
             onResultChange(result, { principal, rate, tenureMonths });
         } catch (e) {
             console.error("Calculation error:", e);
         }
-    }, [principal, rate, tenureYears, extraPayments, startDate, onResultChange]);
+    }, [principal, rate, tenureYears, extraPayments, startDate, rateChanges, onResultChange]);
 
     const addExtraPayment = () => {
         setExtraPayments([
@@ -59,6 +67,21 @@ export default function CalculatorForm({ onResultChange, loanTypeConfig }: Calcu
 
     const removeExtraPayment = (index: number) => {
         setExtraPayments(extraPayments.filter((_, i) => i !== index));
+    };
+
+    const addRateChange = () => {
+        setRateChanges([
+            ...rateChanges,
+            {
+                month: newRateChangeMonth,
+                newRate: newRateChangeRate
+            }
+        ]);
+        setShowRateForm(false);
+    };
+
+    const removeRateChange = (index: number) => {
+        setRateChanges(rateChanges.filter((_, i) => i !== index));
     };
 
     return (
@@ -216,6 +239,77 @@ export default function CalculatorForm({ onResultChange, loanTypeConfig }: Calcu
                     ))}
                     {extraPayments.length === 0 && !showExtraForm && (
                         <p className="text-sm text-gray-500 italic">No extra payments added.</p>
+                    )}
+                </div>
+            </div>
+
+            {/* Rate Changes Section */}
+            <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Interest Rate Changes</h3>
+                    <button
+                        onClick={() => setShowRateForm(!showRateForm)}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                        {showRateForm ? 'Cancel' : '+ Add Rate Change'}
+                    </button>
+                </div>
+
+                {showRateForm && (
+                    <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg space-y-4 mb-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Effective Month</label>
+                                <input
+                                    type="number"
+                                    value={newRateChangeMonth}
+                                    onChange={(e) => setNewRateChangeMonth(Number(e.target.value))}
+                                    className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:bg-gray-950 dark:border-gray-800"
+                                    min="1"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">New Interest Rate (%)</label>
+                                <input
+                                    type="number"
+                                    value={newRateChangeRate}
+                                    onChange={(e) => setNewRateChangeRate(Number(e.target.value))}
+                                    className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:bg-gray-950 dark:border-gray-800"
+                                    step="0.1"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            onClick={addRateChange}
+                            className="w-full bg-blue-600 text-white rounded-md py-2 text-sm font-medium hover:bg-blue-700"
+                        >
+                            Add Rate Change
+                        </button>
+                    </div>
+                )}
+
+                <div className="space-y-2">
+                    {rateChanges.map((change, index) => (
+                        <div key={index} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm">
+                            <div>
+                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                    Month {change.month}
+                                </span>
+                                <span className="text-gray-500 mx-2">•</span>
+                                <span className="text-gray-600 dark:text-gray-400">
+                                    New Rate: {change.newRate}%
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => removeRateChange(index)}
+                                className="text-red-500 hover:text-red-600"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
+                    {rateChanges.length === 0 && !showRateForm && (
+                        <p className="text-sm text-gray-500 italic">No rate changes added.</p>
                     )}
                 </div>
             </div>

@@ -4,6 +4,11 @@ export type ExtraPayment = {
   startMonth?: number; // 1-based index
 };
 
+export type RateChange = {
+  month: number; // 1-based index (e.g., month 13 means starting from 13th month)
+  newRate: number;
+};
+
 export type AmortizationRow = {
   month: number;
   date: Date;
@@ -25,7 +30,8 @@ export function calculateEMI(
   annualRate: number,
   tenureMonths: number,
   extras: ExtraPayment[] = [],
-  startDate: Date = new Date()
+  startDate: Date = new Date(),
+  rateChanges: RateChange[] = []
 ): EMIResult {
   // Validations
   if (principal <= 0) throw new Error("Principal must be positive");
@@ -39,7 +45,8 @@ export function calculateEMI(
     return result;
   };
 
-  const r = annualRate / 12 / 100;
+  let currentAnnualRate = annualRate;
+  let r = currentAnnualRate / 12 / 100;
   let emi = 0;
 
   if (r === 0) {
@@ -49,8 +56,11 @@ export function calculateEMI(
     emi = (principal * r * pow) / (pow - 1);
   }
 
+  // Sort rate changes by month
+  const sortedRateChanges = [...rateChanges].sort((a, b) => a.month - b.month);
+
   // Round EMI to 2 decimal places for standard banking practice
-  const emiRounded = Math.round(emi * 100) / 100;
+  let emiRounded = Math.round(emi * 100) / 100;
 
   let balance = principal;
   let totalInterest = 0;
@@ -64,6 +74,27 @@ export function calculateEMI(
   const maxMonths = tenureMonths + 1200; // ample buffer
 
   for (let month = 1; month <= maxMonths; month++) {
+    // Check for rate change at the START of this month
+    const change = sortedRateChanges.find(rc => rc.month === month);
+    if (change) {
+      currentAnnualRate = change.newRate;
+      r = currentAnnualRate / 12 / 100;
+
+      // Recalculate EMI for remaining balance and remaining tenure
+      // Remaining tenure = Original Tenure - (month - 1)
+      // OR should we keep the original target date? 
+      // Usually "Recalculations" implies keeping the target tenure same if possible, so EMI changes.
+      const remainingMonths = Math.max(1, tenureMonths - (month - 1));
+
+      if (r === 0) {
+        emi = balance / remainingMonths;
+      } else {
+        const pow = Math.pow(1 + r, remainingMonths);
+        emi = (balance * r * pow) / (pow - 1);
+      }
+      emiRounded = Math.round(emi * 100) / 100;
+    }
+
     // Calculate interest for this month
     let interest = balance * r;
     interest = Math.round(interest * 100) / 100;
@@ -94,10 +125,6 @@ export function calculateEMI(
     if (totalMonthlyPayment > totalRequired) {
       totalMonthlyPayment = totalRequired;
     }
-
-    // If it's the scheduled last month (and no extra payments shortened it), 
-    // we might need to adjust slightly to clear dust?
-    // But the logic above handles "paying off remaining".
 
     // Principal part
     let principalPaid = totalMonthlyPayment - interest;

@@ -5,10 +5,11 @@ interface InputNumberProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     symbol?: string;
     error?: string;
+    helperText?: string;
 }
 
 export const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
-    ({ className, label, symbol, error, ...props }, ref) => {
+    ({ className, label, symbol, error, helperText, ...props }, ref) => {
         return (
             <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -32,6 +33,7 @@ export const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
                         {...props}
                     />
                 </div>
+                {helperText && !error && <span className="text-xs text-gray-500">{helperText}</span>}
                 {error && <span className="text-xs text-red-500">{error}</span>}
             </div>
         );

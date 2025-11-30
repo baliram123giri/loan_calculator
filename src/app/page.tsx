@@ -10,22 +10,35 @@ import LoanTypeSelector from '@/components/LoanTypeSelector';
 import SaveScenario from '@/components/SaveScenario';
 import LoanComparison from '@/components/LoanComparison';
 import GSTCalculator from '@/components/GSTCalculator';
+import InterestCalculator from '@/components/InterestCalculator';
+import ChitFundCalculator from '@/components/ChitFundCalculator';
 import { EMIResult } from '@/lib/calc/emi';
 import { LoanType, LOAN_TYPES } from '@/types/loanTypes';
+import { Calculator, Scale, Percent, Receipt, PiggyBank } from 'lucide-react';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
+
+type TabType = 'emi' | 'compare' | 'interest' | 'gst' | 'chit';
 
 export default function Home() {
   const [result, setResult] = useState<EMIResult | null>(null);
   const [loanParams, setLoanParams] = useState({ principal: 1000000, rate: 7.5, tenureMonths: 240 });
   const [selectedLoanType, setSelectedLoanType] = useState<LoanType>('home');
-  const [activeTab, setActiveTab] = useState<'calculator' | 'compare' | 'gst'>('calculator');
+  const [activeTab, setActiveTab] = useState<TabType>('emi');
 
   const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
     setResult(newResult);
     setLoanParams(params);
   }, []);
+
+  const tabs = [
+    { id: 'emi', label: 'EMI Calculator', icon: Calculator },
+    { id: 'compare', label: 'Compare Loans', icon: Scale },
+    { id: 'interest', label: 'Interest Calc', icon: Percent },
+    { id: 'gst', label: 'GST Calc', icon: Receipt },
+    { id: 'chit', label: 'Chit Fund', icon: PiggyBank },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans text-gray-900 dark:text-gray-100">
@@ -39,31 +52,53 @@ export default function Home() {
               Loanly
             </h1>
           </div>
-          <nav className="hidden md:flex gap-6 text-sm font-medium text-gray-600 dark:text-gray-400">
-            <button
-              onClick={() => setActiveTab('calculator')}
-              className={`hover:text-blue-600 dark:hover:text-blue-400 ${activeTab === 'calculator' ? 'text-blue-600 dark:text-blue-400' : ''}`}
-            >
-              EMI Calculator
-            </button>
-            <button
-              onClick={() => setActiveTab('compare')}
-              className={`hover:text-blue-600 dark:hover:text-blue-400 ${activeTab === 'compare' ? 'text-blue-600 dark:text-blue-400' : ''}`}
-            >
-              Compare Loans
-            </button>
-            <button
-              onClick={() => setActiveTab('gst')}
-              className={`hover:text-blue-600 dark:hover:text-blue-400 ${activeTab === 'gst' ? 'text-blue-600 dark:text-blue-400' : ''}`}
-            >
-              GST Calculator
-            </button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex gap-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabType)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
+                      ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                >
+                  <Icon size={18} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </nav>
+        </div>
+
+        {/* Mobile Navigation (Scrollable) */}
+        <div className="md:hidden overflow-x-auto border-t border-gray-100 dark:border-gray-800">
+          <div className="flex p-2 gap-2 min-w-max">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabType)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === tab.id
+                      ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                >
+                  <Icon size={18} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'calculator' ? (
+        {activeTab === 'emi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column: Inputs */}
             <div className="lg:col-span-4 space-y-6">
@@ -81,7 +116,7 @@ export default function Home() {
             <div className="lg:col-span-8 space-y-8">
               {result && (
                 <>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1">
                       <EMIResultCard result={result} />
                     </div>
@@ -129,11 +164,12 @@ export default function Home() {
               )}
             </div>
           </div>
-        ) : activeTab === 'compare' ? (
-          <LoanComparison />
-        ) : (
-          <GSTCalculator />
         )}
+
+        {activeTab === 'compare' && <LoanComparison />}
+        {activeTab === 'interest' && <InterestCalculator />}
+        {activeTab === 'gst' && <GSTCalculator />}
+        {activeTab === 'chit' && <ChitFundCalculator />}
       </main>
     </div>
   );
