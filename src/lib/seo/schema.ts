@@ -156,5 +156,17 @@ export const calculatorSchemas = {
             { name: 'Calculators', url: `${BASE_URL}/calculators` },
             { name: 'Property Tax Calculator', url: `${BASE_URL}/calculators/property-tax` }
         ])
+    },
+    'dti-calculator': {
+        software: generateSoftwareApplicationSchema(
+            'DTI Calculator - Debt-to-Income Ratio Calculator',
+            'Calculate your debt-to-income ratio to determine loan qualification. Get personalized recommendations and see if you qualify for conventional, FHA, or VA loans.',
+            `${BASE_URL}/calculators/dti-calculator`
+        ),
+        breadcrumb: generateBreadcrumbSchema([
+            { name: 'Home', url: BASE_URL },
+            { name: 'Calculators', url: `${BASE_URL}/calculators` },
+            { name: 'DTI Calculator', url: `${BASE_URL}/calculators/dti-calculator` }
+        ])
     }
 };

@@ -90,6 +90,22 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
             'real estate tax estimator'
         ],
         canonical: `${BASE_URL}/calculators/property-tax`
+    },
+    'dti-calculator': {
+        title: 'DTI Calculator – Debt-to-Income Ratio Calculator | Free Tool - Loanly',
+        description: 'Calculate your debt-to-income (DTI) ratio to determine loan qualification and financial health. Free DTI calculator with personalized recommendations and loan qualification status for conventional, FHA, and VA loans.',
+        keywords: [
+            'DTI calculator',
+            'debt-to-income ratio calculator',
+            'debt to income calculator',
+            'DTI ratio calculator',
+            'mortgage qualification calculator',
+            'loan qualification calculator',
+            'front-end DTI',
+            'back-end DTI',
+            'debt ratio calculator'
+        ],
+        canonical: `${BASE_URL}/calculators/dti-calculator`
     }
 };
 
