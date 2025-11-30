@@ -52,6 +52,13 @@ export default function LandingPage() {
       icon: Calculator,
       href: '/calculators/payment',
       color: 'bg-pink-500'
+    },
+    {
+      title: 'House Affordability',
+      description: 'Estimate how much house you can afford based on income and debts.',
+      icon: Home,
+      href: '/calculators/house-affordability',
+      color: 'bg-cyan-500'
     }
   ];
 
