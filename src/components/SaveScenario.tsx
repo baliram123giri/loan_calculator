@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { Save, FolderOpen } from 'lucide-react';
-import { EMIResult } from '@/lib/calc/emi';
+import { EMIResult, ExtraPayment, RateChange } from '@/lib/calc/emi';
 import { LoanType } from '@/types/loanTypes';
+import { useToast } from '@/components/Toast';
 
 interface SavedScenario {
     id: string;
@@ -12,6 +13,9 @@ interface SavedScenario {
     principal: number;
     rate: number;
     tenureMonths: number;
+    startDate: string;
+    extraPayments: ExtraPayment[];
+    rateChanges: RateChange[];
     result: EMIResult;
     createdAt: string;
 }
@@ -21,16 +25,32 @@ interface SaveScenarioProps {
     principal: number;
     rate: number;
     tenureMonths: number;
+    startDate?: Date;
+    extraPayments?: ExtraPayment[];
+    rateChanges?: RateChange[];
     result: EMIResult;
     onLoad?: (scenario: SavedScenario) => void;
     currencySymbol?: string;
 }
 
-export default function SaveScenario({ loanType, principal, rate, tenureMonths, result, onLoad, currencySymbol = "$" }: SaveScenarioProps) {
+export default function SaveScenario({
+    loanType,
+    principal,
+    rate,
+    tenureMonths,
+    startDate = new Date(),
+    extraPayments = [],
+    rateChanges = [],
+    result,
+    onLoad,
+    currencySymbol = "$"
+}: SaveScenarioProps) {
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [showLoadModal, setShowLoadModal] = useState(false);
     const [scenarioTitle, setScenarioTitle] = useState('');
     const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+    const { showToast } = useToast();
 
     const loadScenarios = () => {
         try {
@@ -40,12 +60,13 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
             }
         } catch (error) {
             console.error('Error loading scenarios:', error);
+            showToast('Failed to load scenarios', 'error');
         }
     };
 
     const handleSave = () => {
         if (!scenarioTitle.trim()) {
-            alert('Please enter a title for this scenario');
+            showToast('Please enter a title for this scenario', 'error');
             return;
         }
 
@@ -56,6 +77,9 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
             principal,
             rate,
             tenureMonths,
+            startDate: startDate.toISOString(),
+            extraPayments,
+            rateChanges,
             result,
             createdAt: new Date().toISOString()
         };
@@ -68,10 +92,10 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
 
             setScenarioTitle('');
             setShowSaveModal(false);
-            alert('Scenario saved successfully!');
+            showToast('Scenario saved successfully!', 'success');
         } catch (error) {
             console.error('Error saving scenario:', error);
-            alert('Failed to save scenario');
+            showToast('Failed to save scenario', 'error');
         }
     };
 
@@ -80,21 +104,23 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
             onLoad(scenario);
         }
         setShowLoadModal(false);
+        showToast('Scenario loaded successfully!', 'success');
     };
 
     const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this scenario?')) {
-            try {
-                const stored = localStorage.getItem('loanly_scenarios');
-                if (stored) {
-                    const scenarios: SavedScenario[] = JSON.parse(stored);
-                    const filtered = scenarios.filter(s => s.id !== id);
-                    localStorage.setItem('loanly_scenarios', JSON.stringify(filtered));
-                    setSavedScenarios(filtered);
-                }
-            } catch (error) {
-                console.error('Error deleting scenario:', error);
+        try {
+            const stored = localStorage.getItem('loanly_scenarios');
+            if (stored) {
+                const scenarios: SavedScenario[] = JSON.parse(stored);
+                const filtered = scenarios.filter(s => s.id !== id);
+                localStorage.setItem('loanly_scenarios', JSON.stringify(filtered));
+                setSavedScenarios(filtered);
+                setShowDeleteConfirm(null);
+                showToast('Scenario deleted successfully!', 'success');
             }
+        } catch (error) {
+            console.error('Error deleting scenario:', error);
+            showToast('Failed to delete scenario', 'error');
         }
     };
 
@@ -177,7 +203,7 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
                                                     Load
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(scenario.id)}
+                                                    onClick={() => setShowDeleteConfirm(scenario.id)}
                                                     className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
                                                 >
                                                     Delete
@@ -204,6 +230,32 @@ export default function SaveScenario({ loanType, principal, rate, tenureMonths, 
                         >
                             Close
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowDeleteConfirm(null)}>
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Delete Scenario?</h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                            Are you sure you want to delete this scenario? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => handleDelete(showDeleteConfirm)}
+                                className="flex-1 bg-red-600 text-white rounded-lg py-2 font-medium hover:bg-red-700"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={() => setShowDeleteConfirm(null)}
+                                className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg py-2 font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

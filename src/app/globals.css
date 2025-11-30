@@ -25,37 +25,54 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Toast Animation */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
 /* React DatePicker Dark Mode Styles */
 @media (prefers-color-scheme: dark) {
   .react-datepicker {
     background-color: #1f2937;
     border-color: #374151;
   }
-  
+
   .react-datepicker__header {
     background-color: #111827;
     border-bottom-color: #374151;
   }
-  
+
   .react-datepicker__current-month,
   .react-datepicker__day-name {
     color: #f3f4f6;
   }
-  
+
   .react-datepicker__day {
     color: #d1d5db;
   }
-  
+
   .react-datepicker__day:hover {
     background-color: #374151;
   }
-  
+
   .react-datepicker__day--selected,
   .react-datepicker__day--keyboard-selected {
     background-color: #2563eb;
     color: white;
   }
-  
+
   .react-datepicker__day--disabled {
     color: #6b7280;
   }

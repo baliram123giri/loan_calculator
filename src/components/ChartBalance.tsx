@@ -15,9 +15,10 @@ import { AmortizationRow } from '@/lib/calc/emi';
 
 interface ChartBalanceProps {
     data: AmortizationRow[];
+    currencySymbol?: string;
 }
 
-export default function ChartBalance({ data }: ChartBalanceProps) {
+export default function ChartBalance({ data, currencySymbol = "$" }: ChartBalanceProps) {
     // Downsample data if too large for performance
     const chartData = data.length > 100
         ? data.filter((_, i) => i % Math.ceil(data.length / 100) === 0 || i === data.length - 1)
@@ -43,10 +44,10 @@ export default function ChartBalance({ data }: ChartBalanceProps) {
                     />
                     <YAxis
                         stroke="#9ca3af"
-                        tickFormatter={(value) => `₹${value / 1000}k`}
+                        tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
                     />
                     <Tooltip
-                        formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
+                        formatter={(value: number) => [`${currencySymbol}${value.toLocaleString()}`, '']}
                         contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
                     <Legend />

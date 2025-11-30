@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { Mail, MessageSquare, HelpCircle } from 'lucide-react';
+import ContactForm from '@/components/ContactForm';
 
 export const metadata: Metadata = {
     title: 'Contact Us - Loanly | Get in Touch',
@@ -45,7 +46,9 @@ export default function ContactPage() {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 mb-8">
+            <ContactForm />
+
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 mt-8">
                 <MessageSquare className="w-10 h-10 text-purple-600 mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">What We Can Help With</h2>
                 <ul className="space-y-3 text-gray-700 dark:text-gray-300">
@@ -68,7 +71,7 @@ export default function ContactPage() {
                 </ul>
             </div>
 
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl border border-yellow-200 dark:border-yellow-800 p-8">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl border border-yellow-200 dark:border-yellow-800 p-8 mt-8">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Important Note</h2>
                 <p className="text-gray-700 dark:text-gray-300 mb-4">
                     <strong>We cannot provide personalized financial advice.</strong> Our calculators are tools for informational purposes only. For specific financial guidance regarding your situation, please consult with:

@@ -133,8 +133,8 @@ export default function AmortizationTable({ schedule, currencySymbol = "$" }: Am
                 <table className="w-full text-sm text-left">
                     <thead className="bg-gray-50 text-gray-500 font-medium dark:bg-gray-900 dark:text-gray-400">
                         <tr>
+                            <th className="px-4 py-3">Sr</th>
                             <th className="px-4 py-3">Month</th>
-                            <th className="px-4 py-3">Date</th>
                             <th className="px-4 py-3">Principal</th>
                             <th className="px-4 py-3">Interest</th>
                             <th className="px-4 py-3">Total Payment</th>
@@ -169,23 +169,25 @@ export default function AmortizationTable({ schedule, currencySymbol = "$" }: Am
                                     <React.Fragment key={year}>
                                         {/* Year Header - Clickable Accordion */}
                                         <tr
-                                            className="bg-gray-100 dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                            className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                                             onClick={() => toggleYear(year)}
                                         >
-                                            <td colSpan={2} className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                                                {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                                                {year}
+                                            <td colSpan={2} className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800">
+                                                <div className="flex items-center gap-2">
+                                                    {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                                                    {year}
+                                                </div>
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400 font-semibold">
+                                            <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400 font-semibold bg-gray-100 dark:bg-gray-800">
                                                 {formatCurrency(yearTotals.principal)}
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-orange-600 dark:text-orange-400 font-semibold">
+                                            <td className="px-4 py-3 text-sm text-orange-600 dark:text-orange-400 font-semibold bg-gray-100 dark:bg-gray-800">
                                                 {formatCurrency(yearTotals.interest)}
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                                            <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800">
                                                 {formatCurrency(yearTotals.payment)}
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                            <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-semibold bg-gray-100 dark:bg-gray-800">
                                                 {rows.length} months
                                             </td>
                                         </tr>
