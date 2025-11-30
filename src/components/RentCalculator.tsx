@@ -202,7 +202,7 @@ export default function RentCalculator() {
                                             type="number"
                                             value={income}
                                             onChange={(e) => setIncome(Number(e.target.value))}
-                                            className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                         />
                                     </div>
                                 </div>
@@ -218,7 +218,7 @@ export default function RentCalculator() {
                                             type="number"
                                             value={debt}
                                             onChange={(e) => setDebt(Number(e.target.value))}
-                                            className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                         />
                                         <p className="mt-1 text-xs text-gray-500">Credit cards, car loans, student loans, etc.</p>
                                     </div>
@@ -237,7 +237,7 @@ export default function RentCalculator() {
                                         type="number"
                                         value={rent}
                                         onChange={(e) => setRent(Number(e.target.value))}
-                                        className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
                             </div>
@@ -255,7 +255,7 @@ export default function RentCalculator() {
                                     type="number"
                                     value={utilities}
                                     onChange={(e) => setUtilities(Number(e.target.value))}
-                                    className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                 />
                                 <p className="mt-1 text-xs text-gray-500">Electric, gas, water, internet, etc.</p>
                             </div>
@@ -273,7 +273,7 @@ export default function RentCalculator() {
                                     type="number"
                                     value={savings}
                                     onChange={(e) => setSavings(Number(e.target.value))}
-                                    className="block w-full pl-7 pr-12 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                 />
                                 <p className="mt-1 text-xs text-gray-500">Emergency fund, retirement, investments</p>
                             </div>
@@ -290,7 +290,10 @@ export default function RentCalculator() {
                                     max="50"
                                     value={ratio}
                                     onChange={(e) => setRatio(Number(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-blue-600"
+                                    style={{
+                                        background: `linear-gradient(to right, #2563eb 0%, #2563eb ${(ratio - 10) / 0.4}%, #e5e7eb ${(ratio - 10) / 0.4}%, #e5e7eb 100%)`
+                                    }}
                                 />
                                 <span className="text-lg font-semibold text-blue-600 dark:text-blue-400 w-12">
                                     {ratio}%
@@ -306,17 +309,17 @@ export default function RentCalculator() {
                     <div className="space-y-6">
                         {result && (
                             <>
-                                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-100 dark:border-blue-800">
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                                <div className="bg-blue-600 text-white p-8 rounded-2xl shadow-lg text-center">
+                                    <p className="text-lg opacity-90 mb-2">
                                         {mode === 'affordability' ? 'You Can Afford' : 'You Need Annual Income'}
                                     </p>
-                                    <div className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+                                    <div className="text-5xl font-bold mb-4">
                                         {mode === 'affordability'
                                             ? formatCurrency(result.affordableRent)
                                             : formatCurrency(result.requiredAnnualIncome)
                                         }
                                     </div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                    <p className="text-sm opacity-80">
                                         {mode === 'affordability'
                                             ? '/ month in rent'
                                             : `(approx. ${formatCurrency(result.requiredMonthlyIncome)} / month)`
