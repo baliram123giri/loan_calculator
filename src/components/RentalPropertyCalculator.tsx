@@ -145,419 +145,396 @@ export default function RentalPropertyCalculator() {
 
     return (
         <div className="space-y-6">
-            {/* AD PLACEHOLDER - Top Banner */}
-            <div className="bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Advertisement Space (728x90)</p>
-            </div>
+            {/* Main Content Area */}
+            <div className="space-y-6">
+                {/* Input Section */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                        <Building2 className="text-blue-600" size={28} />
+                        Property Details
+                    </h2>
 
-            {/* Main Layout with Sidebar for Ads */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Main Content Area */}
-                <div className="lg:col-span-8 space-y-6">
-                    {/* Input Section */}
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                            <Building2 className="text-blue-600" size={28} />
-                            Property Details
-                        </h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {/* Purchase Details */}
+                        <div className="space-y-4">
+                            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Home size={18} className="text-blue-600" />
+                                Purchase Information
+                            </h3>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {/* Purchase Details */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Home size={18} className="text-blue-600" />
-                                    Purchase Information
-                                </h3>
+                            <InputNumber
+                                label="Purchase Price"
+                                value={input.purchasePrice}
+                                onChange={(val) => updateInput('purchasePrice', val)}
+                                prefix="$"
+                                step={1000}
+                                icon={<DollarSign size={18} />}
+                            />
+
+                            <InputNumber
+                                label="Down Payment"
+                                value={input.downPaymentPercent}
+                                onChange={(val) => updateInput('downPaymentPercent', val)}
+                                suffix="%"
+                                step={1}
+                                min={0}
+                                max={100}
+                                icon={<Percent size={18} />}
+                                tooltip="Typical: 20-25% for investment properties"
+                            />
+
+                            <InputNumber
+                                label="Closing Costs"
+                                value={input.closingCosts}
+                                onChange={(val) => updateInput('closingCosts', val)}
+                                prefix="$"
+                                step={100}
+                                icon={<FileText size={18} />}
+                                tooltip="Usually 2-5% of purchase price"
+                            />
+
+                            <InputNumber
+                                label="Rehab/Renovation Costs"
+                                value={input.rehabCosts}
+                                onChange={(val) => updateInput('rehabCosts', val)}
+                                prefix="$"
+                                step={500}
+                                icon={<Building2 size={18} />}
+                            />
+                        </div>
+
+                        {/* Financing */}
+                        <div className="space-y-4">
+                            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Calculator size={18} className="text-blue-600" />
+                                Financing
+                            </h3>
+
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Loan Amount</p>
+                                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                    {formatCurrency(results.loanAmount)}
+                                </p>
+                            </div>
+
+                            <InputNumber
+                                label="Interest Rate"
+                                value={input.interestRate}
+                                onChange={(val) => updateInput('interestRate', val)}
+                                suffix="%"
+                                step={0.125}
+                                icon={<Percent size={18} />}
+                            />
+
+                            <InputNumber
+                                label="Loan Term"
+                                value={input.loanTerm}
+                                onChange={(val) => updateInput('loanTerm', val)}
+                                suffix="years"
+                                step={5}
+                                min={10}
+                                max={30}
+                                icon={<TrendingUp size={18} />}
+                            />
+
+                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</p>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                    {formatCurrency(results.monthlyPayment)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Income Section */}
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <DollarSign size={18} className="text-green-600" />
+                            Rental Income
+                        </h3>
+
+                        <div className="grid md:grid-cols-3 gap-4">
+                            <InputNumber
+                                label="Monthly Rent"
+                                value={input.monthlyRent}
+                                onChange={(val) => updateInput('monthlyRent', val)}
+                                prefix="$"
+                                step={50}
+                                icon={<Home size={18} />}
+                            />
+
+                            <InputNumber
+                                label="Other Monthly Income"
+                                value={input.otherMonthlyIncome}
+                                onChange={(val) => updateInput('otherMonthlyIncome', val)}
+                                prefix="$"
+                                step={10}
+                                icon={<Wallet size={18} />}
+                                tooltip="Laundry, parking, storage, etc."
+                            />
+
+                            <InputNumber
+                                label="Annual Rent Increase"
+                                value={input.annualRentIncrease}
+                                onChange={(val) => updateInput('annualRentIncrease', val)}
+                                suffix="%"
+                                step={0.5}
+                                icon={<TrendingUp size={18} />}
+                                tooltip="Typical: 2-4% per year"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Operating Expenses */}
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                            onClick={() => setShowAdvanced(!showAdvanced)}
+                            className="w-full flex items-center justify-between text-left font-semibold text-gray-900 dark:text-white mb-4"
+                        >
+                            <span className="flex items-center gap-2">
+                                <PiggyBank size={18} className="text-orange-600" />
+                                Operating Expenses
+                            </span>
+                            {showAdvanced ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </button>
+
+                        {showAdvanced && (
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <InputNumber
+                                    label="Annual Property Tax"
+                                    value={input.annualPropertyTax}
+                                    onChange={(val) => updateInput('annualPropertyTax', val)}
+                                    prefix="$"
+                                    step={100}
+                                    icon={<FileText size={18} />}
+                                />
 
                                 <InputNumber
-                                    label="Purchase Price"
-                                    value={input.purchasePrice}
-                                    onChange={(val) => updateInput('purchasePrice', val)}
+                                    label="Annual Insurance"
+                                    value={input.annualInsurance}
+                                    onChange={(val) => updateInput('annualInsurance', val)}
                                     prefix="$"
-                                    step={1000}
+                                    step={50}
+                                    icon={<FileText size={18} />}
+                                />
+
+                                <InputNumber
+                                    label="Monthly HOA Fees"
+                                    value={input.monthlyHOA}
+                                    onChange={(val) => updateInput('monthlyHOA', val)}
+                                    prefix="$"
+                                    step={10}
+                                    icon={<Building2 size={18} />}
+                                />
+
+                                <InputNumber
+                                    label="Property Management"
+                                    value={input.propertyManagementPercent}
+                                    onChange={(val) => updateInput('propertyManagementPercent', val)}
+                                    suffix="% of rent"
+                                    step={1}
+                                    icon={<Percent size={18} />}
+                                    tooltip="Typical: 8-12% of monthly rent"
+                                />
+
+                                <InputNumber
+                                    label="Maintenance & Repairs"
+                                    value={input.maintenancePercent}
+                                    onChange={(val) => updateInput('maintenancePercent', val)}
+                                    suffix="% of rent"
+                                    step={1}
+                                    icon={<Percent size={18} />}
+                                    tooltip="Typical: 10-15% of monthly rent"
+                                />
+
+                                <InputNumber
+                                    label="Vacancy Rate"
+                                    value={input.vacancyRatePercent}
+                                    onChange={(val) => updateInput('vacancyRatePercent', val)}
+                                    suffix="%"
+                                    step={1}
+                                    icon={<Percent size={18} />}
+                                    tooltip="Typical: 5-10% depending on market"
+                                />
+
+                                <InputNumber
+                                    label="Monthly Utilities (if paid)"
+                                    value={input.monthlyUtilities}
+                                    onChange={(val) => updateInput('monthlyUtilities', val)}
+                                    prefix="$"
+                                    step={10}
                                     icon={<DollarSign size={18} />}
                                 />
 
                                 <InputNumber
-                                    label="Down Payment"
-                                    value={input.downPaymentPercent}
-                                    onChange={(val) => updateInput('downPaymentPercent', val)}
+                                    label="CapEx Reserves"
+                                    value={input.capexReservePercent}
+                                    onChange={(val) => updateInput('capexReservePercent', val)}
+                                    suffix="% of rent"
+                                    step={1}
+                                    icon={<Percent size={18} />}
+                                    tooltip="Capital expenditures: roof, HVAC, etc. Typical: 5-10%"
+                                />
+
+                                <InputNumber
+                                    label="Marginal Tax Rate"
+                                    value={input.marginalTaxRate}
+                                    onChange={(val) => updateInput('marginalTaxRate', val)}
                                     suffix="%"
                                     step={1}
-                                    min={0}
-                                    max={100}
                                     icon={<Percent size={18} />}
-                                    tooltip="Typical: 20-25% for investment properties"
                                 />
 
                                 <InputNumber
-                                    label="Closing Costs"
-                                    value={input.closingCosts}
-                                    onChange={(val) => updateInput('closingCosts', val)}
-                                    prefix="$"
-                                    step={100}
-                                    icon={<FileText size={18} />}
-                                    tooltip="Usually 2-5% of purchase price"
-                                />
-
-                                <InputNumber
-                                    label="Rehab/Renovation Costs"
-                                    value={input.rehabCosts}
-                                    onChange={(val) => updateInput('rehabCosts', val)}
-                                    prefix="$"
-                                    step={500}
-                                    icon={<Building2 size={18} />}
-                                />
-                            </div>
-
-                            {/* Financing */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Calculator size={18} className="text-blue-600" />
-                                    Financing
-                                </h3>
-
-                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Loan Amount</p>
-                                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                        {formatCurrency(results.loanAmount)}
-                                    </p>
-                                </div>
-
-                                <InputNumber
-                                    label="Interest Rate"
-                                    value={input.interestRate}
-                                    onChange={(val) => updateInput('interestRate', val)}
+                                    label="Building Value (vs Land)"
+                                    value={input.buildingValuePercent}
+                                    onChange={(val) => updateInput('buildingValuePercent', val)}
                                     suffix="%"
-                                    step={0.125}
-                                    icon={<Percent size={18} />}
-                                />
-
-                                <InputNumber
-                                    label="Loan Term"
-                                    value={input.loanTerm}
-                                    onChange={(val) => updateInput('loanTerm', val)}
-                                    suffix="years"
                                     step={5}
-                                    min={10}
-                                    max={30}
-                                    icon={<TrendingUp size={18} />}
-                                />
-
-                                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Payment</p>
-                                    <p className="text-xl font-bold text-gray-900 dark:text-white">
-                                        {formatCurrency(results.monthlyPayment)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Income Section */}
-                        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                <DollarSign size={18} className="text-green-600" />
-                                Rental Income
-                            </h3>
-
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <InputNumber
-                                    label="Monthly Rent"
-                                    value={input.monthlyRent}
-                                    onChange={(val) => updateInput('monthlyRent', val)}
-                                    prefix="$"
-                                    step={50}
-                                    icon={<Home size={18} />}
+                                    icon={<Percent size={18} />}
+                                    tooltip="For depreciation. Typical: 75-85%"
                                 />
 
                                 <InputNumber
-                                    label="Other Monthly Income"
-                                    value={input.otherMonthlyIncome}
-                                    onChange={(val) => updateInput('otherMonthlyIncome', val)}
-                                    prefix="$"
-                                    step={10}
-                                    icon={<Wallet size={18} />}
-                                    tooltip="Laundry, parking, storage, etc."
-                                />
-
-                                <InputNumber
-                                    label="Annual Rent Increase"
-                                    value={input.annualRentIncrease}
-                                    onChange={(val) => updateInput('annualRentIncrease', val)}
+                                    label="Annual Appreciation"
+                                    value={input.annualAppreciation}
+                                    onChange={(val) => updateInput('annualAppreciation', val)}
                                     suffix="%"
                                     step={0.5}
                                     icon={<TrendingUp size={18} />}
-                                    tooltip="Typical: 2-4% per year"
+                                    tooltip="Historical average: 3-4% per year"
                                 />
                             </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Key Metrics Dashboard */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg p-6 border border-blue-200 dark:border-blue-800">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Key Investment Metrics</h2>
+
+                    <div className="grid md:grid-cols-3 gap-4 mb-6">
+                        {/* Monthly Cash Flow */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Cash Flow</p>
+                                {results.monthlyCashFlow >= 0 ? (
+                                    <CheckCircle2 size={18} className="text-green-600" />
+                                ) : (
+                                    <XCircle size={18} className="text-red-600" />
+                                )}
+                            </div>
+                            <p className={`text-3xl font-bold ${results.monthlyCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {formatCurrency(results.monthlyCashFlow)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Annual: {formatCurrency(results.annualCashFlow)}
+                            </p>
                         </div>
 
-                        {/* Operating Expenses */}
-                        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <button
-                                onClick={() => setShowAdvanced(!showAdvanced)}
-                                className="w-full flex items-center justify-between text-left font-semibold text-gray-900 dark:text-white mb-4"
-                            >
-                                <span className="flex items-center gap-2">
-                                    <PiggyBank size={18} className="text-orange-600" />
-                                    Operating Expenses
-                                </span>
-                                {showAdvanced ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                            </button>
+                        {/* Cash-on-Cash Return */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Cash-on-Cash Return</p>
+                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                {formatPercent(results.cashOnCashReturn)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Target: 8-12%
+                            </p>
+                        </div>
 
-                            {showAdvanced && (
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <InputNumber
-                                        label="Annual Property Tax"
-                                        value={input.annualPropertyTax}
-                                        onChange={(val) => updateInput('annualPropertyTax', val)}
-                                        prefix="$"
-                                        step={100}
-                                        icon={<FileText size={18} />}
-                                    />
-
-                                    <InputNumber
-                                        label="Annual Insurance"
-                                        value={input.annualInsurance}
-                                        onChange={(val) => updateInput('annualInsurance', val)}
-                                        prefix="$"
-                                        step={50}
-                                        icon={<FileText size={18} />}
-                                    />
-
-                                    <InputNumber
-                                        label="Monthly HOA Fees"
-                                        value={input.monthlyHOA}
-                                        onChange={(val) => updateInput('monthlyHOA', val)}
-                                        prefix="$"
-                                        step={10}
-                                        icon={<Building2 size={18} />}
-                                    />
-
-                                    <InputNumber
-                                        label="Property Management"
-                                        value={input.propertyManagementPercent}
-                                        onChange={(val) => updateInput('propertyManagementPercent', val)}
-                                        suffix="% of rent"
-                                        step={1}
-                                        icon={<Percent size={18} />}
-                                        tooltip="Typical: 8-12% of monthly rent"
-                                    />
-
-                                    <InputNumber
-                                        label="Maintenance & Repairs"
-                                        value={input.maintenancePercent}
-                                        onChange={(val) => updateInput('maintenancePercent', val)}
-                                        suffix="% of rent"
-                                        step={1}
-                                        icon={<Percent size={18} />}
-                                        tooltip="Typical: 10-15% of monthly rent"
-                                    />
-
-                                    <InputNumber
-                                        label="Vacancy Rate"
-                                        value={input.vacancyRatePercent}
-                                        onChange={(val) => updateInput('vacancyRatePercent', val)}
-                                        suffix="%"
-                                        step={1}
-                                        icon={<Percent size={18} />}
-                                        tooltip="Typical: 5-10% depending on market"
-                                    />
-
-                                    <InputNumber
-                                        label="Monthly Utilities (if paid)"
-                                        value={input.monthlyUtilities}
-                                        onChange={(val) => updateInput('monthlyUtilities', val)}
-                                        prefix="$"
-                                        step={10}
-                                        icon={<DollarSign size={18} />}
-                                    />
-
-                                    <InputNumber
-                                        label="CapEx Reserves"
-                                        value={input.capexReservePercent}
-                                        onChange={(val) => updateInput('capexReservePercent', val)}
-                                        suffix="% of rent"
-                                        step={1}
-                                        icon={<Percent size={18} />}
-                                        tooltip="Capital expenditures: roof, HVAC, etc. Typical: 5-10%"
-                                    />
-
-                                    <InputNumber
-                                        label="Marginal Tax Rate"
-                                        value={input.marginalTaxRate}
-                                        onChange={(val) => updateInput('marginalTaxRate', val)}
-                                        suffix="%"
-                                        step={1}
-                                        icon={<Percent size={18} />}
-                                    />
-
-                                    <InputNumber
-                                        label="Building Value (vs Land)"
-                                        value={input.buildingValuePercent}
-                                        onChange={(val) => updateInput('buildingValuePercent', val)}
-                                        suffix="%"
-                                        step={5}
-                                        icon={<Percent size={18} />}
-                                        tooltip="For depreciation. Typical: 75-85%"
-                                    />
-
-                                    <InputNumber
-                                        label="Annual Appreciation"
-                                        value={input.annualAppreciation}
-                                        onChange={(val) => updateInput('annualAppreciation', val)}
-                                        suffix="%"
-                                        step={0.5}
-                                        icon={<TrendingUp size={18} />}
-                                        tooltip="Historical average: 3-4% per year"
-                                    />
-                                </div>
-                            )}
+                        {/* Cap Rate */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Cap Rate</p>
+                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                                {formatPercent(results.capRate)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                NOI: {formatCurrency(results.noi)}
+                            </p>
                         </div>
                     </div>
 
-                    {/* Key Metrics Dashboard */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl shadow-lg p-6 border border-blue-200 dark:border-blue-800">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Key Investment Metrics</h2>
-
-                        <div className="grid md:grid-cols-3 gap-4 mb-6">
-                            {/* Monthly Cash Flow */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <div className="flex items-center justify-between mb-2">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Cash Flow</p>
-                                    {results.monthlyCashFlow >= 0 ? (
-                                        <CheckCircle2 size={18} className="text-green-600" />
-                                    ) : (
-                                        <XCircle size={18} className="text-red-600" />
-                                    )}
-                                </div>
-                                <p className={`text-3xl font-bold ${results.monthlyCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {formatCurrency(results.monthlyCashFlow)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Annual: {formatCurrency(results.annualCashFlow)}
-                                </p>
+                    <div className="grid md:grid-cols-3 gap-4">
+                        {/* DSCR */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">DSCR</p>
+                                {results.dscr >= 1.25 ? (
+                                    <CheckCircle2 size={18} className="text-green-600" />
+                                ) : (
+                                    <AlertCircle size={18} className="text-orange-600" />
+                                )}
                             </div>
-
-                            {/* Cash-on-Cash Return */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Cash-on-Cash Return</p>
-                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                                    {formatPercent(results.cashOnCashReturn)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Target: 8-12%
-                                </p>
-                            </div>
-
-                            {/* Cap Rate */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Cap Rate</p>
-                                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                    {formatPercent(results.capRate)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    NOI: {formatCurrency(results.noi)}
-                                </p>
-                            </div>
+                            <p className={`text-3xl font-bold ${results.dscr >= 1.25 ? 'text-green-600' : 'text-orange-600'}`}>
+                                {results.dscr.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Lender Min: 1.25
+                            </p>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-4">
-                            {/* DSCR */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <div className="flex items-center justify-between mb-2">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">DSCR</p>
-                                    {results.dscr >= 1.25 ? (
-                                        <CheckCircle2 size={18} className="text-green-600" />
-                                    ) : (
-                                        <AlertCircle size={18} className="text-orange-600" />
-                                    )}
-                                </div>
-                                <p className={`text-3xl font-bold ${results.dscr >= 1.25 ? 'text-green-600' : 'text-orange-600'}`}>
-                                    {results.dscr.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Lender Min: 1.25
-                                </p>
-                            </div>
-
-                            {/* IRR */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">IRR (10-Year)</p>
-                                <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-                                    {formatPercent(results.irr)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Internal Rate of Return
-                                </p>
-                            </div>
-
-                            {/* Total Investment */}
-                            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Cash Needed</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                                    {formatCurrency(results.totalCashNeeded)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Down + Closing + Rehab
-                                </p>
-                            </div>
+                        {/* IRR */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">IRR (10-Year)</p>
+                            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                                {formatPercent(results.irr)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Internal Rate of Return
+                            </p>
                         </div>
 
-                        {/* Investment Rules */}
-                        <div className="mt-6 pt-6 border-t border-blue-200 dark:border-blue-800">
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Investment Rule Checks</h3>
-                            <div className="grid md:grid-cols-3 gap-3">
-                                <div className={`flex items-center gap-2 p-3 rounded-lg ${results.onePercentRule.passes ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'}`}>
-                                    {results.onePercentRule.passes ? (
-                                        <CheckCircle2 size={20} className="text-green-600" />
-                                    ) : (
-                                        <XCircle size={20} className="text-red-600" />
-                                    )}
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">1% Rule</p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">{formatPercent(results.onePercentRule.ratio)}</p>
-                                    </div>
-                                </div>
-
-                                <div className={`flex items-center gap-2 p-3 rounded-lg ${results.fiftyPercentRule.passes ? 'bg-green-100 dark:bg-green-900/20' : 'bg-orange-100 dark:bg-orange-900/20'}`}>
-                                    {results.fiftyPercentRule.passes ? (
-                                        <CheckCircle2 size={20} className="text-green-600" />
-                                    ) : (
-                                        <AlertCircle size={20} className="text-orange-600" />
-                                    )}
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">50% Rule</p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">{formatPercent(results.fiftyPercentRule.expenseRatio)} expenses</p>
-                                    </div>
-                                </div>
-
-                                <div className={`flex items-center gap-2 p-3 rounded-lg ${results.dscr >= 1.25 ? 'bg-green-100 dark:bg-green-900/20' : 'bg-orange-100 dark:bg-orange-900/20'}`}>
-                                    {results.dscr >= 1.25 ? (
-                                        <CheckCircle2 size={20} className="text-green-600" />
-                                    ) : (
-                                        <AlertCircle size={20} className="text-orange-600" />
-                                    )}
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">DSCR ≥ 1.25</p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">Lender Qualification</p>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Total Investment */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Cash Needed</p>
+                            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                                {formatCurrency(results.totalCashNeeded)}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Down + Closing + Rehab
+                            </p>
                         </div>
                     </div>
 
-                    {/* AD PLACEHOLDER - Mid Content */}
-                    <div className="bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Advertisement Space (728x90)</p>
-                    </div>
+                    {/* Investment Rules */}
+                    <div className="mt-6 pt-6 border-t border-blue-200 dark:border-blue-800">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Investment Rule Checks</h3>
+                        <div className="grid md:grid-cols-3 gap-3">
+                            <div className={`flex items-center gap-2 p-3 rounded-lg ${results.onePercentRule.passes ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'}`}>
+                                {results.onePercentRule.passes ? (
+                                    <CheckCircle2 size={20} className="text-green-600" />
+                                ) : (
+                                    <XCircle size={20} className="text-red-600" />
+                                )}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">1% Rule</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">{formatPercent(results.onePercentRule.ratio)}</p>
+                                </div>
+                            </div>
 
-                    {/* Charts Section */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {/* Cash Flow Chart */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">10-Year Cash Flow Projection</h3>
-                            <ResponsiveContainer width="100%" height={300}>
+                            <div className={`flex items-center gap-2 p-3 rounded-lg ${results.fiftyPercentRule.passes ? 'bg-green-100 dark:bg-green-900/20' : 'bg-orange-100 dark:bg-orange-900/20'}`}>
+                                {results.fiftyPercentRule.passes ? (
+                                    <CheckCircle2 size={20} className="text-green-600" />
+                                ) : (
+                                    <AlertCircle size={20} className="text-orange-600" />
+                                )}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">50% Rule</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">{formatPercent(results.fiftyPercentRule.expenseRatio)} expenses</p>
+                                </div>
+                            </div>
+
+                            <div className={`flex items-center gap-2 p-3 rounded-lg ${results.dscr >= 1.25 ? 'bg-green-100 dark:bg-green-900/20' : 'bg-orange-100 dark:bg-orange-900/20'}`}>
+                                {results.dscr >= 1.25 ? (
+                                    <CheckCircle2 size={20} className="text-green-600" />
+                                ) : (
+                                    <AlertCircle size={20} className="text-orange-600" />
+                                )}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">DSCR ≥ 1.25</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">Lender Qualification</p>
+                                </div>
                                 <ComposedChart data={cashFlowChartData} margin={{ top: 5, right: 5, left: 5, bottom: 40 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
                                     <XAxis
@@ -780,6 +757,6 @@ export default function RentalPropertyCalculator() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
