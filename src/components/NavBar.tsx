@@ -126,6 +126,7 @@ export default function NavBar() {
                                                     <Link
                                                         key={item.href}
                                                         href={item.href}
+                                                        onClick={() => setOpenDropdown(null)}
                                                         className={`block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${pathname === item.href ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                                                             }`}
                                                     >
