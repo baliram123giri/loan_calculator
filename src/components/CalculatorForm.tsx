@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { calculateEMI, EMIResult, ExtraPayment } from '@/lib/calc/emi';
@@ -15,6 +17,7 @@ export default function CalculatorForm({ onResultChange, loanTypeConfig }: Calcu
     const [principal, setPrincipal] = useState(loanTypeConfig.minAmount);
     const [rate, setRate] = useState((loanTypeConfig.minRate + loanTypeConfig.maxRate) / 2);
     const [tenureYears, setTenureYears] = useState(Math.floor((loanTypeConfig.minTenure + loanTypeConfig.maxTenure) / 2));
+    const [startDate, setStartDate] = useState<Date>(new Date());
     const [extraPayments, setExtraPayments] = useState<ExtraPayment[]>([]);
 
     // Temporary state for new extra payment input
@@ -28,18 +31,19 @@ export default function CalculatorForm({ onResultChange, loanTypeConfig }: Calcu
         setPrincipal(loanTypeConfig.minAmount);
         setRate((loanTypeConfig.minRate + loanTypeConfig.maxRate) / 2);
         setTenureYears(Math.floor((loanTypeConfig.minTenure + loanTypeConfig.maxTenure) / 2));
+        setStartDate(new Date());
         setExtraPayments([]);
     }, [loanTypeConfig]);
 
     useEffect(() => {
         try {
             const tenureMonths = tenureYears * 12;
-            const result = calculateEMI(principal, rate, tenureMonths, extraPayments);
+            const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate);
             onResultChange(result, { principal, rate, tenureMonths });
         } catch (e) {
             console.error("Calculation error:", e);
         }
-    }, [principal, rate, tenureYears, extraPayments, onResultChange]);
+    }, [principal, rate, tenureYears, extraPayments, startDate, onResultChange]);
 
     const addExtraPayment = () => {
         setExtraPayments([
@@ -119,6 +123,20 @@ export default function CalculatorForm({ onResultChange, loanTypeConfig }: Calcu
                     onChange={(e) => setTenureYears(Number(e.target.value))}
                     valueDisplay={`${tenureYears} Years`}
                     aria-label="Tenure Slider"
+                />
+            </div>
+
+            {/* Loan Start Date */}
+            <div className="space-y-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Loan Start Date
+                </label>
+                <DatePicker
+                    selected={startDate}
+                    onChange={(date: Date | null) => date && setStartDate(date)}
+                    dateFormat="dd MMM yyyy"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    wrapperClassName="w-full"
                 />
             </div>
 

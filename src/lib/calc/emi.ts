@@ -6,6 +6,7 @@ export type ExtraPayment = {
 
 export type AmortizationRow = {
   month: number;
+  date: Date;
   payment: number;
   principal: number;
   interest: number;
@@ -23,12 +24,20 @@ export function calculateEMI(
   principal: number,
   annualRate: number,
   tenureMonths: number,
-  extras: ExtraPayment[] = []
+  extras: ExtraPayment[] = [],
+  startDate: Date = new Date()
 ): EMIResult {
   // Validations
   if (principal <= 0) throw new Error("Principal must be positive");
   if (tenureMonths <= 0) throw new Error("Tenure must be positive");
   if (annualRate < 0) throw new Error("Interest rate cannot be negative");
+
+  // Helper function to add months to a date
+  const addMonths = (date: Date, months: number): Date => {
+    const result = new Date(date);
+    result.setMonth(result.getMonth() + months);
+    return result;
+  };
 
   const r = annualRate / 12 / 100;
   let emi = 0;
@@ -60,7 +69,7 @@ export function calculateEMI(
     interest = Math.round(interest * 100) / 100;
 
     let monthlyPayment = emiRounded;
-    
+
     // Check for extra payments
     let extraForMonth = 0;
     extras.forEach(extra => {
@@ -78,24 +87,24 @@ export function calculateEMI(
     // If balance is small, adjust payment
     // Total needed to close = balance + interest
     let totalRequired = balance + interest;
-    
+
     let totalMonthlyPayment = monthlyPayment + extraForMonth;
-    
+
     // If we are paying more than required, cap it
     if (totalMonthlyPayment > totalRequired) {
       totalMonthlyPayment = totalRequired;
     }
-    
+
     // If it's the scheduled last month (and no extra payments shortened it), 
     // we might need to adjust slightly to clear dust?
     // But the logic above handles "paying off remaining".
-    
+
     // Principal part
     let principalPaid = totalMonthlyPayment - interest;
-    
+
     // Update balance
     balance -= principalPaid;
-    
+
     // Fix floating point issues
     balance = Math.round(balance * 100) / 100;
     if (balance < 0) balance = 0;
@@ -105,6 +114,7 @@ export function calculateEMI(
 
     amortization.push({
       month,
+      date: addMonths(startDate, month - 1),
       payment: Number(totalMonthlyPayment.toFixed(2)),
       principal: Number(principalPaid.toFixed(2)),
       interest: Number(interest.toFixed(2)),
