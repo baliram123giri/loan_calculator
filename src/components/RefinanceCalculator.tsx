@@ -9,8 +9,11 @@ import {
     PiggyBank,
     ArrowRight,
     Info,
+    Info,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import {
     calculateRefinanceMetrics,
@@ -34,6 +37,10 @@ import {
 export default function RefinanceCalculator() {
     const [activeTab, setActiveTab] = useState<'overview' | 'projections'>('overview');
     const [isCashOut, setIsCashOut] = useState(false);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 10;
 
     const [input, setInput] = useState<RefinanceInput>({
         currentLoanBalance: 300000,
@@ -275,7 +282,7 @@ export default function RefinanceCalculator() {
                                         <div className="h-64 w-full">
                                             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Loan Balance Comparison</h4>
                                             <ResponsiveContainer width="100%" height="100%">
-                                                <AreaChart data={result.projections} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                                <AreaChart data={result.projections} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                                     <defs>
                                                         <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
                                                             <stop offset="5%" stopColor="#6B7280" stopOpacity={0.3} />
@@ -287,10 +294,15 @@ export default function RefinanceCalculator() {
                                                         </linearGradient>
                                                     </defs>
                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                                    <XAxis dataKey="year" stroke="#9CA3AF" tickFormatter={(val) => `Y${val}`} />
+                                                    <XAxis
+                                                        dataKey="year"
+                                                        stroke="#9CA3AF"
+                                                        tickFormatter={(val) => `Y${val}`}
+                                                        dy={10}
+                                                    />
                                                     <YAxis stroke="#9CA3AF" tickFormatter={(value) => `$${value / 1000}k`} />
                                                     <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                                                    <Legend />
+                                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                                     <Area type="monotone" dataKey="currentBalance" stroke="#6B7280" fill="url(#colorCurrent)" name="Current Loan" />
                                                     <Area type="monotone" dataKey="newBalance" stroke="#10B981" fill="url(#colorNew)" name="New Loan" />
                                                 </AreaChart>
@@ -300,15 +312,21 @@ export default function RefinanceCalculator() {
                                         <div className="h-64 w-full">
                                             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Cumulative Savings</h4>
                                             <ResponsiveContainer width="100%" height="100%">
-                                                <LineChart data={result.projections} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                                    <XAxis dataKey="year" stroke="#9CA3AF" tickFormatter={(val) => `Y${val}`} />
-                                                    <YAxis stroke="#9CA3AF" tickFormatter={(value) => `$${value / 1000}k`} />
-                                                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                                                    <Legend />
-                                                    <Line type="monotone" dataKey="cumulativeSavings" stroke="#3B82F6" strokeWidth={2} dot={false} name="Net Savings" />
-                                                </LineChart>
-                                            </ResponsiveContainer>
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <LineChart data={result.projections} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                                        <XAxis
+                                                            dataKey="year"
+                                                            stroke="#9CA3AF"
+                                                            tickFormatter={(val) => `Y${val}`}
+                                                            dy={10}
+                                                        />
+                                                        <YAxis stroke="#9CA3AF" tickFormatter={(value) => `$${value / 1000}k`} />
+                                                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                                        <Line type="monotone" dataKey="cumulativeSavings" stroke="#3B82F6" strokeWidth={2} dot={false} name="Net Savings" />
+                                                    </LineChart>
+                                                </ResponsiveContainer>
                                         </div>
                                     </div>
                                 </div>
@@ -325,7 +343,7 @@ export default function RefinanceCalculator() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {result.projections.map((row) => (
+                                                {result.projections.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((row) => (
                                                     <tr key={row.year} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                                         <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                                             {row.year}
@@ -344,6 +362,38 @@ export default function RefinanceCalculator() {
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    {/* Pagination Controls */}
+                                    {result.projections.length > rowsPerPage && (
+                                        <div className="flex items-center justify-between px-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, result.projections.length)} of {result.projections.length} years
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                    disabled={currentPage === 1}
+                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    aria-label="Previous Page"
+                                                >
+                                                    <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
+                                                </button>
+
+                                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                    Page {currentPage} of {Math.ceil(result.projections.length / rowsPerPage)}
+                                                </span>
+
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(result.projections.length / rowsPerPage)))}
+                                                    disabled={currentPage === Math.ceil(result.projections.length / rowsPerPage)}
+                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    aria-label="Next Page"
+                                                >
+                                                    <ChevronRight size={20} className="text-gray-600 dark:text-gray-400" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
