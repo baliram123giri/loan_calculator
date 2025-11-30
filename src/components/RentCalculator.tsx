@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, RefreshCw, PieChart as PieChartIcon, AlertCircle, CheckCircle, Info, TrendingUp } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import CurrencyInput from './CurrencyInput';
 
 type CalculationMode = 'affordability' | 'income-needed';
 
@@ -194,34 +195,22 @@ export default function RentCalculator() {
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Annual Pre-tax Income
                                     </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span className="text-gray-500 sm:text-sm">$</span>
-                                        </div>
-                                        <input
-                                            type="number"
-                                            value={income}
-                                            onChange={(e) => setIncome(Number(e.target.value))}
-                                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                        />
-                                    </div>
+                                    <CurrencyInput
+                                        value={income}
+                                        onChange={setIncome}
+                                        min={0}
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Monthly Debt Payments
                                     </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span className="text-gray-500 sm:text-sm">$</span>
-                                        </div>
-                                        <input
-                                            type="number"
-                                            value={debt}
-                                            onChange={(e) => setDebt(Number(e.target.value))}
-                                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                        />
-                                        <p className="mt-1 text-xs text-gray-500">Credit cards, car loans, student loans, etc.</p>
-                                    </div>
+                                    <CurrencyInput
+                                        value={debt}
+                                        onChange={setDebt}
+                                        min={0}
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">Credit cards, car loans, student loans, etc.</p>
                                 </div>
                             </>
                         ) : (
@@ -229,17 +218,11 @@ export default function RentCalculator() {
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Target Monthly Rent
                                 </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span className="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <input
-                                        type="number"
-                                        value={rent}
-                                        onChange={(e) => setRent(Number(e.target.value))}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                    />
-                                </div>
+                                <CurrencyInput
+                                    value={rent}
+                                    onChange={setRent}
+                                    min={0}
+                                />
                             </div>
                         )}
 
@@ -247,36 +230,24 @@ export default function RentCalculator() {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Monthly Utilities (Estimated)
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-gray-500 sm:text-sm">$</span>
-                                </div>
-                                <input
-                                    type="number"
-                                    value={utilities}
-                                    onChange={(e) => setUtilities(Number(e.target.value))}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Electric, gas, water, internet, etc.</p>
-                            </div>
+                            <CurrencyInput
+                                value={utilities}
+                                onChange={setUtilities}
+                                min={0}
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Electric, gas, water, internet, etc.</p>
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Monthly Savings Goal
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-gray-500 sm:text-sm">$</span>
-                                </div>
-                                <input
-                                    type="number"
-                                    value={savings}
-                                    onChange={(e) => setSavings(Number(e.target.value))}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Emergency fund, retirement, investments</p>
-                            </div>
+                            <CurrencyInput
+                                value={savings}
+                                onChange={setSavings}
+                                min={0}
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Emergency fund, retirement, investments</p>
                         </div>
 
                         <div>
