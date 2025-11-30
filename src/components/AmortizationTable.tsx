@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AmortizationRow } from '@/lib/calc/emi';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface AmortizationTableProps {
     schedule: AmortizationRow[];
@@ -9,11 +9,23 @@ interface AmortizationTableProps {
 export default function AmortizationTable({ schedule }: AmortizationTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [yearView, setYearView] = useState<'CY' | 'FY' | 'none'>('none');
+    const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set());
     const rowsPerPage = 12;
 
     const totalPages = Math.ceil(schedule.length / rowsPerPage);
     const startIndex = (currentPage - 1) * rowsPerPage;
     const currentRows = schedule.slice(startIndex, startIndex + rowsPerPage);
+
+    // Toggle year expansion
+    const toggleYear = (year: string) => {
+        const newExpanded = new Set(expandedYears);
+        if (newExpanded.has(year)) {
+            newExpanded.delete(year);
+        } else {
+            newExpanded.add(year);
+        }
+        setExpandedYears(newExpanded);
+    };
 
     // Group rows by year
     const groupByYear = (rows: AmortizationRow[], type: 'CY' | 'FY') => {
@@ -46,6 +58,14 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
         return groups;
     };
 
+    // Reset expanded years when view changes
+    useEffect(() => {
+        if (yearView !== 'none') {
+            // Collapse all years by default when switching to year view
+            setExpandedYears(new Set());
+        }
+    }, [yearView]);
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
@@ -61,13 +81,6 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
             year: 'numeric'
         }).format(new Date(date));
     };
-
-    // Calculate totals for current page
-    const pageTotals = currentRows.reduce((acc, row) => ({
-        principal: acc.principal + row.principal,
-        interest: acc.interest + row.interest,
-        payment: acc.payment + row.payment
-    }), { principal: 0, interest: 0, payment: 0 });
 
     // Calculate overall totals
     const overallTotals = schedule.reduce((acc, row) => ({
@@ -89,8 +102,8 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                 <button
                     onClick={() => setYearView('none')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'none'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
                 >
                     All Months
@@ -98,8 +111,8 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                 <button
                     onClick={() => setYearView('CY')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'CY'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
                 >
                     Calendar Year
@@ -107,8 +120,8 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                 <button
                     onClick={() => setYearView('FY')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'FY'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
                 >
                     Financial Year
@@ -141,7 +154,7 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                                 </tr>
                             ))
                         ) : (
-                            // Grouped view - show all rows grouped by year
+                            // Grouped view - show all rows grouped by year with accordion
                             Object.entries(groupByYear(schedule, yearView)).map(([year, rows]) => {
                                 const yearTotals = rows.reduce((acc, row) => ({
                                     principal: acc.principal + row.principal,
@@ -149,18 +162,36 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                                     payment: acc.payment + row.payment
                                 }), { principal: 0, interest: 0, payment: 0 });
 
+                                const isExpanded = expandedYears.has(year);
+
                                 return (
                                     <React.Fragment key={year}>
-                                        {/* Year Header */}
-                                        <tr className="bg-gray-100 dark:bg-gray-800">
-                                            <td colSpan={6} className="px-4 py-2 font-bold text-gray-900 dark:text-gray-100">
+                                        {/* Year Header - Clickable Accordion */}
+                                        <tr
+                                            className="bg-gray-100 dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                            onClick={() => toggleYear(year)}
+                                        >
+                                            <td colSpan={2} className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                                {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                                                 {year}
                                             </td>
+                                            <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400 font-semibold">
+                                                {formatCurrency(yearTotals.principal)}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-orange-600 dark:text-orange-400 font-semibold">
+                                                {formatCurrency(yearTotals.interest)}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                                                {formatCurrency(yearTotals.payment)}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                                {rows.length} months
+                                            </td>
                                         </tr>
-                                        {/* Year Rows */}
-                                        {rows.map((row) => (
+                                        {/* Year Rows - Collapsible */}
+                                        {isExpanded && rows.map((row) => (
                                             <tr key={row.month} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                                                <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{row.month}</td>
+                                                <td className="px-4 py-3 text-gray-900 dark:text-gray-100 pl-8">{row.month}</td>
                                                 <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{formatDate(row.date)}</td>
                                                 <td className="px-4 py-3 text-green-600 dark:text-green-400">{formatCurrency(row.principal)}</td>
                                                 <td className="px-4 py-3 text-orange-600 dark:text-orange-400">{formatCurrency(row.interest)}</td>
@@ -168,24 +199,6 @@ export default function AmortizationTable({ schedule }: AmortizationTableProps) 
                                                 <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{formatCurrency(row.balance)}</td>
                                             </tr>
                                         ))}
-                                        {/* Year Subtotal */}
-                                        <tr className="bg-gray-50 dark:bg-gray-800/50 font-semibold">
-                                            <td colSpan={2} className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                                                {year} Subtotal
-                                            </td>
-                                            <td className="px-4 py-2 text-sm text-green-600 dark:text-green-400">
-                                                {formatCurrency(yearTotals.principal)}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm text-orange-600 dark:text-orange-400">
-                                                {formatCurrency(yearTotals.interest)}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">
-                                                {formatCurrency(yearTotals.payment)}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                                -
-                                            </td>
-                                        </tr>
                                     </React.Fragment>
                                 );
                             })

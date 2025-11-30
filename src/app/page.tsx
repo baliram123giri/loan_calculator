@@ -9,6 +9,7 @@ import ExportButton from '@/components/ExportButton';
 import LoanTypeSelector from '@/components/LoanTypeSelector';
 import SaveScenario from '@/components/SaveScenario';
 import LoanComparison from '@/components/LoanComparison';
+import GSTCalculator from '@/components/GSTCalculator';
 import { EMIResult } from '@/lib/calc/emi';
 import { LoanType, LOAN_TYPES } from '@/types/loanTypes';
 
@@ -19,7 +20,7 @@ export default function Home() {
   const [result, setResult] = useState<EMIResult | null>(null);
   const [loanParams, setLoanParams] = useState({ principal: 1000000, rate: 7.5, tenureMonths: 240 });
   const [selectedLoanType, setSelectedLoanType] = useState<LoanType>('home');
-  const [activeTab, setActiveTab] = useState<'calculator' | 'compare'>('calculator');
+  const [activeTab, setActiveTab] = useState<'calculator' | 'compare' | 'gst'>('calculator');
 
   const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
     setResult(newResult);
@@ -43,13 +44,19 @@ export default function Home() {
               onClick={() => setActiveTab('calculator')}
               className={`hover:text-blue-600 dark:hover:text-blue-400 ${activeTab === 'calculator' ? 'text-blue-600 dark:text-blue-400' : ''}`}
             >
-              Calculator
+              EMI Calculator
             </button>
             <button
               onClick={() => setActiveTab('compare')}
               className={`hover:text-blue-600 dark:hover:text-blue-400 ${activeTab === 'compare' ? 'text-blue-600 dark:text-blue-400' : ''}`}
             >
               Compare Loans
+            </button>
+            <button
+              onClick={() => setActiveTab('gst')}
+              className={`hover:text-blue-600 dark:hover:text-blue-400 ${activeTab === 'gst' ? 'text-blue-600 dark:text-blue-400' : ''}`}
+            >
+              GST Calculator
             </button>
           </nav>
         </div>
@@ -122,8 +129,10 @@ export default function Home() {
               )}
             </div>
           </div>
-        ) : (
+        ) : activeTab === 'compare' ? (
           <LoanComparison />
+        ) : (
+          <GSTCalculator />
         )}
       </main>
     </div>
