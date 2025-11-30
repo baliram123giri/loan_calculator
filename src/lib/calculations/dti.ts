@@ -113,34 +113,34 @@ export function generateRecommendations(
 
     if (backEndDTI > 50) {
         recommendations.push('🚨 Urgent: Your DTI is very high. Focus on aggressive debt reduction.');
-        recommendations.push('Consider debt consolidation to lower monthly payments.');
-        recommendations.push('Look for ways to increase income through side jobs or overtime.');
-        recommendations.push('Create a strict budget and cut non-essential expenses.');
+        recommendations.push('💳 Consider debt consolidation to lower monthly payments.');
+        recommendations.push('💰 Look for ways to increase income through side jobs or overtime.');
+        recommendations.push('📊 Create a strict budget and cut non-essential expenses.');
     } else if (backEndDTI > 43) {
         recommendations.push('⚠️ Your DTI is above recommended levels. Work on reducing debt.');
-        recommendations.push('Pay more than minimum payments on high-interest debts.');
-        recommendations.push('Avoid taking on new debt until DTI improves.');
-        recommendations.push('Consider refinancing high-interest loans.');
+        recommendations.push('💸 Pay more than minimum payments on high-interest debts.');
+        recommendations.push('🚫 Avoid taking on new debt until DTI improves.');
+        recommendations.push('🔄 Consider refinancing high-interest loans.');
     } else if (backEndDTI > 36) {
         recommendations.push('💡 Your DTI is moderate. Small improvements can help significantly.');
-        recommendations.push('Focus on paying off smallest debts first for quick wins.');
-        recommendations.push('Look for opportunities to increase income by 10-15%.');
-        recommendations.push('Maintain current debt levels and avoid new loans.');
+        recommendations.push('🎯 Focus on paying off smallest debts first for quick wins.');
+        recommendations.push('📈 Look for opportunities to increase income by 10-15%.');
+        recommendations.push('🔒 Maintain current debt levels and avoid new loans.');
     } else if (backEndDTI > 28) {
         recommendations.push('✅ Your DTI is good. Continue current financial habits.');
-        recommendations.push('Consider extra payments on loans to improve further.');
-        recommendations.push('Build emergency fund to 6 months of expenses.');
-        recommendations.push('You qualify for most conventional loans.');
+        recommendations.push('➕ Consider extra payments on loans to improve further.');
+        recommendations.push('🏦 Build emergency fund to 6 months of expenses.');
+        recommendations.push('🏠 You qualify for most conventional loans.');
     } else {
         recommendations.push('🌟 Excellent DTI! You have strong financial health.');
-        recommendations.push('Focus on wealth-building and investment opportunities.');
-        recommendations.push('Consider real estate investment or business ventures.');
-        recommendations.push('Maintain this healthy debt-to-income balance.');
+        recommendations.push('💎 Focus on wealth-building and investment opportunities.');
+        recommendations.push('🏢 Consider real estate investment or business ventures.');
+        recommendations.push('⚖️ Maintain this healthy debt-to-income balance.');
     }
 
     // Housing-specific recommendations
     if (frontEndDTI > 28) {
-        recommendations.push('Your housing costs are high relative to income. Consider downsizing or refinancing.');
+        recommendations.push('🏡 Your housing costs are high relative to income. Consider downsizing or refinancing.');
     }
 
     return recommendations;

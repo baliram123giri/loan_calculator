@@ -354,14 +354,23 @@ export default function DTICalculator() {
                             Recommendations
                         </h3>
                         <div className="space-y-3">
-                            {dtiResult.recommendations.map((rec, index) => (
-                                <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                    <span className="text-lg flex-shrink-0 mt-0.5">{rec.split(' ')[0]}</span>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        {rec.split(' ').slice(1).join(' ')}
-                                    </p>
-                                </div>
-                            ))}
+                            {dtiResult.recommendations.map((rec, index) => {
+                                // Extract emoji if present (emojis are typically 1-2 characters)
+                                const emojiMatch = rec.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
+                                const emoji = emojiMatch ? emojiMatch[0] : null;
+                                const text = emoji ? rec.slice(emoji.length).trim() : rec;
+
+                                return (
+                                    <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        {emoji && (
+                                            <span className="text-xl flex-shrink-0 leading-none">{emoji}</span>
+                                        )}
+                                        <p className={`text-sm text-gray-700 dark:text-gray-300 leading-relaxed ${!emoji ? 'ml-0' : ''}`}>
+                                            {text}
+                                        </p>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
