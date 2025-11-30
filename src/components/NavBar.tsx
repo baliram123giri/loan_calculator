@@ -15,6 +15,7 @@ export default function NavBar() {
         { href: '/calculators/simple-interest', label: 'Simple Interest', icon: Percent },
         { href: '/calculators/compound-interest', label: 'Compound Interest', icon: Percent },
         { href: '/calculators/house-affordability', label: 'Affordability', icon: Home },
+        { href: '/calculators/rent-calculator', label: 'Rent', icon: Home },
         // { href: '/calculators/gst', label: 'GST', icon: Receipt },
         // { href: '/calculators/chit', label: 'Chit Fund', icon: PiggyBank },
     ];

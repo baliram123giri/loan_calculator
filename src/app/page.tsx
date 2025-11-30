@@ -59,6 +59,13 @@ export default function LandingPage() {
       icon: Home,
       href: '/calculators/house-affordability',
       color: 'bg-cyan-500'
+    },
+    {
+      title: 'Rent Calculator',
+      description: 'Calculate affordable rent based on income or required income for a target rent.',
+      icon: Home,
+      href: '/calculators/rent-calculator',
+      color: 'bg-amber-500'
     }
   ];
 
