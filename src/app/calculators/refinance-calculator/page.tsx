@@ -50,7 +50,7 @@ export default function RefinanceCalculatorPage() {
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                             Our <strong>Refinance Calculator</strong> helps you do the math. By comparing your current loan to a new loan offer,
-                            you can see exactly how much you'll save each month and over the life of the loan. Most importantly, it calculates your
+                            you can see exactly how much you'll save each month and over the life of the loan. Most importantly, it calculates your&nbsp;
                             <strong>Break-Even Point</strong>—the time it takes for your monthly savings to cover the cost of refinancing.
                         </p>
                     </section>
