@@ -138,6 +138,44 @@ export default function HouseAffordabilityCalculator() {
                             </select>
                         </div>
                     </div>
+
+                    {/* Advanced Settings */}
+                    <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl space-y-4">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Advanced Settings</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Front-End DTI (%)</label>
+                                <input
+                                    type="number"
+                                    placeholder={input.mortgageType === 'FHA' ? '31' : '28'}
+                                    value={input.frontEndDTI || ''}
+                                    onChange={(e) => handleInputChange('frontEndDTI', e.target.value ? Number(e.target.value) : undefined)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Back-End DTI (%)</label>
+                                <input
+                                    type="number"
+                                    placeholder={input.mortgageType === 'FHA' ? '43' : '36'}
+                                    value={input.backEndDTI || ''}
+                                    onChange={(e) => handleInputChange('backEndDTI', e.target.value ? Number(e.target.value) : undefined)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PMI Rate (%)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder={input.mortgageType === 'FHA' ? '0.85' : '0.5'}
+                                    value={input.pmiRate !== undefined ? input.pmiRate : ''}
+                                    onChange={(e) => handleInputChange('pmiRate', e.target.value ? Number(e.target.value) : undefined)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Results */}
@@ -181,8 +219,8 @@ export default function HouseAffordabilityCalculator() {
                             </div>
 
                             <div className={`p-4 rounded-xl border ${result.riskLevel === 'Low' ? 'bg-green-50 border-green-200 text-green-800' :
-                                    result.riskLevel === 'Medium' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
-                                        'bg-red-50 border-red-200 text-red-800'
+                                result.riskLevel === 'Medium' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
+                                    'bg-red-50 border-red-200 text-red-800'
                                 }`}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <Info size={20} />

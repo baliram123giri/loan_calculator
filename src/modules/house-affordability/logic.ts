@@ -17,21 +17,35 @@ export function calculateAffordability(input: AffordabilityInput): Affordability
     const monthlyRate = interestRate / 100 / 12;
     const numPayments = loanTermYears * 12;
 
-    // Determine Max Allowable DTI based on Mortgage Type
-    let maxDTI = 0.36; // Default Conventional Conservative
-    if (mortgageType === 'FHA') maxDTI = 0.43;
-    if (mortgageType === 'VA') maxDTI = 0.41;
+    // Default DTI Limits (Front / Back)
+    let defaultFrontDTI = 0.28;
+    let defaultBackDTI = 0.36;
+    let defaultPMIRate = 0.005; // 0.5%
 
-    // Stretch DTI limits (for "Max Affordability" scenarios - simplified here to use standard limits first)
-    // In a real scenario, we might return two results (Conservative vs Stretch).
-    // For this implementation, let's stick to a reasonable standard.
-    // Conventional can go up to 43-45% sometimes. Let's use 43% as a hard cap for "High Risk".
+    if (mortgageType === 'FHA') {
+        defaultFrontDTI = 0.31;
+        defaultBackDTI = 0.43;
+        defaultPMIRate = 0.0085; // 0.85%
+    } else if (mortgageType === 'VA') {
+        defaultFrontDTI = 1.0; // VA doesn't strictly use front-end
+        defaultBackDTI = 0.41;
+        defaultPMIRate = 0; // No PMI for VA
+    }
 
-    // Max Monthly Payment allowed for Housing + Debts
-    const maxTotalMonthlyPayment = monthlyIncome * maxDTI;
+    // Use custom values if provided, otherwise defaults
+    const frontDTI = input.frontEndDTI ? input.frontEndDTI / 100 : defaultFrontDTI;
+    const backDTI = input.backEndDTI ? input.backEndDTI / 100 : defaultBackDTI;
+    const pmiRate = input.pmiRate !== undefined ? input.pmiRate / 100 : defaultPMIRate;
 
-    // Max Monthly Payment allowed for Housing only
-    const maxHousingPayment = maxTotalMonthlyPayment - monthlyDebts;
+    // Calculate Max Payment based on Back-End Ratio (Total Debt)
+    const maxTotalMonthlyPaymentBack = monthlyIncome * backDTI;
+    const maxHousingPaymentBack = maxTotalMonthlyPaymentBack - monthlyDebts;
+
+    // Calculate Max Payment based on Front-End Ratio (Housing Only)
+    const maxHousingPaymentFront = monthlyIncome * frontDTI;
+
+    // The limiting factor is the lower of the two
+    const maxHousingPayment = Math.min(maxHousingPaymentBack, maxHousingPaymentFront);
 
     if (maxHousingPayment <= 0) {
         return {
@@ -58,23 +72,6 @@ export function calculateAffordability(input: AffordabilityInput): Affordability
     // HomePrice = LoanAmount + DownPayment
     // PMI = (LoanAmount * PMI_Rate) / 12 (if LTV > 80%)
 
-    // This is a bit circular because PMI and Tax depend on Price/Loan.
-    // Let's iterate or solve algebraically. 
-    // Simplified Algebra:
-    // MaxHousing = PI + Tax + Ins + PMI + HOA
-    // PI = Loan * Factor
-    // Tax = (Loan + Down) * TaxRate / 12
-    // PMI = Loan * PMI_Rate / 12 (approx 0.5% - 1% annually for conventional)
-
-    // Let's assume PMI rate of 0.5% if LTV > 80% (Conventional) or 0.85% (FHA)
-    let pmiRate = 0;
-    if (mortgageType === 'FHA') pmiRate = 0.0085;
-    else if (mortgageType === 'Conventional') pmiRate = 0.005; // Estimate
-
-    // Iterative approach to find Max Price
-    // Start with a guess: MaxHousing / Factor (ignoring tax/insurance)
-    // Then adjust down.
-
     const mortgageFactor = (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
 
     let low = 0;
@@ -94,7 +91,7 @@ export function calculateAffordability(input: AffordabilityInput): Affordability
         const tax = (price * (propertyTaxRate / 100)) / 12;
 
         let pmi = 0;
-        if (mortgageType === 'FHA' || (mortgageType === 'Conventional' && ltv > 80)) {
+        if (mortgageType !== 'VA' && ltv > 80) {
             pmi = (loan * pmiRate) / 12;
         }
 

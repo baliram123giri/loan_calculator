@@ -9,6 +9,9 @@ export interface AffordabilityInput {
     homeownersInsurance: number; // Monthly
     creditScore: number;
     mortgageType: 'Conventional' | 'FHA' | 'VA';
+    frontEndDTI?: number; // Optional custom override
+    backEndDTI?: number; // Optional custom override
+    pmiRate?: number; // Optional custom override
 }
 
 export interface AffordabilityResult {
