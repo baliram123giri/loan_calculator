@@ -6,7 +6,7 @@ import { EMIResult, ExtraPayment, RateChange } from '@/lib/calc/emi';
 import { LoanType } from '@/types/loanTypes';
 import { useToast } from '@/components/Toast';
 
-interface SavedScenario {
+export interface SavedScenario {
     id: string;
     title: string;
     loanType: LoanType;

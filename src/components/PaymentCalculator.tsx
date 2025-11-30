@@ -2,82 +2,89 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import CalculatorForm from '@/components/CalculatorForm';
+import PaymentCalculatorForm from './PaymentCalculatorForm';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
 import ExportButton from '@/components/ExportButton';
-import SaveScenario from '@/components/SaveScenario';
 import ShareButton from '@/components/ShareButton';
-import { EMIResult } from '@/lib/calc/emi';
+import { PaymentResult } from '@/lib/calc/paymentCalc';
 import { LoanTypeConfig } from '@/types/loanTypes';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
 
-const PERSONAL_LOAN_CONFIG: LoanTypeConfig = {
-    name: 'Personal Loan',
-    icon: '💰',
-    description: 'Calculate monthly payments for personal loans',
+const PAYMENT_CONFIG: LoanTypeConfig = {
+    name: 'Payment Calculator',
+    icon: '💳',
+    description: 'Calculate monthly payments or loan term',
     minAmount: 1000,
-    maxAmount: 100000,
-    minRate: 5.0,
-    maxRate: 36.0,
+    maxAmount: 10000000,
+    minRate: 0.1,
+    maxRate: 30,
     minTenure: 1,
-    maxTenure: 7,
-    defaultRate: 10.0
+    maxTenure: 50,
+    defaultRate: 5.0
 };
 
-export default function LoanCalculator() {
-    const [result, setResult] = useState<EMIResult | null>(null);
-    const [loanParams, setLoanParams] = useState({ principal: 10000, rate: 10.0, tenureMonths: 36 });
-    const [loadScenario, setLoadScenario] = useState<any>(null);
+export default function PaymentCalculator() {
+    const [result, setResult] = useState<PaymentResult | null>(null);
+    const [calcParams, setCalcParams] = useState({
+        principal: 20000,
+        rate: 5.0,
+        tenureMonths: 60,
+        monthlyPayment: 400,
+        mode: 'fixed-term'
+    });
 
-    const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
+    const handleResultChange = React.useCallback((newResult: PaymentResult, params: any) => {
         setResult(newResult);
-        setLoanParams(params);
+        setCalcParams(params);
     }, []);
 
     const shareData = {
-        p: loanParams.principal,
-        r: loanParams.rate,
-        t: loanParams.tenureMonths / 12
+        p: calcParams.principal,
+        r: calcParams.rate,
+        t: calcParams.tenureMonths / 12,
+        m: calcParams.mode === 'fixed-payment' ? calcParams.monthlyPayment : undefined
     };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: Inputs */}
             <div className="lg:col-span-4 space-y-6">
-                <CalculatorForm
+                <PaymentCalculatorForm
                     onResultChange={handleResultChange}
-                    loanTypeConfig={PERSONAL_LOAN_CONFIG}
-                    title="Loan Details"
                     currencySymbol="$"
-                    loadScenario={loadScenario}
-                    onScenarioLoaded={() => setLoadScenario(null)}
-                    persistenceKey="personal_loan_calculator_state"
+                    persistenceKey="payment_calculator_state"
                 />
             </div>
 
+            {/* Right Column: Results */}
             <div className="lg:col-span-8 space-y-8">
                 {result && (
                     <>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex-1">
-                                <EMIResultCard result={result} currencySymbol="$" />
-                            </div>
-                            <div className="flex items-start pt-2 gap-2">
-                                <SaveScenario
-                                    loanType="personal"
-                                    principal={loanParams.principal}
-                                    rate={loanParams.rate}
-                                    tenureMonths={loanParams.tenureMonths}
+                                <EMIResultCard
                                     result={result}
                                     currencySymbol="$"
-                                    onLoad={(scenario) => setLoadScenario(scenario)}
+                                    title={calcParams.mode === 'fixed-term' ? "Monthly Payment" : "Required Term"}
                                 />
+                                {calcParams.mode === 'fixed-payment' && (
+                                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                                            With a monthly payment of <strong>${calcParams.monthlyPayment.toLocaleString()}</strong>,
+                                            you will pay off this loan in <strong>{Math.floor(result.calculatedTermMonths! / 12)} years and {result.calculatedTermMonths! % 12} months</strong>.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-start pt-2 gap-2">
                                 <ShareButton data={shareData} />
                             </div>
                         </div>
 
+                        {/* Charts */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
                                 <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Total Payment Breakup</h3>
@@ -97,15 +104,13 @@ export default function LoanCalculator() {
                                 <h3 className="text-lg font-bold">Amortization Schedule</h3>
                                 <ExportButton
                                     result={result}
-                                    principal={loanParams.principal}
-                                    rate={loanParams.rate}
-                                    tenureMonths={loanParams.tenureMonths}
                                     currencySymbol="$"
                                 />
                             </div>
-                            <div className="max-h-96 overflow-y-auto">
-                                <AmortizationTable schedule={result.amortization} currencySymbol="$" />
-                            </div>
+                            <AmortizationTable
+                                schedule={result.amortization}
+                                currencySymbol="$"
+                            />
                         </div>
                     </>
                 )}

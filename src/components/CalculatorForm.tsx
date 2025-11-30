@@ -10,17 +10,37 @@ import { calculateEMI, EMIResult, ExtraPayment, RateChange } from '@/lib/calc/em
 import { LoanTypeConfig } from '@/types/loanTypes';
 
 interface CalculatorFormProps {
-    onResultChange: (result: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => void;
+    onResultChange: (result: EMIResult, params: {
+        principal: number;
+        rate: number;
+        tenureMonths: number;
+        startDate: Date;
+        extraPayments: ExtraPayment[];
+        rateChanges: RateChange[];
+    }) => void;
     loanTypeConfig: LoanTypeConfig;
     title?: string;
     currencySymbol?: string;
+    loadScenario?: {
+        principal: number;
+        rate: number;
+        tenureMonths: number;
+        startDate?: string;
+        extraPayments?: ExtraPayment[];
+        rateChanges?: RateChange[];
+    } | null;
+    onScenarioLoaded?: () => void;
+    persistenceKey?: string;
 }
 
 export default function CalculatorForm({
     onResultChange,
     loanTypeConfig,
     title = "Loan Details",
-    currencySymbol = "$"
+    currencySymbol = "$",
+    loadScenario = null,
+    onScenarioLoaded,
+    persistenceKey
 }: CalculatorFormProps) {
     const searchParams = useSearchParams();
     const [principal, setPrincipal] = useState(loanTypeConfig.minAmount);
@@ -41,31 +61,130 @@ export default function CalculatorForm({
     const [newRateChangeRate, setNewRateChangeRate] = useState(rate);
     const [showRateForm, setShowRateForm] = useState(false);
 
-    // Initialize from URL params or defaults
+    // Initialize from URL params, localStorage, or defaults
     useEffect(() => {
+        // Priority 1: Load Scenario (handled in separate effect)
+        if (loadScenario) return;
+
+        // Priority 2: URL Params
         const p = searchParams.get('p');
         const r = searchParams.get('r');
         const t = searchParams.get('t');
 
-        if (p) setPrincipal(Number(p));
-        else setPrincipal(loanTypeConfig.minAmount);
+        if (p || r || t) {
+            if (p) setPrincipal(Number(p));
+            if (r) setRate(Number(r));
+            if (t) setTenureYears(Number(t));
+            setStartDate(new Date());
+            setExtraPayments([]);
+            setRateChanges([]);
+            return;
+        }
 
-        if (r) setRate(Number(r));
-        else setRate((loanTypeConfig.minRate + loanTypeConfig.maxRate) / 2);
+        // Priority 3: Local Storage
+        if (persistenceKey) {
+            try {
+                const savedState = localStorage.getItem(persistenceKey);
+                if (savedState) {
+                    const parsed = JSON.parse(savedState);
+                    setPrincipal(parsed.principal);
+                    setRate(parsed.rate);
+                    setTenureYears(parsed.tenureYears);
+                    setStartDate(new Date(parsed.startDate));
+                    setExtraPayments(parsed.extraPayments || []);
+                    setRateChanges(parsed.rateChanges || []);
+                    return;
+                }
+            } catch (e) {
+                console.error("Failed to load state from localStorage:", e);
+            }
+        }
 
-        if (t) setTenureYears(Number(t));
-        else setTenureYears(Math.floor((loanTypeConfig.minTenure + loanTypeConfig.maxTenure) / 2));
-
+        // Priority 4: Defaults
+        setPrincipal(loanTypeConfig.minAmount);
+        setRate((loanTypeConfig.minRate + loanTypeConfig.maxRate) / 2);
+        setTenureYears(Math.floor((loanTypeConfig.minTenure + loanTypeConfig.maxTenure) / 2));
         setStartDate(new Date());
         setExtraPayments([]);
         setRateChanges([]);
-    }, [loanTypeConfig, searchParams]);
+    }, [loanTypeConfig, searchParams, persistenceKey, loadScenario]);
+
+    // Auto-save to localStorage
+    useEffect(() => {
+        if (persistenceKey && !loadScenario) {
+            const stateToSave = {
+                principal,
+                rate,
+                tenureYears,
+                startDate: startDate.toISOString(),
+                extraPayments,
+                rateChanges
+            };
+            localStorage.setItem(persistenceKey, JSON.stringify(stateToSave));
+        }
+    }, [principal, rate, tenureYears, startDate, extraPayments, rateChanges, persistenceKey, loadScenario]);
+
+    // Handle loading saved scenarios
+    useEffect(() => {
+        if (loadScenario) {
+            const newPrincipal = loadScenario.principal;
+            const newRate = loadScenario.rate;
+            const newTenureYears = loadScenario.tenureMonths / 12;
+
+            setPrincipal(newPrincipal);
+            setRate(newRate);
+            setTenureYears(newTenureYears);
+
+            let newStartDate = new Date();
+            if (loadScenario.startDate) {
+                newStartDate = new Date(loadScenario.startDate);
+                setStartDate(newStartDate);
+            } else {
+                setStartDate(new Date());
+            }
+
+            let newExtraPayments: ExtraPayment[] = [];
+            if (loadScenario.extraPayments) {
+                newExtraPayments = loadScenario.extraPayments;
+                setExtraPayments(newExtraPayments);
+            } else {
+                setExtraPayments([]);
+            }
+
+            let newRateChanges: RateChange[] = [];
+            if (loadScenario.rateChanges) {
+                newRateChanges = loadScenario.rateChanges;
+                setRateChanges(newRateChanges);
+            } else {
+                setRateChanges([]);
+            }
+
+            // Update localStorage immediately to prevent the initialization effect
+            // from overwriting this state with old data when loadScenario becomes null
+            if (persistenceKey) {
+                const stateToSave = {
+                    principal: newPrincipal,
+                    rate: newRate,
+                    tenureYears: newTenureYears,
+                    startDate: newStartDate.toISOString(),
+                    extraPayments: newExtraPayments,
+                    rateChanges: newRateChanges
+                };
+                localStorage.setItem(persistenceKey, JSON.stringify(stateToSave));
+            }
+
+            // Notify parent that scenario has been loaded
+            if (onScenarioLoaded) {
+                onScenarioLoaded();
+            }
+        }
+    }, [loadScenario, onScenarioLoaded, persistenceKey]);
 
     useEffect(() => {
         try {
             const tenureMonths = tenureYears * 12;
             const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate, rateChanges);
-            onResultChange(result, { principal, rate, tenureMonths });
+            onResultChange(result, { principal, rate, tenureMonths, startDate, extraPayments, rateChanges });
         } catch (e) {
             console.error("Calculation error:", e);
         }
@@ -283,17 +402,16 @@ export default function CalculatorForm({
                                     value={newRateChangeMonth}
                                     onChange={(e) => setNewRateChangeMonth(Number(e.target.value))}
                                     className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:bg-gray-950 dark:border-gray-800"
-                                    min="1"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">New Interest Rate (%)</label>
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">New Rate (%)</label>
                                 <input
                                     type="number"
+                                    step="0.1"
                                     value={newRateChangeRate}
                                     onChange={(e) => setNewRateChangeRate(Number(e.target.value))}
                                     className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:bg-gray-950 dark:border-gray-800"
-                                    step="0.1"
                                 />
                             </div>
                         </div>
@@ -311,11 +429,11 @@ export default function CalculatorForm({
                         <div key={index} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm">
                             <div>
                                 <span className="font-medium text-gray-900 dark:text-gray-100">
-                                    Month {change.month}
+                                    From Month {change.month}
                                 </span>
                                 <span className="text-gray-500 mx-2">•</span>
                                 <span className="text-gray-600 dark:text-gray-400">
-                                    New Rate: {change.newRate}%
+                                    New Rate: {change.newRate}% p.a.
                                 </span>
                             </div>
                             <button

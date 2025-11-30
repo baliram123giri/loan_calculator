@@ -30,6 +30,7 @@ const MORTGAGE_CONFIG: LoanTypeConfig = {
 export default function MortgageCalculator() {
     const [result, setResult] = useState<EMIResult | null>(null);
     const [loanParams, setLoanParams] = useState({ principal: 300000, rate: 6.5, tenureMonths: 360 });
+    const [loadScenario, setLoadScenario] = useState<any>(null);
 
     const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
         setResult(newResult);
@@ -51,6 +52,9 @@ export default function MortgageCalculator() {
                     loanTypeConfig={MORTGAGE_CONFIG}
                     title="Mortgage Details"
                     currencySymbol="$"
+                    loadScenario={loadScenario}
+                    onScenarioLoaded={() => setLoadScenario(null)}
+                    persistenceKey="mortgage_calculator_state"
                 />
             </div>
 
@@ -70,6 +74,7 @@ export default function MortgageCalculator() {
                                     tenureMonths={loanParams.tenureMonths}
                                     result={result}
                                     currencySymbol="$"
+                                    onLoad={(scenario) => setLoadScenario(scenario)}
                                 />
                                 <ShareButton data={shareData} />
                             </div>

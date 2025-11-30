@@ -45,6 +45,13 @@ export default function LandingPage() {
       icon: DollarSign,
       href: '/calculators/property-tax',
       color: 'bg-teal-500'
+    },
+    {
+      title: 'Payment Calculator',
+      description: 'Calculate monthly payments or loan term with prepayments and rate changes.',
+      icon: Calculator,
+      href: '/calculators/payment',
+      color: 'bg-pink-500'
     }
   ];
 
