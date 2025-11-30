@@ -109,8 +109,8 @@ export default function NavBar() {
                                 >
                                     <button
                                         className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive || openDropdown === category.label
-                                                ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                             }`}
                                     >
                                         <Icon size={16} />
@@ -120,22 +120,24 @@ export default function NavBar() {
 
                                     {/* Dropdown Menu */}
                                     {openDropdown === category.label && (
-                                        <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {category.items.map((item) => (
-                                                <Link
-                                                    key={item.href}
-                                                    href={item.href}
-                                                    className={`block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${pathname === item.href ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                                                        }`}
-                                                >
-                                                    <div className="font-medium text-sm text-gray-900 dark:text-white">
-                                                        {item.label}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                        {item.description}
-                                                    </div>
-                                                </Link>
-                                            ))}
+                                        <div className="absolute top-full left-0 pt-2 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2">
+                                                {category.items.map((item) => (
+                                                    <Link
+                                                        key={item.href}
+                                                        href={item.href}
+                                                        className={`block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${pathname === item.href ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                                                            }`}
+                                                    >
+                                                        <div className="font-medium text-sm text-gray-900 dark:text-white">
+                                                            {item.label}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                            {item.description}
+                                                        </div>
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -151,8 +153,8 @@ export default function NavBar() {
                                     key={link.href}
                                     href={link.href}
                                     className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                                            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                         }`}
                                 >
                                     <Icon size={16} />
@@ -199,8 +201,8 @@ export default function NavBar() {
                                                     href={item.href}
                                                     onClick={() => setMobileMenuOpen(false)}
                                                     className={`block px-4 py-2 text-sm rounded-lg transition-colors ${pathname === item.href
-                                                            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                        ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                                                         }`}
                                                 >
                                                     {item.label}
@@ -222,8 +224,8 @@ export default function NavBar() {
                                     href={link.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${isActive
-                                            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                         }`}
                                 >
                                     <Icon size={18} />
