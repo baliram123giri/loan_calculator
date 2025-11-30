@@ -57,13 +57,15 @@ export function AdvancedOptions({
 
     return (
         <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-            >
-                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                Advanced Options (Prepayments & Rate Changes)
-            </button>
+            <div className="w-full flex justify-center">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex items-center gap-2 text-base font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-2 px-4 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                >
+                    {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    Advanced Options (Prepayments & Rate Changes)
+                </button>
+            </div>
 
             {isOpen && (
                 <div className="mt-6 space-y-8 animate-in fade-in slide-in-from-top-4 duration-200">
