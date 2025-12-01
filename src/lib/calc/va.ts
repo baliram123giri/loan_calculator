@@ -80,6 +80,22 @@ export const calculateVA = (input: VAInput): VAResult => {
 
     const totalLoanAmount = principal + fundingFeeAmount;
 
+    if (totalLoanAmount <= 0) {
+        return {
+            emi: 0,
+            totalInterest: 0,
+            totalPayment: 0,
+            amortization: [],
+            fundingFeeAmount,
+            fundingFeeRate,
+            totalLoanAmount: 0,
+            monthlyTax: propertyTax,
+            monthlyInsurance: homeInsurance,
+            monthlyHOA: hoaFees,
+            totalMonthlyPayment: propertyTax + homeInsurance + hoaFees
+        };
+    }
+
     const emiResult = calculateEMI(
         totalLoanAmount,
         interestRate,
