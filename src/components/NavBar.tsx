@@ -4,17 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-    Calculator,
     Home,
-    Percent,
     Receipt,
     TrendingUp,
     ChevronDown,
     Menu,
     X,
     Scale,
-    DollarSign,
-    Building2,
     CreditCard
 } from 'lucide-react';
 
@@ -51,6 +47,7 @@ export default function NavBar() {
             icon: Home,
             items: [
                 { href: '/calculators/mortgage', label: 'Mortgage', description: 'Monthly mortgage payments' },
+                { href: '/calculators/fha-loan-calculator', label: 'FHA Loan', description: 'FHA loan with MIP' },
                 { href: '/calculators/house-affordability', label: 'Affordability', description: 'How much house you can afford' },
                 { href: '/calculators/rent-calculator', label: 'Rent Calculator', description: 'Rent vs buy analysis' },
                 { href: '/calculators/real-estate-calculator', label: 'Real Estate Calculator', description: 'Analyze rental properties' },

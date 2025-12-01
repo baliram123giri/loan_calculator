@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CalculatorDescriptionProps {
-    type: 'mortgage' | 'loan' | 'simple-interest' | 'compound-interest' | 'sales-tax' | 'property-tax';
+    type: 'mortgage' | 'loan' | 'simple-interest' | 'compound-interest' | 'sales-tax' | 'property-tax' | 'fha-loan';
 }
 
 const descriptions = {
@@ -70,6 +70,35 @@ Here's why this matters: property taxes can make or break your housing budget. A
 Property taxes fund your local schools, police and fire departments, roads, parks, and other community services. Rates vary dramatically across the country—from less than 0.3% in Hawaii to over 2.4% in New Jersey. Even within the same state, you'll see big differences between counties.
 
 Use this calculator when you're house hunting to get a realistic picture of your total monthly housing costs. It's also useful for budgeting if you already own a home and want to plan for potential tax increases.`
+    },
+    'fha-loan': {
+        title: 'Understanding FHA Loans',
+        content: `<h2>What is an FHA Loan?</h2>
+<p>An FHA loan is a mortgage insured by the Federal Housing Administration (FHA). It is designed to help low-to-moderate-income borrowers who may have lower credit scores or smaller down payments than conventional loans require.</p>
+
+<h2>Key Features of FHA Loans</h2>
+<ul>
+    <li><strong>Low Down Payment:</strong> You can qualify with a down payment as low as 3.5% of the purchase price.</li>
+    <li><strong>Credit Score Flexibility:</strong> Borrowers with credit scores as low as 580 can qualify for the 3.5% down payment. Scores between 500-579 may require 10% down.</li>
+    <li><strong>Mortgage Insurance (MIP):</strong> FHA loans require two types of mortgage insurance premiums:
+        <ul>
+            <li><strong>Upfront MIP (UFMIP):</strong> A one-time fee paid at closing or financed into the loan. Currently 1.75% of the loan amount.</li>
+            <li><strong>Annual MIP:</strong> A recurring annual premium paid monthly. The rate depends on the loan term, loan amount, and LTV ratio (typically 0.55% for most 30-year loans).</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>How to Use This Calculator</h2>
+<p>Our FHA Loan Calculator is designed to give you a precise estimate of your monthly housing costs.</p>
+<ol>
+    <li><strong>Enter Home Price:</strong> The purchase price of the home.</li>
+    <li><strong>Down Payment:</strong> The amount you plan to pay upfront. The minimum is usually 3.5%.</li>
+    <li><strong>Interest Rate:</strong> The annual interest rate for the loan.</li>
+    <li><strong>Advanced Options:</strong> Click "Show Advanced Options" to adjust MIP rates, property taxes, home insurance, and HOA fees for a more accurate result.</li>
+</ol>
+
+<h2>FHA Loan Limits 2024</h2>
+<p>FHA loan limits vary by county. For 2024, the floor for low-cost areas is $498,257, and the ceiling for high-cost areas is $1,149,825. Be sure to check the limits for your specific county.</p>`
     }
 };
 
@@ -82,9 +111,14 @@ export default function CalculatorDescription({ type }: CalculatorDescriptionPro
                 {desc.title}
             </h2>
             <div className="text-gray-700 dark:text-gray-300 leading-relaxed space-y-4">
-                {desc.content.split('\n\n').map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                ))}
+                {/* Check if content contains HTML tags */}
+                {desc.content.includes('<') ? (
+                    <div dangerouslySetInnerHTML={{ __html: desc.content }} className="prose dark:prose-invert max-w-none" />
+                ) : (
+                    desc.content.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                    ))
+                )}
             </div>
         </div>
     );
