@@ -419,8 +419,8 @@ export default function DownPaymentCalculator() {
                                 key={scenario.percent}
                                 onClick={() => handleDownPaymentPercentChange(scenario.percent)}
                                 className={`p-4 rounded-xl border text-left transition-all hover:shadow-md ${Math.abs(scenario.percent - downPaymentPercent) < 0.1
-                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 ring-1 ring-blue-500'
-                                        : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+                                    ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 ring-1 ring-blue-500'
+                                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
                                     }`}
                             >
                                 <div className="flex justify-between items-center mb-2">
