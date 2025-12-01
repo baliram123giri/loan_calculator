@@ -36,6 +36,7 @@ export default function NavBar() {
             label: 'Loans & Debt',
             icon: CreditCard,
             items: [
+                { href: '/calculators/auto-loan-calculator', label: 'Auto Loan', description: 'Car payment calculator' },
                 { href: '/calculators/loan', label: 'Loan Calculator', description: 'Calculate loan payments' },
                 { href: '/calculators/payment', label: 'Payment Calculator', description: 'Calculate payment or term' },
                 { href: '/calculators/apr', label: 'APR Calculator', description: 'Calculate true loan cost' },
