@@ -263,39 +263,75 @@ export default function FHALoanCalculator() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2">
-                            <ShareButton data={shareData} />
-                        </div>
-
-                        {/* Charts */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
-                                <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Payment Breakdown</h3>
-                                <ChartBreakup
-                                    principal={result.monthlyPrincipalAndInterest} // Using P&I as one block for simplicity in this chart
-                                    interest={result.monthlyMIP + result.monthlyTax + result.monthlyInsurance + result.monthlyHOA} // Grouping others
-                                // Ideally we should update ChartBreakup to support more segments or use a different chart
-                                // For now, let's stick to P&I vs "Escrow/Fees"
-                                />
-                                <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-gray-500">
-                                    <div className="flex justify-between"><span>P&I:</span> <span>${result.monthlyPrincipalAndInterest.toLocaleString()}</span></div>
-                                    <div className="flex justify-between"><span>MIP:</span> <span>${result.monthlyMIP.toLocaleString()}</span></div>
-                                    <div className="flex justify-between"><span>Tax:</span> <span>${result.monthlyTax.toLocaleString()}</span></div>
-                                    <div className="flex justify-between"><span>Ins:</span> <span>${result.monthlyInsurance.toLocaleString()}</span></div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Monthly Payment Breakdown</h3>
+                                <div className="mb-6">
+                                    <ChartBreakup
+                                        data={[
+                                            { name: 'Principal & Interest', value: result.monthlyPrincipalAndInterest, color: '#3B82F6' },
+                                            { name: 'MIP', value: result.monthlyMIP, color: '#F97316' },
+                                            { name: 'Property Tax', value: result.monthlyTax, color: '#22C55E' },
+                                            { name: 'Home Insurance', value: result.monthlyInsurance, color: '#A855F7' },
+                                            ...(result.monthlyHOA > 0 ? [{ name: 'HOA Fees', value: result.monthlyHOA, color: '#6B7280' }] : [])
+                                        ]}
+                                        centerLabel="Total"
+                                        centerValue={`$${result.totalMonthlyPayment.toLocaleString()}`}
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Principal & Interest</span>
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyPrincipalAndInterest.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">MIP (Mortgage Insurance)</span>
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyMIP.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Property Tax</span>
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyTax.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Home Insurance</span>
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyInsurance.toLocaleString()}</span>
+                                    </div>
+                                    {result.monthlyHOA > 0 && (
+                                        <div className="flex justify-between items-center p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">HOA Fees</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyHOA.toLocaleString()}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
+
+                            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-96">
                                 <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Balance Over Time</h3>
                                 <ChartBalance data={result.amortization} />
                             </div>
                         </div>
 
                         {/* Amortization Table */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+                        < div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden" >
                             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                                 <div className="flex flex-col gap-1 w-full lg:w-auto">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Amortization Schedule</h3>
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                                         <span>Tax: ${result.monthlyTax}</span>
                                         <span>Ins: ${result.monthlyInsurance}</span>
                                     </div>
@@ -313,10 +349,11 @@ export default function FHALoanCalculator() {
                             <div className="max-h-96 overflow-y-auto">
                                 <AmortizationTable schedule={result.amortization} currencySymbol="$" />
                             </div>
-                        </div>
+                        </div >
                     </>
-                )}
-            </div>
-        </div>
+                )
+                }
+            </div >
+        </div >
     );
 }
