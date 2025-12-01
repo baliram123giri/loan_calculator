@@ -140,8 +140,11 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-            <div className="p-6 md:p-8">
+        <>
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="p-6 md:p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
                             <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
                                 <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                                     By Vehicle Price
@@ -182,7 +185,7 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                         <NumberInput value={loanTerm} onChange={setLoanTerm} suffix="mo" />
                                     </div>
                                 </div>
-                                <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm mt-2">
+                                <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm mt-2 cursor-pointer">
                                     {showAdvanced ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
                                     {showAdvanced ? 'Hide Advanced Options' : 'Show Advanced Options (Taxes & Fees)'}
                                 </button>
@@ -214,44 +217,44 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                 )}
                             </div>
                         </div>
+                        <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Summary</h3>
+                            <div className="mb-8 text-center">
+                                <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
+                                <div className="text-4xl font-bold text-blue-600">
+                                    {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                                </div>
+                                {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
+                            </div>
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Total Loan Amount</span>
+                                    <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Total Interest</span>
+                                    <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Total Cost (Loan + Interest)</span>
+                                    <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Payoff Date</span>
+                                    <span className="font-semibold text-gray-900">{payoffDate}</span>
+                                </div>
+                            </div>
+                            <div className="h-64 flex items-center justify-center">
+                                <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Summary</h3>
-                        <div className="mb-8 text-center">
-                            <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
-                            <div className="text-4xl font-bold text-blue-600">
-                                {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                            </div>
-                            {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
-                        </div>
-                        <div className="space-y-4 mb-8">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Total Loan Amount</span>
-                                <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Total Interest</span>
-                                <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Total Cost (Loan + Interest)</span>
-                                <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Payoff Date</span>
-                                <span className="font-semibold text-gray-900">{payoffDate}</span>
-                            </div>
-                        </div>
-                        <div className="h-64 flex items-center justify-center">
-                            <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
-                        </div>
-                    </div>
-                </div >
-    <div className="mt-12">
-        <AmortizationTable schedule={amortizationSchedule} />
-    </div>
-            </div >
-        </div >
+                </div>
+            </div>
+            <div className="mt-12">
+                <AmortizationTable schedule={amortizationSchedule} />
+            </div>
+        </>
     );
 };
 
