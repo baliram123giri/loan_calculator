@@ -40,9 +40,11 @@ export default function CurrencyInput({
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
         setIsFocused(true);
-        // Clear the field if it's 0
+        // Clear the field if it's 0, otherwise sync with current value
         if (value === 0) {
             setDisplayValue('');
+        } else {
+            setDisplayValue(value.toString());
         }
         e.target.select();
     };

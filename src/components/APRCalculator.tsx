@@ -104,10 +104,12 @@ export default function APRCalculator() {
                                     <div className="relative">
                                         <input
                                             type="number"
-                                            value={interestRate}
-                                            onChange={(e) => setInterestRate(Number(e.target.value))}
+                                            value={interestRate === 0 ? '' : interestRate}
+                                            onChange={(e) => setInterestRate(e.target.value === '' ? 0 : Number(e.target.value))}
+                                            onFocus={(e) => e.target.select()}
                                             className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
                                             step="0.1"
+                                            placeholder="0"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <span className="text-gray-500 sm:text-sm">%</span>
@@ -121,9 +123,11 @@ export default function APRCalculator() {
                                     <div className="flex rounded-md shadow-sm">
                                         <input
                                             type="number"
-                                            value={termValue}
-                                            onChange={(e) => setTermValue(Number(e.target.value))}
+                                            value={termValue === 0 ? '' : termValue}
+                                            onChange={(e) => setTermValue(e.target.value === '' ? 0 : Number(e.target.value))}
+                                            onFocus={(e) => e.target.select()}
                                             className="block w-full rounded-l-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
+                                            placeholder="0"
                                         />
                                         <select
                                             value={termType}
