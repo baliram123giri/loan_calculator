@@ -183,8 +183,20 @@ export default function CalculatorForm({
     useEffect(() => {
         try {
             const tenureMonths = tenureYears * 12;
-            const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate, rateChanges);
-            onResultChange(result, { principal, rate, tenureMonths, startDate, extraPayments, rateChanges });
+
+            if (principal > 0) {
+                const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate, rateChanges);
+                onResultChange(result, { principal, rate, tenureMonths, startDate, extraPayments, rateChanges });
+            } else {
+                // Handle zero/negative principal gracefully
+                const zeroResult: EMIResult = {
+                    emi: 0,
+                    totalInterest: 0,
+                    totalPayment: 0,
+                    amortization: []
+                };
+                onResultChange(zeroResult, { principal, rate, tenureMonths, startDate, extraPayments, rateChanges });
+            }
         } catch (e) {
             console.error("Calculation error:", e);
         }
