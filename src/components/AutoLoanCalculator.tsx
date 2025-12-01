@@ -215,6 +215,12 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                         </div>
                                     </div>
                                 )}
+                                <button
+                                    onClick={resetToDefaults}
+                                    className="mt-4 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors cursor-pointer"
+                                >
+                                    Reset Values
+                                </button>
                             </div>
                         </div>
                         <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
