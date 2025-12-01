@@ -153,6 +153,20 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
             'BRRRR calculator'
         ],
         canonical: `${BASE_URL}/calculators/rental-property-calculator`
+    },
+    apr: {
+        title: 'APR Calculator | Annual Percentage Rate Calculator - Loanly',
+        description: 'Calculate the true cost of your loan with our free APR Calculator. Factor in fees and closing costs to see the effective annual percentage rate. Compare loan offers accurately.',
+        keywords: [
+            'APR calculator',
+            'annual percentage rate calculator',
+            'loan cost calculator',
+            'effective interest rate calculator',
+            'true cost of loan',
+            'mortgage apr calculator',
+            'loan fee calculator'
+        ],
+        canonical: `${BASE_URL}/calculators/apr`
     }
 };
 

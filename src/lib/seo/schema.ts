@@ -204,5 +204,17 @@ export const calculatorSchemas = {
             { name: 'Calculators', url: `${BASE_URL}/calculators` },
             { name: 'Rental Property Calculator', url: `${BASE_URL}/calculators/rental-property-calculator` }
         ])
+    },
+    apr: {
+        software: generateSoftwareApplicationSchema(
+            'APR Calculator',
+            'Calculate the Annual Percentage Rate (APR) of a loan including fees and closing costs. Find the true cost of borrowing.',
+            `${BASE_URL}/calculators/apr`
+        ),
+        breadcrumb: generateBreadcrumbSchema([
+            { name: 'Home', url: BASE_URL },
+            { name: 'Calculators', url: `${BASE_URL}/calculators` },
+            { name: 'APR Calculator', url: `${BASE_URL}/calculators/apr` }
+        ])
     }
 };

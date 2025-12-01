@@ -42,6 +42,7 @@ export default function NavBar() {
             items: [
                 { href: '/calculators/loan', label: 'Loan Calculator', description: 'Calculate loan payments' },
                 { href: '/calculators/payment', label: 'Payment Calculator', description: 'Calculate payment or term' },
+                { href: '/calculators/apr', label: 'APR Calculator', description: 'Calculate true loan cost' },
                 { href: '/calculators/dti-calculator', label: 'DTI Ratio', description: 'Debt-to-income ratio' },
             ]
         },
