@@ -88,6 +88,36 @@ Use this calculator when you're house hunting to get a realistic picture of your
     </li>
 </ul>
 
+<h2>FHA vs. Conventional Loans</h2>
+<p>While FHA loans are great for easier qualification, Conventional loans might be cheaper if you have good credit.</p>
+<ul>
+    <li><strong>Credit Score:</strong> Conventional loans typically require 620+, while FHA allows down to 500.</li>
+    <li><strong>PMI vs. MIP:</strong> Conventional PMI can be removed once you reach 20% equity. FHA MIP usually stays for the life of the loan if you put down less than 10%.</li>
+    <li><strong>Debt-to-Income (DTI):</strong> FHA loans are often more lenient with higher DTI ratios.</li>
+</ul>
+
+<h2>Pros and Cons of FHA Loans</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+    <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+        <h3 class="text-green-800 font-bold mb-2">Pros</h3>
+        <ul class="list-disc pl-4 space-y-1 text-green-700">
+            <li>Lower credit score requirements</li>
+            <li>Low 3.5% down payment</li>
+            <li>Assumable mortgages (buyer can take over your rate)</li>
+            <li>Higher DTI ratios allowed</li>
+        </ul>
+    </div>
+    <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+        <h3 class="text-red-800 font-bold mb-2">Cons</h3>
+        <ul class="list-disc pl-4 space-y-1 text-red-700">
+            <li>MIP is required regardless of down payment</li>
+            <li>Upfront MIP fee (1.75%) increases loan balance</li>
+            <li>Property must meet HUD safety standards</li>
+            <li>Loan limits are lower than conventional conforming limits in some areas</li>
+        </ul>
+    </div>
+</div>
+
 <h2>How to Use This Calculator</h2>
 <p>Our FHA Loan Calculator is designed to give you a precise estimate of your monthly housing costs.</p>
 <ol>

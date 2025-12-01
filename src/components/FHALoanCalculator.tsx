@@ -7,8 +7,10 @@ import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
 import ExportButton from '@/components/ExportButton';
 import ShareButton from '@/components/ShareButton';
+import CurrencyInput from '@/components/CurrencyInput';
+import NumberInput from '@/components/NumberInput';
 import { LoanTypeConfig } from '@/types/loanTypes';
-import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { ChevronDown, ChevronUp, RefreshCw, Calendar } from 'lucide-react';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
@@ -110,15 +112,10 @@ export default function FHALoanCalculator() {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Home Price
                             </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                                <input
-                                    type="number"
-                                    value={homePrice}
-                                    onChange={(e) => setHomePrice(Number(e.target.value))}
-                                    className="w-full pl-8 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                                />
-                            </div>
+                            <CurrencyInput
+                                value={homePrice}
+                                onChange={setHomePrice}
+                            />
                         </div>
 
                         {/* Down Payment */}
@@ -126,15 +123,10 @@ export default function FHALoanCalculator() {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Down Payment ($)
                             </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                                <input
-                                    type="number"
-                                    value={downPayment}
-                                    onChange={(e) => setDownPayment(Number(e.target.value))}
-                                    className="w-full pl-8 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                                />
-                            </div>
+                            <CurrencyInput
+                                value={downPayment}
+                                onChange={setDownPayment}
+                            />
                             <p className="text-xs text-gray-500 mt-1">
                                 {((downPayment / homePrice) * 100).toFixed(2)}% (Min 3.5% required)
                             </p>
@@ -145,12 +137,11 @@ export default function FHALoanCalculator() {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Interest Rate (%)
                             </label>
-                            <input
-                                type="number"
-                                step="0.1"
+                            <NumberInput
                                 value={interestRate}
-                                onChange={(e) => setInterestRate(Number(e.target.value))}
-                                className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                onChange={setInterestRate}
+                                suffix="%"
+                                max={100}
                             />
                         </div>
 
@@ -159,14 +150,30 @@ export default function FHALoanCalculator() {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Loan Term (Years)
                             </label>
-                            <select
+                            <NumberInput
                                 value={loanTermYears}
-                                onChange={(e) => setLoanTermYears(Number(e.target.value))}
-                                className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                            >
-                                <option value={15}>15 Years</option>
-                                <option value={30}>30 Years</option>
-                            </select>
+                                onChange={setLoanTermYears}
+                                suffix="Years"
+                                max={50}
+                            />
+                        </div>
+
+                        {/* Start Date */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Start Date
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Calendar size={16} className="text-gray-500" />
+                                </div>
+                                <input
+                                    type="date"
+                                    value={startDate.toISOString().split('T')[0]}
+                                    onChange={(e) => setStartDate(new Date(e.target.value))}
+                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-900 dark:text-white"
+                                />
+                            </div>
                         </div>
 
                         {/* Advanced Options Toggle */}
@@ -184,50 +191,45 @@ export default function FHALoanCalculator() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-medium text-gray-500 mb-1">Upfront MIP (%)</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
+                                        <NumberInput
                                             value={upfrontMIPRate}
-                                            onChange={(e) => setUpfrontMIPRate(Number(e.target.value))}
-                                            className="w-full px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                            onChange={setUpfrontMIPRate}
+                                            suffix="%"
+                                            className="text-sm"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-medium text-gray-500 mb-1">Annual MIP (%)</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
+                                        <NumberInput
                                             value={annualMIPRate}
-                                            onChange={(e) => setAnnualMIPRate(Number(e.target.value))}
-                                            className="w-full px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                            onChange={setAnnualMIPRate}
+                                            suffix="%"
+                                            className="text-sm"
                                         />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">Property Tax ($/mo)</label>
-                                    <input
-                                        type="number"
+                                    <CurrencyInput
                                         value={propertyTax}
-                                        onChange={(e) => setPropertyTax(Number(e.target.value))}
-                                        className="w-full px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                        onChange={setPropertyTax}
+                                        className="text-sm"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">Home Insurance ($/mo)</label>
-                                    <input
-                                        type="number"
+                                    <CurrencyInput
                                         value={homeInsurance}
-                                        onChange={(e) => setHomeInsurance(Number(e.target.value))}
-                                        className="w-full px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                        onChange={setHomeInsurance}
+                                        className="text-sm"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">HOA Fees ($/mo)</label>
-                                    <input
-                                        type="number"
+                                    <CurrencyInput
                                         value={hoaFees}
-                                        onChange={(e) => setHoaFees(Number(e.target.value))}
-                                        className="w-full px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                        onChange={setHoaFees}
+                                        className="text-sm"
                                     />
                                 </div>
                             </div>
@@ -290,8 +292,14 @@ export default function FHALoanCalculator() {
 
                         {/* Amortization Table */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                                <h3 className="text-lg font-bold">Amortization Schedule</h3>
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold">Amortization Schedule</h3>
+                                    <div className="flex gap-4 text-xs text-gray-500 mt-1">
+                                        <span>Tax: ${result.monthlyTax}</span>
+                                        <span>Ins: ${result.monthlyInsurance}</span>
+                                    </div>
+                                </div>
                                 <ExportButton
                                     result={result}
                                     principal={result.totalLoanAmount}
