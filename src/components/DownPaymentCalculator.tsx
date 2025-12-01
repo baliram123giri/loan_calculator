@@ -88,13 +88,25 @@ export default function DownPaymentCalculator() {
         // Prevent negative loan
         if (loanPrincipal < 0) loanPrincipal = 0;
 
-        const emiRes = calculateEMI(
-            loanPrincipal,
-            interestRate,
-            loanTermYears * 12,
-            [],
-            startDate
-        );
+        let emiRes: EMIResult;
+
+        if (loanPrincipal > 0) {
+            emiRes = calculateEMI(
+                loanPrincipal,
+                interestRate,
+                loanTermYears * 12,
+                [],
+                startDate
+            );
+        } else {
+            // Handle 100% down payment or negative loan scenarios
+            emiRes = {
+                emi: 0,
+                totalInterest: 0,
+                totalPayment: 0,
+                amortization: []
+            };
+        }
 
         // Monthly Extras
         const monthlyTax = (homePrice * (propertyTaxRate / 100)) / 12;
