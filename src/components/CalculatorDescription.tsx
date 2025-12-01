@@ -72,63 +72,66 @@ Property taxes fund your local schools, police and fire departments, roads, park
 Use this calculator when you're house hunting to get a realistic picture of your total monthly housing costs. It's also useful for budgeting if you already own a home and want to plan for potential tax increases.`
     },
     'fha-loan': {
-        title: 'Understanding FHA Loans',
-        content: `<h2>What is an FHA Loan?</h2>
-<p>An FHA loan is a mortgage insured by the Federal Housing Administration (FHA). It is designed to help low-to-moderate-income borrowers who may have lower credit scores or smaller down payments than conventional loans require.</p>
+        title: 'Everything You Need to Know About FHA Loans',
+        content: `
+            <h2>What is an FHA Loan?</h2>
+            <p>An FHA loan is a government-backed mortgage insured by the Federal Housing Administration. It's one of the most popular loan programs for first-time homebuyers because it allows for lower credit scores and smaller down payments than conventional loans.</p>
+            <p>Think of it as a safety net for lenders: because the FHA insures the loan, lenders are willing to offer better terms to borrowers who might not have a perfect financial history.</p>
 
-<h2>Key Features of FHA Loans</h2>
-<ul>
-    <li><strong>Low Down Payment:</strong> You can qualify with a down payment as low as 3.5% of the purchase price.</li>
-    <li><strong>Credit Score Flexibility:</strong> Borrowers with credit scores as low as 580 can qualify for the 3.5% down payment. Scores between 500-579 may require 10% down.</li>
-    <li><strong>Mortgage Insurance (MIP):</strong> FHA loans require two types of mortgage insurance premiums:
-        <ul>
-            <li><strong>Upfront MIP (UFMIP):</strong> A one-time fee paid at closing or financed into the loan. Currently 1.75% of the loan amount.</li>
-            <li><strong>Annual MIP:</strong> A recurring annual premium paid monthly. The rate depends on the loan term, loan amount, and LTV ratio (typically 0.55% for most 30-year loans).</li>
-        </ul>
-    </li>
-</ul>
+            <h2>Do You Qualify for an FHA Loan?</h2>
+            <p>Qualifying for an FHA loan is generally easier than qualifying for a conventional mortgage. Here are the key requirements:</p>
+            <ul>
+                <li><strong>Credit Score:</strong> You can qualify with a score as low as <strong>580</strong> for a 3.5% down payment. If your score is between 500 and 579, you may still qualify but will need a 10% down payment.</li>
+                <li><strong>Down Payment:</strong> The minimum down payment is just <strong>3.5%</strong> of the purchase price.</li>
+                <li><strong>Debt-to-Income (DTI) Ratio:</strong> Lenders typically look for a DTI ratio of <strong>43% or less</strong>, though some may approve higher ratios with compensating factors (like cash reserves).</li>
+                <li><strong>Property Standards:</strong> The home must be your primary residence and meet HUD's safety and habitability standards.</li>
+            </ul>
 
-<h2>FHA vs. Conventional Loans</h2>
-<p>While FHA loans are great for easier qualification, Conventional loans might be cheaper if you have good credit.</p>
-<ul>
-    <li><strong>Credit Score:</strong> Conventional loans typically require 620+, while FHA allows down to 500.</li>
-    <li><strong>PMI vs. MIP:</strong> Conventional PMI can be removed once you reach 20% equity. FHA MIP usually stays for the life of the loan if you put down less than 10%.</li>
-    <li><strong>Debt-to-Income (DTI):</strong> FHA loans are often more lenient with higher DTI ratios.</li>
-</ul>
+            <h2>Understanding Mortgage Insurance (MIP)</h2>
+            <p>One trade-off for the flexible requirements of an FHA loan is the Mortgage Insurance Premium (MIP). Unlike private mortgage insurance (PMI) on conventional loans, FHA loans have two types of premiums:</p>
+            <ol>
+                <li><strong>Upfront MIP (UFMIP):</strong> This is a one-time fee of <strong>1.75%</strong> of your loan amount. Most borrowers choose to finance this into their loan rather than paying it out of pocket at closing.</li>
+                <li><strong>Annual MIP:</strong> This is a recurring fee paid monthly. For most borrowers putting down 3.5%, the rate is <strong>0.55%</strong> annually. This premium typically stays for the life of the loan unless you put down 10% or more (in which case it stays for 11 years).</li>
+            </ol>
 
-<h2>Pros and Cons of FHA Loans</h2>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-    <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-        <h3 class="text-green-800 font-bold mb-2">Pros</h3>
-        <ul class="list-disc pl-4 space-y-1 text-green-700">
-            <li>Lower credit score requirements</li>
-            <li>Low 3.5% down payment</li>
-            <li>Assumable mortgages (buyer can take over your rate)</li>
-            <li>Higher DTI ratios allowed</li>
-        </ul>
-    </div>
-    <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-        <h3 class="text-red-800 font-bold mb-2">Cons</h3>
-        <ul class="list-disc pl-4 space-y-1 text-red-700">
-            <li>MIP is required regardless of down payment</li>
-            <li>Upfront MIP fee (1.75%) increases loan balance</li>
-            <li>Property must meet HUD safety standards</li>
-            <li>Loan limits are lower than conventional conforming limits in some areas</li>
-        </ul>
-    </div>
-</div>
+            <h2>FHA Loan Limits (2024)</h2>
+            <p>The FHA sets limits on how much you can borrow, which vary by county based on housing costs. For 2024:</p>
+            <ul>
+                <li><strong>Floor (Low-cost areas):</strong> $498,257</li>
+                <li><strong>Ceiling (High-cost areas):</strong> $1,149,825</li>
+            </ul>
+            <p>It's important to check the specific limit for the county where you're buying.</p>
 
-<h2>How to Use This Calculator</h2>
-<p>Our FHA Loan Calculator is designed to give you a precise estimate of your monthly housing costs.</p>
-<ol>
-    <li><strong>Enter Home Price:</strong> The purchase price of the home.</li>
-    <li><strong>Down Payment:</strong> The amount you plan to pay upfront. The minimum is usually 3.5%.</li>
-    <li><strong>Interest Rate:</strong> The annual interest rate for the loan.</li>
-    <li><strong>Advanced Options:</strong> Click "Show Advanced Options" to adjust MIP rates, property taxes, home insurance, and HOA fees for a more accurate result.</li>
-</ol>
+            <h2>Is an FHA Loan Right for You?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                <div class="bg-green-50 dark:bg-green-900/20 p-5 rounded-xl border border-green-100 dark:border-green-800">
+                    <h3 class="text-green-800 dark:text-green-300 font-bold mb-3 text-lg">Why Choose FHA?</h3>
+                    <ul class="space-y-2 text-green-700 dark:text-green-400">
+                        <li class="flex items-start gap-2"><span class="mt-1">✅</span> <span>Easier to qualify with lower credit scores.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1">✅</span> <span>Low 3.5% down payment requirement.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1">✅</span> <span>Rates are often competitive with conventional loans.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1">✅</span> <span>Assumable: A future buyer can take over your rate.</span></li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50 dark:bg-orange-900/20 p-5 rounded-xl border border-orange-100 dark:border-orange-800">
+                    <h3 class="text-orange-800 dark:text-orange-300 font-bold mb-3 text-lg">Things to Consider</h3>
+                    <ul class="space-y-2 text-orange-700 dark:text-orange-400">
+                        <li class="flex items-start gap-2"><span class="mt-1">⚠️</span> <span>MIP is required regardless of your down payment.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1">⚠️</span> <span>Upfront MIP adds to your total loan balance.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1">⚠️</span> <span>Property condition requirements are stricter.</span></li>
+                    </ul>
+                </div>
+            </div>
 
-<h2>FHA Loan Limits 2024</h2>
-<p>FHA loan limits vary by county. For 2024, the floor for low-cost areas is $498,257, and the ceiling for high-cost areas is $1,149,825. Be sure to check the limits for your specific county.</p>`
+            <h2>How to Use This Calculator</h2>
+            <p>Our tool is designed to give you the full picture, including the hidden costs often missed by simple calculators.</p>
+            <ol>
+                <li><strong>Enter Home Price & Down Payment:</strong> Start with your purchase price and how much cash you have for down payment.</li>
+                <li><strong>Check the Rate:</strong> Enter current market rates. FHA rates are often slightly lower than conventional rates.</li>
+                <li><strong>Review Advanced Options:</strong> We've pre-filled standard MIP rates (1.75% upfront, 0.55% annual), but you can adjust these if your situation differs.</li>
+                <li><strong>Analyze the Breakdown:</strong> Look at the "Payment Breakdown" chart to see exactly where your money goes each month—Principal, Interest, MIP, Taxes, and Insurance.</li>
+            </ol>
+        `
     }
 };
 
