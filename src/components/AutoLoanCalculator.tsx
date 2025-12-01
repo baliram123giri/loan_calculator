@@ -142,26 +142,11 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
     return (
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
             <div className="p-6 md:p-8">
-                <div className="flex flex-col md:flex-row gap-8">
-                    <div className="flex-1 space-y-6">
-                        <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-                                <button
-                                    onClick={resetToDefaults}
-                                    className="text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors flex items-center gap-1"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    Reset
-                                </button>
-                            </div>
                             <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
-                                <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                                     By Vehicle Price
                                 </button>
-                                <button onClick={() => setMode('monthly')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${mode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                <button onClick={() => setMode('monthly')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                                     By Monthly Payment
                                 </button>
                             </div>
@@ -261,12 +246,12 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                             <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
                         </div>
                     </div>
-                </div>
-                <div className="mt-12">
-                    <AmortizationTable schedule={amortizationSchedule} />
-                </div>
-            </div>
-        </div>
+                </div >
+    <div className="mt-12">
+        <AmortizationTable schedule={amortizationSchedule} />
+    </div>
+            </div >
+        </div >
     );
 };
 
