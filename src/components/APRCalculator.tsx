@@ -39,7 +39,11 @@ export default function APRCalculator() {
         const totalFees = fees.origination + fees.documentation + fees.other;
         const termMonths = termType === 'years' ? termValue * 12 : termValue;
 
-        if (termMonths <= 0 || principal <= 0) return;
+        if (termMonths <= 0 || principal <= 0) {
+            setResult(null);
+            setAmortizationSchedule([]);
+            return;
+        }
 
         const summary = calculateLoanSummary(
             principal,
