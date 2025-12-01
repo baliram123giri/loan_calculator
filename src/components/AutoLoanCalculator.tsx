@@ -113,6 +113,22 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
         setPayoffDate(payoff.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
     };
 
+    const resetToDefaults = () => {
+        setMode('price');
+        setVehiclePrice(35000);
+        setMonthlyBudget(600);
+        setDownPayment(5000);
+        setTradeInValue(0);
+        setAmountOwedOnTrade(0);
+        setInterestRate(5.5);
+        setLoanTerm(60);
+        setSalesTaxRate(0);
+        setFees(0);
+        setIncludeTaxInLoan(true);
+        setStartDate(new Date().toISOString().split('T')[0]);
+        setShowAdvanced(false);
+    };
+
     const donutData = {
         labels: ['Principal', 'Interest'],
         datasets: [{
@@ -129,7 +145,18 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1 space-y-6">
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+                                <button
+                                    onClick={resetToDefaults}
+                                    className="text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors flex items-center gap-1"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Reset
+                                </button>
+                            </div>
                             <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
                                 <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                                     By Vehicle Price
