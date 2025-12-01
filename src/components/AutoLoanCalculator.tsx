@@ -87,181 +87,160 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
 
         for (let i = 1; i <= loanTerm; i++) {
             const interest = balance * r;
-            const principalPayment = calculatedMonthlyPayment - interest;
-            balance -= principalPayment;
-            if (balance < 0) balance = 0;
-            totalInt += interest;
-            const date = new Date(start);
-            date.setMonth(start.getMonth() + i);
-            schedule.push({
-                paymentNo: i,
-                date: date.toLocaleDateString(),
-                payment: calculatedMonthlyPayment,
-                principal: principalPayment,
-                interest: interest,
-                balance: balance,
-                totalInterest: totalInt,
-                totalPrincipal: principal - balance
-            });
-        }
+            const payoff = new Date(start);
+            payoff.setMonth(start.getMonth() + loanTerm);
+            setPayoffDate(payoff.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
+        };
 
-        setTotalInterest(totalInt);
-        setTotalCost(principal + totalInt);
-        setAmortizationSchedule(schedule);
-        const payoff = new Date(start);
-        payoff.setMonth(start.getMonth() + loanTerm);
-        setPayoffDate(payoff.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
-    };
+        const resetToDefaults = () => {
+            setMode('price');
+            setVehiclePrice(35000);
+            setMonthlyBudget(600);
+            setDownPayment(5000);
+            setTradeInValue(0);
+            setAmountOwedOnTrade(0);
+            setInterestRate(5.5);
+            setLoanTerm(60);
+            setSalesTaxRate(0);
+            setFees(0);
+            setIncludeTaxInLoan(true);
+            setStartDate(new Date().toISOString().split('T')[0]);
+            setShowAdvanced(false);
+        };
 
-    const resetToDefaults = () => {
-        setMode('price');
-        setVehiclePrice(35000);
-        setMonthlyBudget(600);
-        setDownPayment(5000);
-        setTradeInValue(0);
-        setAmountOwedOnTrade(0);
-        setInterestRate(5.5);
-        setLoanTerm(60);
-        setSalesTaxRate(0);
-        setFees(0);
-        setIncludeTaxInLoan(true);
-        setStartDate(new Date().toISOString().split('T')[0]);
-        setShowAdvanced(false);
-    };
+        const donutData = {
+            labels: ['Principal', 'Interest'],
+            datasets: [{
+                data: [totalLoanAmount, totalInterest],
+                backgroundColor: ['#3B82F6', '#10B981'],
+                borderColor: ['#2563EB', '#059669'],
+                borderWidth: 1,
+            }],
+        };
 
-    const donutData = {
-        labels: ['Principal', 'Interest'],
-        datasets: [{
-            data: [totalLoanAmount, totalInterest],
-            backgroundColor: ['#3B82F6', '#10B981'],
-            borderColor: ['#2563EB', '#059669'],
-            borderWidth: 1,
-        }],
-    };
-
-    return (
-        <>
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div className="p-6 md:p-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div>
-                            <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
-                                <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                    By Vehicle Price
-                                </button>
-                                <button onClick={() => setMode('monthly')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                    By Monthly Payment
-                                </button>
-                            </div>
-                            <div className="space-y-4">
-                                {mode === 'price' ? (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Price</label>
-                                        <CurrencyInput value={vehiclePrice} onChange={setVehiclePrice} placeholder="Enter vehicle price" />
-                                    </div>
-                                ) : (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Budget</label>
-                                        <CurrencyInput value={monthlyBudget} onChange={setMonthlyBudget} placeholder="Enter monthly budget" />
-                                    </div>
-                                )}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Down Payment</label>
-                                        <CurrencyInput value={downPayment} onChange={setDownPayment} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Trade-in Value</label>
-                                        <CurrencyInput value={tradeInValue} onChange={setTradeInValue} />
-                                    </div>
+        return (
+            <>
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                    <div className="p-6 md:p-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
+                                    <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                        By Vehicle Price
+                                    </button>
+                                    <button onClick={() => setMode('monthly')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                        By Monthly Payment
+                                    </button>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
-                                        <NumberInput value={interestRate} onChange={setInterestRate} suffix="%" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Loan Term (Months)</label>
-                                        <NumberInput value={loanTerm} onChange={setLoanTerm} suffix="mo" />
-                                    </div>
-                                </div>
-                                <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm mt-2 cursor-pointer">
-                                    {showAdvanced ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
-                                    {showAdvanced ? 'Hide Advanced Options' : 'Show Advanced Options (Taxes & Fees)'}
-                                </button>
-                                {showAdvanced && (
-                                    <div className="bg-gray-50 p-4 rounded-lg space-y-4 mt-2 border border-gray-200">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Sales Tax (%)</label>
-                                                <NumberInput value={salesTaxRate} onChange={setSalesTaxRate} suffix="%" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Title, Reg & Other Fees</label>
-                                                <CurrencyInput value={fees} onChange={setFees} />
-                                            </div>
+                                <div className="space-y-4">
+                                    {mode === 'price' ? (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Price</label>
+                                            <CurrencyInput value={vehiclePrice} onChange={setVehiclePrice} placeholder="Enter vehicle price" />
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Budget</label>
+                                            <CurrencyInput value={monthlyBudget} onChange={setMonthlyBudget} placeholder="Enter monthly budget" />
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Down Payment</label>
+                                            <CurrencyInput value={downPayment} onChange={setDownPayment} />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Amount Owed on Trade-in</label>
-                                            <CurrencyInput value={amountOwedOnTrade} onChange={setAmountOwedOnTrade} />
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <input type="checkbox" id="includeTax" checked={includeTaxInLoan} onChange={(e) => setIncludeTaxInLoan(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                            <label htmlFor="includeTax" className="text-sm text-gray-700">Include taxes and fees in loan</label>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Trade-in Value</label>
+                                            <CurrencyInput value={tradeInValue} onChange={setTradeInValue} />
                                         </div>
                                     </div>
-                                )}
-                                <button
-                                    onClick={resetToDefaults}
-                                    className="mt-4 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors cursor-pointer"
-                                >
-                                    Reset Values
-                                </button>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                                            <NumberInput value={interestRate} onChange={setInterestRate} suffix="%" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Loan Term (Months)</label>
+                                            <NumberInput value={loanTerm} onChange={setLoanTerm} suffix="mo" />
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm mt-2 cursor-pointer">
+                                        {showAdvanced ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
+                                        {showAdvanced ? 'Hide Advanced Options' : 'Show Advanced Options (Taxes & Fees)'}
+                                    </button>
+                                    {showAdvanced && (
+                                        <div className="bg-gray-50 p-4 rounded-lg space-y-4 mt-2 border border-gray-200">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sales Tax (%)</label>
+                                                    <NumberInput value={salesTaxRate} onChange={setSalesTaxRate} suffix="%" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Title, Reg & Other Fees</label>
+                                                    <CurrencyInput value={fees} onChange={setFees} />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Amount Owed on Trade-in</label>
+                                                <CurrencyInput value={amountOwedOnTrade} onChange={setAmountOwedOnTrade} />
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <input type="checkbox" id="includeTax" checked={includeTaxInLoan} onChange={(e) => setIncludeTaxInLoan(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                                <label htmlFor="includeTax" className="text-sm text-gray-700">Include taxes and fees in loan</label>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
+                                            </div>
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={resetToDefaults}
+                                        className="mt-4 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors cursor-pointer"
+                                    >
+                                        Reset Values
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Summary</h3>
-                            <div className="mb-8 text-center">
-                                <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
-                                <div className="text-4xl font-bold text-blue-600">
-                                    {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                            <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Summary</h3>
+                                <div className="mb-8 text-center">
+                                    <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
+                                    <div className="text-4xl font-bold text-blue-600">
+                                        {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                                    </div>
+                                    {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
                                 </div>
-                                {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
-                            </div>
-                            <div className="space-y-4 mb-8">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Total Loan Amount</span>
-                                    <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Total Loan Amount</span>
+                                        <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Total Interest</span>
+                                        <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Total Cost (Loan + Interest)</span>
+                                        <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Payoff Date</span>
+                                        <span className="font-semibold text-gray-900">{payoffDate}</span>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Total Interest</span>
-                                    <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                <div className="h-64 flex items-center justify-center">
+                                    <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Total Cost (Loan + Interest)</span>
-                                    <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Payoff Date</span>
-                                    <span className="font-semibold text-gray-900">{payoffDate}</span>
-                                </div>
-                            </div>
-                            <div className="h-64 flex items-center justify-center">
-                                <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="mt-12">
-                <AmortizationTable schedule={amortizationSchedule} />
-            </div>
-        </>
-    );
-};
+                <div className="mt-12">
+                    <AmortizationTable schedule={amortizationSchedule} />
+                </div>
+            </>
+        );
+    };
 
-export default AutoLoanCalculator;
+    export default AutoLoanCalculator;
