@@ -172,11 +172,13 @@ export default function AmortizationTable({ schedule, currencySymbol = "$" }: Am
                                             className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                                             onClick={() => toggleYear(year)}
                                         >
-                                            <td colSpan={2} className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800">
+                                            <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800">
                                                 <div className="flex items-center gap-2">
                                                     {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                                                    {year}
                                                 </div>
+                                            </td>
+                                            <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800">
+                                                {year}
                                             </td>
                                             <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400 font-semibold bg-gray-100 dark:bg-gray-800">
                                                 {formatCurrency(yearTotals.principal)}
