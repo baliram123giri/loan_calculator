@@ -7,6 +7,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import CurrencyInput from './CurrencyInput';
 import ShareButton from './ShareButton';
 import AmortizationTable from './AmortizationTable';
+import ChartBalance from './ChartBalance';
+import ChartPaymentComposition from './ChartPaymentComposition';
+import ExportButton from './ExportButton';
 import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 export default function APRCalculator() {
@@ -280,13 +283,43 @@ export default function APRCalculator() {
                 </div>
             </div>
 
+            {/* Charts Section */}
+            {amortizationSchedule.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 h-96">
+                        <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Balance Over Time</h3>
+                        <ChartBalance data={amortizationSchedule} />
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 h-96">
+                        <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Payment Composition</h3>
+                        <ChartPaymentComposition data={amortizationSchedule} />
+                    </div>
+                </div>
+            )}
+
             {/* Amortization Table Section */}
             {amortizationSchedule.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">
-                        Amortization Schedule
-                    </h3>
-                    <AmortizationTable schedule={amortizationSchedule} />
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                            Amortization Schedule
+                        </h3>
+                        {/* @ts-ignore */}
+                        <ExportButton
+                            result={{
+                                emi: result.monthlyPayment,
+                                totalInterest: result.totalInterest,
+                                totalPayment: result.totalCost,
+                                amortization: amortizationSchedule
+                            }}
+                            principal={principal}
+                            rate={interestRate}
+                            tenureMonths={termType === 'years' ? termValue * 12 : termValue}
+                        />
+                    </div>
+                    <div className="p-6">
+                        <AmortizationTable schedule={amortizationSchedule} />
+                    </div>
                 </div>
             )}
         </div>
