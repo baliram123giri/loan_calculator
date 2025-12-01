@@ -10,6 +10,7 @@ import AmortizationTable from './AmortizationTable';
 import ChartBalance from './ChartBalance';
 import ChartPaymentComposition from './ChartPaymentComposition';
 import ExportButton from './ExportButton';
+import NumberInput from './NumberInput';
 import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 export default function APRCalculator() {
@@ -101,33 +102,24 @@ export default function APRCalculator() {
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         Interest Rate (%)
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            type="number"
-                                            value={interestRate === 0 ? '' : interestRate}
-                                            onChange={(e) => setInterestRate(e.target.value === '' ? 0 : Number(e.target.value))}
-                                            onFocus={(e) => e.target.select()}
-                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
-                                            step="0.1"
-                                            placeholder="0"
-                                        />
-                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                            <span className="text-gray-500 sm:text-sm">%</span>
-                                        </div>
-                                    </div>
+                                    <NumberInput
+                                        value={interestRate}
+                                        onChange={setInterestRate}
+                                        suffix="%"
+                                        min={0}
+                                        max={100}
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         Term
                                     </label>
                                     <div className="flex rounded-md shadow-sm">
-                                        <input
-                                            type="number"
-                                            value={termValue === 0 ? '' : termValue}
-                                            onChange={(e) => setTermValue(e.target.value === '' ? 0 : Number(e.target.value))}
-                                            onFocus={(e) => e.target.select()}
-                                            className="block w-full rounded-l-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
-                                            placeholder="0"
+                                        <NumberInput
+                                            value={termValue}
+                                            onChange={setTermValue}
+                                            className="rounded-r-none"
+                                            min={0}
                                         />
                                         <select
                                             value={termType}
