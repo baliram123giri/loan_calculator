@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CalculatorDescriptionProps {
-    type: 'mortgage' | 'loan' | 'simple-interest' | 'compound-interest' | 'sales-tax' | 'property-tax' | 'fha-loan';
+    type: 'mortgage' | 'loan' | 'simple-interest' | 'compound-interest' | 'sales-tax' | 'property-tax' | 'fha-loan' | 'va-mortgage';
 }
 
 const descriptions = {
@@ -130,6 +130,47 @@ Use this calculator when you're house hunting to get a realistic picture of your
                 <li><strong>Check the Rate:</strong> Enter current market rates. FHA rates are often slightly lower than conventional rates.</li>
                 <li><strong>Review Advanced Options:</strong> We've pre-filled standard MIP rates (1.75% upfront, 0.55% annual), but you can adjust these if your situation differs.</li>
                 <li><strong>Analyze the Breakdown:</strong> Look at the "Payment Breakdown" chart to see exactly where your money goes each month—Principal, Interest, MIP, Taxes, and Insurance.</li>
+            </ol>
+        `
+    },
+    'va-mortgage': {
+        title: 'Everything You Need to Know About VA Loans',
+        content: `
+            <h2>What is a VA Loan?</h2>
+            <p>A VA loan is a mortgage loan issued by private lenders and backed by the U.S. Department of Veterans Affairs (VA). It is designed to help eligible American veterans, active-duty service members, and surviving spouses buy a home with favorable terms.</p>
+            <p>VA loans are widely considered one of the best mortgage products available because they often require no down payment and have no private mortgage insurance (PMI).</p>
+
+            <h2>Key Benefits of VA Loans</h2>
+            <ul>
+                <li><strong>No Down Payment:</strong> Qualified borrowers can often purchase a home with 0% down.</li>
+                <li><strong>No PMI:</strong> Unlike conventional and FHA loans, VA loans do not require monthly mortgage insurance, saving you hundreds of dollars each month.</li>
+                <li><strong>Competitive Interest Rates:</strong> VA loans typically offer lower interest rates than conventional loans.</li>
+                <li><strong>Limited Closing Costs:</strong> The VA limits the amount of closing costs borrowers can be charged.</li>
+            </ul>
+
+            <h2>Understanding the VA Funding Fee</h2>
+            <p>While there is no monthly mortgage insurance, most VA loans require a one-time "Funding Fee" that helps offset the cost of the program to taxpayers. This fee can be paid upfront or rolled into the loan amount.</p>
+            <p>The fee amount depends on several factors:</p>
+            <ul>
+                <li><strong>Type of Service:</strong> Regular Military or Reserves/National Guard.</li>
+                <li><strong>Down Payment:</strong> Larger down payments result in lower funding fees.</li>
+                <li><strong>First vs. Subsequent Use:</strong> First-time users pay a lower fee (typically 2.15% for 0% down) than subsequent users (typically 3.3% for 0% down).</li>
+            </ul>
+
+            <h2>Funding Fee Exemptions</h2>
+            <p>You may be exempt from paying the VA Funding Fee if you:</p>
+            <ul>
+                <li>Receive VA compensation for a service-connected disability.</li>
+                <li>Are a surviving spouse of a veteran who died in service or from a service-connected disability.</li>
+            </ul>
+            <p><strong>Tip:</strong> Use the "Service Disability" toggle in our calculator to see how waiving this fee affects your loan.</p>
+
+            <h2>How to Use This Calculator</h2>
+            <ol>
+                <li><strong>Enter Loan Details:</strong> Input the home price and any down payment (though 0% is common).</li>
+                <li><strong>Select Military Status:</strong> Choose whether this is your first time using a VA loan or if you've used it before, as this affects the Funding Fee.</li>
+                <li><strong>Check Disability Status:</strong> If you have a service-connected disability, toggle the switch to remove the Funding Fee.</li>
+                <li><strong>Review the Breakdown:</strong> See your total monthly payment, including taxes and insurance, and view the amortization schedule.</li>
             </ol>
         `
     }

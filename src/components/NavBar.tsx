@@ -47,6 +47,7 @@ export default function NavBar() {
             icon: Home,
             items: [
                 { href: '/calculators/mortgage', label: 'Mortgage', description: 'Monthly mortgage payments' },
+                { href: '/calculators/va-mortgage-calculator', label: 'VA Mortgage', description: 'VA loan with Funding Fee' },
                 { href: '/calculators/fha-loan-calculator', label: 'FHA Loan', description: 'FHA loan with MIP' },
                 { href: '/calculators/house-affordability', label: 'Affordability', description: 'How much house you can afford' },
                 { href: '/calculators/rent-calculator', label: 'Rent Calculator', description: 'Rent vs buy analysis' },
