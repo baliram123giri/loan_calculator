@@ -45,8 +45,8 @@ export default function VAMortgageCalculator() {
     const [isDisabled, setIsDisabled] = useState(false);
 
     // Advanced State
-    const [propertyTax, setPropertyTax] = useState(300); // Monthly
-    const [homeInsurance, setHomeInsurance] = useState(100); // Monthly
+    const [propertyTax, setPropertyTax] = useState(0); // Monthly
+    const [homeInsurance, setHomeInsurance] = useState(0); // Monthly
     const [hoaFees, setHoaFees] = useState(0); // Monthly
 
     const calculate = React.useCallback(() => {
@@ -80,8 +80,8 @@ export default function VAMortgageCalculator() {
         setLoanPurpose('purchase');
         setIsFirstUse(true);
         setIsDisabled(false);
-        setPropertyTax(300);
-        setHomeInsurance(100);
+        setPropertyTax(0);
+        setHomeInsurance(0);
         setHoaFees(0);
     };
 
@@ -317,7 +317,7 @@ export default function VAMortgageCalculator() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                                 <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Monthly Payment Breakdown</h3>
-                                <div className="mb-6">
+                                <div className="mb-6 w-full h-[300px]">
                                     <ChartBreakup
                                         data={[
                                             { name: 'Principal & Interest', value: result.emi, color: '#3B82F6' },
@@ -325,8 +325,10 @@ export default function VAMortgageCalculator() {
                                             { name: 'Home Insurance', value: result.monthlyInsurance, color: '#A855F7' },
                                             ...(result.monthlyHOA > 0 ? [{ name: 'HOA Fees', value: result.monthlyHOA, color: '#6B7280' }] : [])
                                         ]}
+                                        legendType='none'
                                         centerLabel="Total"
                                         centerValue={`$${result.totalMonthlyPayment.toLocaleString()}`}
+                                        variant="donut"
                                     />
                                 </div>
                                 <div className="space-y-3">
