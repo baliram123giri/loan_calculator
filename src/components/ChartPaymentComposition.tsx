@@ -38,14 +38,10 @@ export default function ChartPaymentComposition({ data, currencySymbol = "$" }: 
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis
-                        dataKey="month"
+                        dataKey="date"
                         stroke="#9ca3af"
-                        tickFormatter={(value) => {
-                            // If total months > 24, show years
-                            if (data.length > 24) {
-                                return value % 12 === 0 ? `Yr ${value / 12}` : '';
-                            }
-                            return `Mo ${value}`;
+                        tickFormatter={(date) => {
+                            return new Date(date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
                         }}
                         minTickGap={30}
                     />

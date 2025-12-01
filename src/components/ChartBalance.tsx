@@ -38,9 +38,12 @@ export default function ChartBalance({ data, currencySymbol = "$" }: ChartBalanc
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis
-                        dataKey="month"
+                        dataKey="date"
                         stroke="#9ca3af"
-                        label={{ value: 'Month', position: 'insideBottomRight', offset: -10 }}
+                        tickFormatter={(date) => {
+                            return new Date(date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                        }}
+                        minTickGap={30}
                     />
                     <YAxis
                         stroke="#9ca3af"

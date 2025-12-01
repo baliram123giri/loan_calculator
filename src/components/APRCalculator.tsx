@@ -32,6 +32,7 @@ export default function APRCalculator() {
     const [result, setResult] = useState<any>(null);
     const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
     const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
+    const [showCharts, setShowCharts] = useState(false);
 
     // Calculate on change
     useEffect(() => {
@@ -286,37 +287,53 @@ export default function APRCalculator() {
 
             {amortizationSchedule.length > 0 && (
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
-                    <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Loan Analysis</h3>
-                        <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                            <button
-                                onClick={() => setActiveChart('balance')}
-                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeChart === 'balance'
-                                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                                    }`}
-                            >
-                                Balance History
-                            </button>
-                            <button
-                                onClick={() => setActiveChart('composition')}
-                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeChart === 'composition'
-                                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                                    }`}
-                            >
-                                Payment Composition
-                            </button>
-                        </div>
-                    </div>
+                    <button
+                        onClick={() => setShowCharts(!showCharts)}
+                        className="flex items-center justify-between w-full mb-6"
+                    >
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            Loan Analysis
+                            <span className="text-xs font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                                Optional
+                            </span>
+                        </h3>
+                        {showCharts ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </button>
 
-                    <div className="h-96">
-                        {activeChart === 'balance' ? (
-                            <ChartBalance data={amortizationSchedule} />
-                        ) : (
-                            <ChartPaymentComposition data={amortizationSchedule} />
-                        )}
-                    </div>
+                    {showCharts && (
+                        <div className="animate-in slide-in-from-top-2 duration-200">
+                            <div className="flex justify-end mb-4">
+                                <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                                    <button
+                                        onClick={() => setActiveChart('balance')}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeChart === 'balance'
+                                            ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                            }`}
+                                    >
+                                        Balance History
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveChart('composition')}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeChart === 'composition'
+                                            ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                            }`}
+                                    >
+                                        Payment Composition
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="h-96">
+                                {activeChart === 'balance' ? (
+                                    <ChartBalance data={amortizationSchedule} />
+                                ) : (
+                                    <ChartPaymentComposition data={amortizationSchedule} />
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
