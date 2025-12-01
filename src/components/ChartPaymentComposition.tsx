@@ -40,7 +40,14 @@ export default function ChartPaymentComposition({ data, currencySymbol = "$" }: 
                     <XAxis
                         dataKey="month"
                         stroke="#9ca3af"
-                        label={{ value: 'Month', position: 'insideBottomRight', offset: -5 }}
+                        tickFormatter={(value) => {
+                            // If total months > 24, show years
+                            if (data.length > 24) {
+                                return value % 12 === 0 ? `Yr ${value / 12}` : '';
+                            }
+                            return `Mo ${value}`;
+                        }}
+                        minTickGap={30}
                     />
                     <YAxis
                         stroke="#9ca3af"

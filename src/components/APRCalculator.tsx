@@ -31,6 +31,7 @@ export default function APRCalculator() {
     // Results state
     const [result, setResult] = useState<any>(null);
     const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
+    const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
 
     // Calculate on change
     useEffect(() => {
@@ -283,16 +284,38 @@ export default function APRCalculator() {
                 </div>
             </div>
 
-            {/* Charts Section */}
             {amortizationSchedule.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 h-96">
-                        <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Balance Over Time</h3>
-                        <ChartBalance data={amortizationSchedule} />
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Loan Analysis</h3>
+                        <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                            <button
+                                onClick={() => setActiveChart('balance')}
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeChart === 'balance'
+                                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                    }`}
+                            >
+                                Balance History
+                            </button>
+                            <button
+                                onClick={() => setActiveChart('composition')}
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeChart === 'composition'
+                                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                    }`}
+                            >
+                                Payment Composition
+                            </button>
+                        </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 h-96">
-                        <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Payment Composition</h3>
-                        <ChartPaymentComposition data={amortizationSchedule} />
+
+                    <div className="h-96">
+                        {activeChart === 'balance' ? (
+                            <ChartBalance data={amortizationSchedule} />
+                        ) : (
+                            <ChartPaymentComposition data={amortizationSchedule} />
+                        )}
                     </div>
                 </div>
             )}
