@@ -30,7 +30,13 @@ export default function APRCalculator() {
     const [showFees, setShowFees] = useState(true);
 
     // Results state
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<any>({
+        apr: 0,
+        monthlyPayment: 0,
+        totalInterest: 0,
+        totalFees: 0,
+        totalCost: 0
+    });
     const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
     const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
     const [viewMode, setViewMode] = useState<'schedule' | 'analysis'>('schedule');
@@ -41,7 +47,13 @@ export default function APRCalculator() {
         const termMonths = termType === 'years' ? termValue * 12 : termValue;
 
         if (termMonths <= 0 || principal <= 0) {
-            setResult(null);
+            setResult({
+                apr: 0,
+                monthlyPayment: 0,
+                totalInterest: 0,
+                totalFees: totalFees,
+                totalCost: 0
+            });
             setAmortizationSchedule([]);
             return;
         }
@@ -183,105 +195,101 @@ export default function APRCalculator() {
 
                 {/* Right Column: Results */}
                 <div className="lg:col-span-7 space-y-6">
-                    {result && (
-                        <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* APR Card */}
-                                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                                    <h3 className="text-blue-100 font-medium mb-1">Annual Percentage Rate (APR)</h3>
-                                    <div className="text-4xl font-bold mb-2">
-                                        {result.apr.toFixed(3)}%
-                                    </div>
-                                    <p className="text-sm text-blue-100 opacity-90">
-                                        This is the true cost of your loan including fees.
-                                    </p>
-                                </div>
-
-                                {/* Monthly Payment Card */}
-                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
-                                    <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-1">Monthly Payment</h3>
-                                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                                        ${result.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </div>
-                                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                                        Principal & Interest
-                                    </p>
-                                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* APR Card */}
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                            <h3 className="text-blue-100 font-medium mb-1">Annual Percentage Rate (APR)</h3>
+                            <div className="text-4xl font-bold mb-2">
+                                {result.apr.toFixed(3)}%
                             </div>
+                            <p className="text-sm text-blue-100 opacity-90">
+                                This is the true cost of your loan including fees.
+                            </p>
+                        </div>
 
-                            {/* Breakdown Chart & Summary */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                                    <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Cost Breakdown</h3>
-                                    <div className="h-64 flex items-center justify-center">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={chartData}
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    innerRadius={60}
-                                                    outerRadius={80}
-                                                    paddingAngle={5}
-                                                    dataKey="value"
-                                                >
-                                                    {chartData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip
-                                                    formatter={(value: number) => `$${value.toLocaleString()}`}
-                                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                                />
-                                                <Legend verticalAlign="bottom" height={36} />
-                                            </PieChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </div>
+                        {/* Monthly Payment Card */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-1">Monthly Payment</h3>
+                            <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                                ${result.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                                Principal & Interest
+                            </p>
+                        </div>
+                    </div>
 
-                                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-center">
-                                    <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Loan Summary</h3>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                            <span className="text-gray-600 dark:text-gray-400">Total Principal</span>
-                                            <span className="font-semibold text-gray-900 dark:text-white">
-                                                ${principal.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                            <span className="text-gray-600 dark:text-gray-400">Total Interest</span>
-                                            <span className="font-semibold text-gray-900 dark:text-white">
-                                                ${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                            <span className="text-gray-600 dark:text-gray-400">Total Fees</span>
-                                            <span className="font-semibold text-gray-900 dark:text-white">
-                                                ${result.totalFees.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center pt-2">
-                                            <span className="text-lg font-bold text-gray-900 dark:text-white">Total Cost</span>
-                                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                                                ${result.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="mt-6">
-                                        <ShareButton
-                                            data={{
-                                                p: principal,
-                                                r: interestRate,
-                                                t: termType === 'years' ? termValue : termValue / 12,
-                                                f: result.totalFees
-                                            }}
+                    {/* Breakdown Chart & Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Cost Breakdown</h3>
+                            <div className="h-64 flex items-center justify-center">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={chartData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                        >
+                                            {chartData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value: number) => `$${value.toLocaleString()}`}
+                                            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                                         />
-                                    </div>
+                                        <Legend verticalAlign="bottom" height={36} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-center">
+                            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Loan Summary</h3>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-600 dark:text-gray-400">Total Principal</span>
+                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                        ${principal.toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-600 dark:text-gray-400">Total Interest</span>
+                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                        ${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-600 dark:text-gray-400">Total Fees</span>
+                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                        ${result.totalFees.toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2">
+                                    <span className="text-lg font-bold text-gray-900 dark:text-white">Total Cost</span>
+                                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                        ${result.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                    </span>
                                 </div>
                             </div>
-                        </>
-                    )}
+                            <div className="mt-6">
+                                <ShareButton
+                                    data={{
+                                        p: principal,
+                                        r: interestRate,
+                                        t: termType === 'years' ? termValue : termValue / 12,
+                                        f: result.totalFees
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
