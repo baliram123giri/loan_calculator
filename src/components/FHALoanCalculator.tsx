@@ -264,60 +264,14 @@ export default function FHALoanCalculator() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Monthly Payment Breakdown</h3>
-                                <div className="mb-6">
-                                    <ChartBreakup
-                                        data={[
-                                            { name: 'Principal & Interest', value: result.monthlyPrincipalAndInterest, color: '#3B82F6' },
-                                            { name: 'MIP', value: result.monthlyMIP, color: '#F97316' },
-                                            { name: 'Property Tax', value: result.monthlyTax, color: '#22C55E' },
-                                            { name: 'Home Insurance', value: result.monthlyInsurance, color: '#A855F7' },
-                                            ...(result.monthlyHOA > 0 ? [{ name: 'HOA Fees', value: result.monthlyHOA, color: '#6B7280' }] : [])
-                                        ]}
-                                        centerLabel="Total"
-                                        centerValue={`$${result.totalMonthlyPayment.toLocaleString()}`}
-                                    />
-                                </div>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Principal & Interest</span>
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyPrincipalAndInterest.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">MIP (Mortgage Insurance)</span>
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyMIP.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Property Tax</span>
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyTax.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Home Insurance</span>
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyInsurance.toLocaleString()}</span>
-                                    </div>
-                                    {result.monthlyHOA > 0 && (
-                                        <div className="flex justify-between items-center p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">HOA Fees</span>
-                                            </div>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyHOA.toLocaleString()}</span>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-96">
+                                <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Total Payment Breakup</h3>
+                                <ChartBreakup
+                                    data={[
+                                        { name: 'Principal', value: result.totalLoanAmount, color: '#16a34a' },
+                                        { name: 'Interest', value: result.totalInterest, color: '#ea580c' }
+                                    ]}
+                                />
                             </div>
 
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-96">
