@@ -292,15 +292,15 @@ export default function FHALoanCalculator() {
 
                         {/* Amortization Table */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div className="flex flex-col gap-1">
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                                <div className="flex flex-col gap-1 w-full lg:w-auto">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Amortization Schedule</h3>
                                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                                         <span>Tax: ${result.monthlyTax}</span>
                                         <span>Ins: ${result.monthlyInsurance}</span>
                                     </div>
                                 </div>
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 w-full lg:w-auto">
                                     <ExportButton
                                         result={result}
                                         principal={result.totalLoanAmount}

@@ -103,8 +103,8 @@ Use this calculator when you're house hunting to get a realistic picture of your
             <p>It's important to check the specific limit for the county where you're buying.</p>
 
             <h2>Is an FHA Loan Right for You?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-                <div class="bg-green-50 dark:bg-green-900/20 p-5 rounded-xl border border-green-100 dark:border-green-800">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6 items-stretch">
+                <div class="bg-green-50 dark:bg-green-900/20 p-5 rounded-xl border border-green-100 dark:border-green-800 h-full">
                     <h3 class="text-green-800 dark:text-green-300 font-bold mb-3 text-lg">Why Choose FHA?</h3>
                     <ul class="space-y-2 text-green-700 dark:text-green-400">
                         <li class="flex items-start gap-2"><span class="mt-1">✅</span> <span>Easier to qualify with lower credit scores.</span></li>
@@ -113,7 +113,7 @@ Use this calculator when you're house hunting to get a realistic picture of your
                         <li class="flex items-start gap-2"><span class="mt-1">✅</span> <span>Assumable: A future buyer can take over your rate.</span></li>
                     </ul>
                 </div>
-                <div class="bg-orange-50 dark:bg-orange-900/20 p-5 rounded-xl border border-orange-100 dark:border-orange-800">
+                <div class="bg-orange-50 dark:bg-orange-900/20 p-5 rounded-xl border border-orange-100 dark:border-orange-800 h-full">
                     <h3 class="text-orange-800 dark:text-orange-300 font-bold mb-3 text-lg">Things to Consider</h3>
                     <ul class="space-y-2 text-orange-700 dark:text-orange-400">
                         <li class="flex items-start gap-2"><span class="mt-1">⚠️</span> <span>MIP is required regardless of your down payment.</span></li>
