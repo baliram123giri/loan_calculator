@@ -336,7 +336,6 @@ export default function DownPaymentCalculator() {
                                     value={propertyTaxRate}
                                     onChange={setPropertyTaxRate}
                                     suffix="%"
-                                    step={0.1}
                                     className="text-sm"
                                 />
                             </div>
@@ -362,7 +361,6 @@ export default function DownPaymentCalculator() {
                                     value={pmiRate}
                                     onChange={setPmiRate}
                                     suffix="%"
-                                    step={0.1}
                                     className="text-sm"
                                 />
                                 <p className="text-[10px] text-gray-400 mt-1">Applied if Down Payment &lt; 20%</p>
@@ -397,45 +395,6 @@ export default function DownPaymentCalculator() {
                             {financeClosingCosts ? 'Includes Closing Costs' : 'Base Loan Amount'}
                         </p>
                     </div>
-                </div>
-
-                {/* Comparison Section */}
-                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
-                    <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Down Payment Comparison</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {comparisonScenarios.map((scenario) => (
-                            <div
-                                key={scenario.percent}
-                                className={`p-4 rounded-xl border ${Math.abs(scenario.percent - downPaymentPercent) < 0.1
-                                    ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 ring-1 ring-blue-500'
-                                    : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
-                                    }`}
-                            >
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-bold text-gray-900 dark:text-white">{scenario.percent}% Down</span>
-                                    {scenario.pmi > 0 && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">PMI</span>}
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Upfront:</span>
-                                        <span className="font-medium text-gray-900 dark:text-gray-100">${scenario.downPayment.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Monthly (P&I+PMI):</span>
-                                        <span className="font-medium text-gray-900 dark:text-gray-100">${scenario.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                    </div>
-                                    <div className="flex justify-between text-xs text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                        <span>Total Interest:</span>
-                                        <span>${scenario.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Charts & Breakdown */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                         <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Monthly Payment Breakdown</h3>
                         <div className="mb-6 w-full h-[300px]">
