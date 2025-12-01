@@ -2,21 +2,24 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-interface ChartBreakupProps {
-    principal: number;
-    interest: number;
+interface ChartData {
+    name: string;
+    value: number;
+    color?: string;
+    [key: string]: any;
 }
 
-export default function ChartBreakup({ principal, interest }: ChartBreakupProps) {
-    const data = [
-        { name: 'Principal', value: principal },
-        { name: 'Interest', value: interest },
-    ];
+interface ChartBreakupProps {
+    data: ChartData[];
+    centerLabel?: string;
+    centerValue?: string;
+}
 
-    const COLORS = ['#16a34a', '#ea580c']; // Green for Principal, Orange for Interest
+export default function ChartBreakup({ data, centerLabel, centerValue }: ChartBreakupProps) {
+    const DEFAULT_COLORS = ['#16a34a', '#ea580c', '#3b82f6', '#a855f7', '#eab308'];
 
     return (
-        <div className="w-full h-full min-h-[300px]">
+        <div className="w-full h-full min-h-[300px] relative">
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
@@ -30,7 +33,10 @@ export default function ChartBreakup({ principal, interest }: ChartBreakupProps)
                         dataKey="value"
                     >
                         {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell
+                                key={`cell-${index}`}
+                                fill={entry.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
+                            />
                         ))}
                     </Pie>
                     <Tooltip
@@ -40,6 +46,12 @@ export default function ChartBreakup({ principal, interest }: ChartBreakupProps)
                     <Legend verticalAlign="bottom" height={36} />
                 </PieChart>
             </ResponsiveContainer>
+            {(centerLabel || centerValue) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
+                    {centerLabel && <span className="text-sm text-gray-500 dark:text-gray-400">{centerLabel}</span>}
+                    {centerValue && <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{centerValue}</span>}
+                </div>
+            )}
         </div>
     );
 }

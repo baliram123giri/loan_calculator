@@ -90,8 +90,10 @@ export default function PaymentCalculator() {
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
                                 <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Total Payment Breakup</h3>
                                 <ChartBreakup
-                                    principal={result.totalPayment - result.totalInterest}
-                                    interest={result.totalInterest}
+                                    data={[
+                                        { name: 'Principal', value: result.totalPayment - result.totalInterest },
+                                        { name: 'Interest', value: result.totalInterest }
+                                    ]}
                                 />
                             </div>
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-80">
