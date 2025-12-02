@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateSimpleInterest, calculateCompoundInterest, InterestCalculation } from '@/lib/calc/interest';
 import { TrendingUp, Calendar, Lightbulb, ArrowRight, DollarSign, Percent, Clock, PieChart } from 'lucide-react';
+import ShareButton from '@/components/ShareButton';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -29,21 +30,44 @@ ChartJS.register(
 
 export default function InterestCalculator() {
     const [calculationType, setCalculationType] = useState<'simple' | 'compound'>('compound');
-    const [principal, setPrincipal] = useState<number>(10000);
-    const [rate, setRate] = useState<number>(7);
-    const [time, setTime] = useState<number>(10);
+    const [principal, setPrincipal] = useState<number | ''>(10000);
+    const [rate, setRate] = useState<number | ''>(7);
+    const [time, setTime] = useState<number | ''>(10);
     const [compoundingFrequency, setCompoundingFrequency] = useState<'yearly' | 'half-yearly' | 'quarterly' | 'monthly' | 'daily'>('yearly');
-    const [monthlyContribution, setMonthlyContribution] = useState<number>(0);
+    const [monthlyContribution, setMonthlyContribution] = useState<number | ''>(0);
     const [result, setResult] = useState<InterestCalculation | null>(null);
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
+    const handleReset = () => {
+        setCalculationType('compound');
+        setPrincipal(10000);
+        setRate(7);
+        setTime(10);
+        setCompoundingFrequency('yearly');
+        setMonthlyContribution(0);
+    };
+
+    const handleInputChange = (setter: (value: number | '') => void, value: string) => {
+        if (value === '') {
+            setter('');
+        } else {
+            setter(Number(value));
+        }
+    };
+
     useEffect(() => {
         try {
+            // Use 0 for empty inputs during calculation to prevent errors
+            const p = principal === '' ? 0 : principal;
+            const r = rate === '' ? 0 : rate;
+            const t = time === '' ? 0 : time;
+            const mc = monthlyContribution === '' ? 0 : monthlyContribution;
+
             let calc: InterestCalculation;
             if (calculationType === 'simple') {
-                calc = calculateSimpleInterest(principal, rate, time);
+                calc = calculateSimpleInterest(p, r, t);
             } else {
-                calc = calculateCompoundInterest(principal, rate, time, compoundingFrequency, monthlyContribution);
+                calc = calculateCompoundInterest(p, r, t, compoundingFrequency, mc);
             }
             setResult(calc);
             generateSuggestions(calc);
@@ -59,21 +83,30 @@ export default function InterestCalculator() {
             newSuggestions.push("💡 **Tip:** Switching to Compound Interest could significantly increase your returns over time.");
         } else {
             if (compoundingFrequency === 'yearly') {
-                const monthlyCalc = calculateCompoundInterest(principal, rate, time, 'monthly', monthlyContribution);
+                const p = principal === '' ? 0 : principal;
+                const r = rate === '' ? 0 : rate;
+                const t = time === '' ? 0 : time;
+                const mc = monthlyContribution === '' ? 0 : monthlyContribution;
+
+                const monthlyCalc = calculateCompoundInterest(p, r, t, 'monthly', mc);
                 const diff = monthlyCalc.totalAmount - calc.totalAmount;
                 if (diff > 100) {
                     newSuggestions.push(`🚀 **Boost your returns:** If interest were compounded **monthly** instead of yearly, you would earn an extra **${formatCurrency(diff)}**.`);
                 }
             }
 
-            if (monthlyContribution === 0) {
-                const withContribution = calculateCompoundInterest(principal, rate, time, compoundingFrequency, 500);
-                const extra = withContribution.totalAmount - calc.totalAmount - (500 * 12 * time);
+            if (monthlyContribution === 0 || monthlyContribution === '') {
+                const p = principal === '' ? 0 : principal;
+                const r = rate === '' ? 0 : rate;
+                const t = time === '' ? 0 : time;
+
+                const withContribution = calculateCompoundInterest(p, r, t, compoundingFrequency, 500);
+                const extra = withContribution.totalAmount - calc.totalAmount - (500 * 12 * t);
                 newSuggestions.push(`💰 **Power of SIP:** Contributing just **$500/month** could earn you an additional **${formatCurrency(extra)}** in interest alone!`);
             }
         }
 
-        if (time < 5) {
+        if ((time === '' ? 0 : time) < 5) {
             newSuggestions.push("📈 **Long-term growth:** Extending your investment period to 10 years allows compound interest to work its magic more effectively.");
         }
 
@@ -102,7 +135,7 @@ export default function InterestCalculator() {
             },
             {
                 label: 'Principal Invested',
-                data: result?.breakdown.map(b => b.openingBalance + (monthlyContribution * 12)) || [], // Approximate for viz
+                data: result?.breakdown.map(b => b.openingBalance + ((monthlyContribution === '' ? 0 : monthlyContribution) * 12)) || [], // Approximate for viz
                 borderColor: '#9CA3AF', // Gray 400
                 borderDash: [5, 5],
                 fill: false,
@@ -188,7 +221,7 @@ export default function InterestCalculator() {
                                     <input
                                         type="number"
                                         value={principal}
-                                        onChange={(e) => setPrincipal(Number(e.target.value))}
+                                        onChange={(e) => handleInputChange(setPrincipal, e.target.value)}
                                         className="w-full pl-10 pr-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
                                     />
                                 </div>
@@ -202,7 +235,7 @@ export default function InterestCalculator() {
                                 <input
                                     type="number"
                                     value={rate}
-                                    onChange={(e) => setRate(Number(e.target.value))}
+                                    onChange={(e) => handleInputChange(setRate, e.target.value)}
                                     className="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
                                 />
                             </div>
@@ -215,15 +248,15 @@ export default function InterestCalculator() {
                                 <input
                                     type="number"
                                     value={time}
-                                    onChange={(e) => setTime(Number(e.target.value))}
+                                    onChange={(e) => handleInputChange(setTime, e.target.value)}
                                     className="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
                                 />
                                 <input
                                     type="range"
                                     min="1"
                                     max="50"
-                                    value={time}
-                                    onChange={(e) => setTime(Number(e.target.value))}
+                                    value={time === '' ? 0 : time}
+                                    onChange={(e) => handleInputChange(setTime, e.target.value)}
                                     className="w-full mt-2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-blue-600"
                                 />
                             </div>
@@ -258,7 +291,7 @@ export default function InterestCalculator() {
                                             <input
                                                 type="number"
                                                 value={monthlyContribution}
-                                                onChange={(e) => setMonthlyContribution(Number(e.target.value))}
+                                                onChange={(e) => handleInputChange(setMonthlyContribution, e.target.value)}
                                                 className="w-full pl-10 pr-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
                                                 placeholder="0"
                                             />
@@ -266,11 +299,30 @@ export default function InterestCalculator() {
                                     </div>
                                 </div>
                             )}
+
+                            <button
+                                onClick={handleReset}
+                                className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                            >
+                                Reset Values
+                            </button>
                         </div>
                     </div>
 
                     {/* Right Panel: Results & Visuals */}
                     <div className="lg:col-span-8 p-8 space-y-8">
+                        <div className="flex justify-end">
+                            <ShareButton
+                                data={{
+                                    type: calculationType,
+                                    principal,
+                                    rate,
+                                    time,
+                                    frequency: compoundingFrequency,
+                                    contribution: monthlyContribution
+                                }}
+                            />
+                        </div>
 
                         {/* Result Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -289,7 +341,7 @@ export default function InterestCalculator() {
                             <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Principal Invested</p>
                                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                                    {result ? formatCurrency(result.principal + (monthlyContribution * 12 * time)) : '-'}
+                                    {result ? formatCurrency(result.principal + ((monthlyContribution === '' ? 0 : monthlyContribution) * 12 * (time === '' ? 0 : time))) : '-'}
                                 </p>
                             </div>
                         </div>
