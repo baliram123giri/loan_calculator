@@ -1,0 +1,38 @@
+[
+    {
+        "min": 760,
+        "max": 850,
+        "rateAdjustment": 0.0,
+        "label": "Excellent"
+    },
+    {
+        "min": 700,
+        "max": 759,
+        "rateAdjustment": 0.25,
+        "label": "Very Good"
+    },
+    {
+        "min": 660,
+        "max": 699,
+        "rateAdjustment": 0.5,
+        "label": "Good"
+    },
+    {
+        "min": 620,
+        "max": 659,
+        "rateAdjustment": 1.5,
+        "label": "Fair"
+    },
+    {
+        "min": 580,
+        "max": 619,
+        "rateAdjustment": 3.0,
+        "label": "Poor"
+    },
+    {
+        "min": 300,
+        "max": 579,
+        "rateAdjustment": 5.0,
+        "label": "Very Poor"
+    }
+]
