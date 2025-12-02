@@ -139,11 +139,19 @@ const AutoLeaseCalculator = () => {
 
         const residualPercent = (residualValue / msrp) * 100;
         if (residualPercent < 50 && leaseTerm <= 36) {
-            tips.push(`The residual value is quite low (${residualPercent.toFixed(1)}%). This increases your monthly payments. Ensure this aligns with market values (e.g., ALG guides).`);
+            tips.push(`The residual value is quite low (${residualPercent.toFixed(1)}%). This increases your monthly payments. Ensure this aligns with market values.`);
         }
 
         if (!isTaxMonthly && salesTaxRate > 0) {
-            tips.push("Paying taxes upfront significantly increases your drive-off cost. Ensure you have the cash on hand.");
+            tips.push("Paying taxes upfront significantly increases your initial cost. Ensure you have the cash on hand.");
+        }
+
+        if (downPayment > (negotiatedPrice * 0.2)) {
+            tips.push("Caution: Putting a large down payment on a lease is risky. If the asset is lost or damaged early, you likely won't get that money back.");
+        }
+
+        if (negotiatedPrice >= msrp) {
+            tips.push("You are paying List Price or above. Try to negotiate the price down. Even a 5% discount can significantly lower your monthly payment.");
         }
 
         setSuggestions(tips);
@@ -216,11 +224,11 @@ const AutoLeaseCalculator = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">MSRP</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">List Price (MSRP)</label>
                                 <CurrencyInput value={msrp} onChange={setMsrp} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Negotiated Price</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Agreed Price</label>
                                 <CurrencyInput value={negotiatedPrice} onChange={setNegotiatedPrice} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -229,7 +237,7 @@ const AutoLeaseCalculator = () => {
                                     <CurrencyInput value={downPayment} onChange={setDownPayment} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Trade-in Value</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Trade-in Credit</label>
                                     <CurrencyInput value={tradeInValue} onChange={setTradeInValue} />
                                 </div>
                             </div>
@@ -255,19 +263,25 @@ const AutoLeaseCalculator = () => {
                                 </div>
                             </div>
 
-                            {/* Tax Method Toggle */}
-                            <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                <span className="text-sm font-medium text-gray-700">Tax Payment:</span>
-                                <div className="flex space-x-2">
+                            {/* Tax Method Toggle - Redesigned */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Tax Payment Method</label>
+                                <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-lg">
                                     <button
                                         onClick={() => setIsTaxMonthly(true)}
-                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${isTaxMonthly ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                        className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 ${isTaxMonthly
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                            }`}
                                     >
-                                        Monthly
+                                        Monthly (Rolled In)
                                     </button>
                                     <button
                                         onClick={() => setIsTaxMonthly(false)}
-                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${!isTaxMonthly ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                        className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 ${!isTaxMonthly
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                            }`}
                                     >
                                         Upfront
                                     </button>
@@ -310,7 +324,7 @@ const AutoLeaseCalculator = () => {
                                     <div className="flex justify-between items-center mb-1">
                                         <label className="block text-sm font-medium text-gray-700">Residual Value ($)</label>
                                         <span className="text-xs text-gray-500">
-                                            {((residualValue / msrp) * 100).toFixed(1)}% of MSRP
+                                            {((residualValue / msrp) * 100).toFixed(1)}% of List Price
                                         </span>
                                     </div>
                                     <CurrencyInput value={residualValue} onChange={setResidualValue} />
