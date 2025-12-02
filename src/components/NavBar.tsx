@@ -74,6 +74,7 @@ export default function NavBar() {
             items: [
                 { href: '/calculators/simple-interest', label: 'Simple Interest', description: 'Simple interest calculator' },
                 { href: '/calculators/compound-interest', label: 'Compound Interest', description: 'Compound interest with APY' },
+                { href: '/calculators/interest-calculator', label: 'Interest Calculator', description: 'Advanced interest calculator with charts' },
             ]
         },
     ];
