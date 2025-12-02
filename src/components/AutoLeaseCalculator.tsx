@@ -215,10 +215,10 @@ const AutoLeaseCalculator = () => {
                             </h3>
                             <button
                                 onClick={resetToDefaults}
-                                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors cursor-pointer"
-                                title="Reset Values"
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                             >
                                 <RotateCcw className="w-4 h-4" />
+                                Reset Values
                             </button>
                         </div>
 
@@ -270,8 +270,8 @@ const AutoLeaseCalculator = () => {
                                     <button
                                         onClick={() => setIsTaxMonthly(true)}
                                         className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 ${isTaxMonthly
-                                                ? 'bg-white text-blue-600 shadow-sm'
-                                                : 'text-gray-500 hover:text-gray-700'
+                                            ? 'bg-white text-blue-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700'
                                             }`}
                                     >
                                         Monthly (Rolled In)
@@ -279,8 +279,8 @@ const AutoLeaseCalculator = () => {
                                     <button
                                         onClick={() => setIsTaxMonthly(false)}
                                         className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 ${!isTaxMonthly
-                                                ? 'bg-white text-blue-600 shadow-sm'
-                                                : 'text-gray-500 hover:text-gray-700'
+                                            ? 'bg-white text-blue-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700'
                                             }`}
                                     >
                                         Upfront

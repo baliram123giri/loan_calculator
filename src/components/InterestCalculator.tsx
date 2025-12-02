@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { calculateSimpleInterest, calculateCompoundInterest, InterestCalculation } from '@/lib/calc/interest';
-import { TrendingUp, Calendar, Lightbulb, ArrowRight, DollarSign, Percent, Clock, PieChart } from 'lucide-react';
+import { TrendingUp, Calendar, Lightbulb, ArrowRight, DollarSign, Percent, Clock, PieChart, RotateCcw, Calculator } from 'lucide-react';
 import ShareButton from '@/components/ShareButton';
 import {
     Chart as ChartJS,
@@ -188,6 +188,21 @@ export default function InterestCalculator() {
                     {/* Left Panel: Inputs */}
                     <div className="lg:col-span-4 p-8 bg-gray-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 space-y-6">
 
+                        {/* Header with Reset Button */}
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                <Calculator className="w-5 h-5 mr-2 text-blue-600" />
+                                Calculator Inputs
+                            </h3>
+                            <button
+                                onClick={handleReset}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
+                            >
+                                <RotateCcw className="w-4 h-4" />
+                                Reset Values
+                            </button>
+                        </div>
+
                         {/* Type Toggle */}
                         <div className="bg-white dark:bg-gray-900 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex">
                             <button
@@ -300,12 +315,7 @@ export default function InterestCalculator() {
                                 </div>
                             )}
 
-                            <button
-                                onClick={handleReset}
-                                className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-                            >
-                                Reset Values
-                            </button>
+
                         </div>
                     </div>
 
