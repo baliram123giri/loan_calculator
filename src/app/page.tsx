@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Calculator, Scale, Percent, Receipt, PiggyBank, Home, DollarSign } from 'lucide-react';
+import { Calculator, Scale, Percent, Receipt, PiggyBank, Home, DollarSign, TrendingUp } from 'lucide-react';
 
 export default function LandingPage() {
   const tools = [
@@ -66,6 +66,13 @@ export default function LandingPage() {
       icon: Home,
       href: '/calculators/rent-calculator',
       color: 'bg-amber-500'
+    },
+    {
+      title: 'Investment Calculator',
+      description: 'Plan your investments with SIP, lumpsum, step-up SIP, and goal-based planning.',
+      icon: TrendingUp,
+      href: '/calculators/investment-calculator',
+      color: 'bg-purple-500'
     }
   ];
 
