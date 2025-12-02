@@ -37,6 +37,7 @@ export default function NavBar() {
             icon: CreditCard,
             items: [
                 { href: '/calculators/auto-loan-calculator', label: 'Auto Loan', description: 'Car payment calculator' },
+                { href: '/calculators/auto-lease-calculator', label: 'Auto Lease', description: 'Lease payment & cost analysis' },
                 { href: '/calculators/cash-back-vs-low-interest', label: 'Cash Back vs Low Interest', description: 'Rebate vs 0% APR comparison' },
                 { href: '/calculators/loan', label: 'Loan Calculator', description: 'Calculate loan payments' },
                 { href: '/calculators/payment', label: 'Payment Calculator', description: 'Calculate payment or term' },
