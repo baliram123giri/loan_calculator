@@ -146,16 +146,7 @@ export default function InterestCalculator() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="text-center space-y-4">
-                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                    Smart Interest Calculator
-                </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    Visualize your wealth growth with our advanced Simple & Compound Interest calculator.
-                    See how small contributions can lead to massive returns.
-                </p>
-            </div>
+
 
             {/* Main Calculator Card */}
             <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
@@ -169,8 +160,8 @@ export default function InterestCalculator() {
                             <button
                                 onClick={() => setCalculationType('simple')}
                                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${calculationType === 'simple'
-                                        ? 'bg-blue-600 text-white shadow-md'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                                     }`}
                             >
                                 Simple Interest
@@ -178,8 +169,8 @@ export default function InterestCalculator() {
                             <button
                                 onClick={() => setCalculationType('compound')}
                                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${calculationType === 'compound'
-                                        ? 'bg-blue-600 text-white shadow-md'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                                     }`}
                             >
                                 Compound Interest

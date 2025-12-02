@@ -13,14 +13,19 @@ export default function InterestCalculatorPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Hero Section */}
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="max-w-3xl">
-                        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-                            Master Your Money with Our <span className="text-blue-600">Interest Calculator</span>
+            {/* Hero Section */}
+            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-4xl mx-auto mb-12">
+                        <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Master Your Money with Our <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                                Smart Interest Calculator
+                            </span>
                         </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-                            Whether you're saving for a dream home, planning for retirement, or just curious about how your money grows, our advanced calculator gives you the clarity you need. Compare Simple vs. Compound interest instantly.
+                        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                            Visualize your wealth growth with our advanced Simple & Compound Interest calculator.
+                            See how small contributions can lead to massive returns.
                         </p>
                     </div>
                 </div>
@@ -29,7 +34,10 @@ export default function InterestCalculatorPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
                 {/* Calculator Component */}
-                <InterestCalculator />
+                {/* Calculator Component */}
+                <div className="-mt-20 relative z-10">
+                    <InterestCalculator />
+                </div>
 
                 {/* SEO Content */}
                 <div className="mt-24 grid grid-cols-1 lg:grid-cols-12 gap-12">
