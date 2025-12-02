@@ -39,19 +39,26 @@ const AutoLeaseCalculator = () => {
     const [moneyFactor, setMoneyFactor] = useState<number>(0.0025);
     const [useApr, setUseApr] = useState<boolean>(false);
     const [apr, setApr] = useState<number>(6.0);
-    const [residualValuePercent, setResidualValuePercent] = useState<number>(58);
+
+    // Changed: Residual Value is now in Dollars
+    const [residualValue, setResidualValue] = useState<number>(20300); // Default ~58% of 35k
+
     const [annualMileage, setAnnualMileage] = useState<number>(12000);
     const [mileagePenalty, setMileagePenalty] = useState<number>(0.25);
     const [fees, setFees] = useState<number>(500);
+
+    // New Options
+    const [isTaxMonthly, setIsTaxMonthly] = useState<boolean>(true);
+    const [areFeesUpfront, setAreFeesUpfront] = useState<boolean>(true);
 
     // Results
     const [monthlyPayment, setMonthlyPayment] = useState<number>(0);
     const [monthlyTax, setMonthlyTax] = useState<number>(0);
     const [totalLeaseCost, setTotalLeaseCost] = useState<number>(0);
-    const [residualValue, setResidualValue] = useState<number>(0);
     const [depreciationFee, setDepreciationFee] = useState<number>(0);
     const [rentCharge, setRentCharge] = useState<number>(0);
     const [financeCharge, setFinanceCharge] = useState<number>(0);
+    const [upfrontTax, setUpfrontTax] = useState<number>(0);
 
     // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -59,44 +66,63 @@ const AutoLeaseCalculator = () => {
     useEffect(() => {
         calculateLease();
         generateSuggestions();
-    }, [msrp, negotiatedPrice, downPayment, tradeInValue, salesTaxRate, leaseTerm, moneyFactor, useApr, apr, residualValuePercent, annualMileage, fees]);
+    }, [msrp, negotiatedPrice, downPayment, tradeInValue, salesTaxRate, leaseTerm, moneyFactor, useApr, apr, residualValue, annualMileage, fees, isTaxMonthly, areFeesUpfront]);
 
     const calculateLease = () => {
         // 1. Capitalized Cost
-        const grossCapCost = negotiatedPrice + fees;
+        // If fees are NOT upfront, they are added to the cap cost
+        const grossCapCost = negotiatedPrice + (areFeesUpfront ? 0 : fees);
+
+        // If taxes are NOT monthly (i.e., upfront), they might be added to cap cost or paid upfront.
+        // Usually, "Upfront Tax" is paid at drive-off. If rolled in, it's added to cap cost.
+        // For simplicity, let's assume "Upfront" means paid at drive-off (out of pocket).
+        // If user wants to roll it in, that's a "Zero Drive-off" scenario which is more complex.
+        // Let's stick to: Upfront = Paid at signing. Monthly = Added to payment.
+
         const capCostReduction = downPayment + tradeInValue;
         const adjustedCapCost = grossCapCost - capCostReduction;
 
-        // 2. Residual Value
-        const residual = msrp * (residualValuePercent / 100);
-        setResidualValue(residual);
+        // 2. Residual Value (Now directly from input)
+        // const residual = msrp * (residualValuePercent / 100); 
+        // setResidualValue(residual); 
 
         // 3. Depreciation Fee
-        const depreciation = (adjustedCapCost - residual) / leaseTerm;
+        const depreciation = (adjustedCapCost - residualValue) / leaseTerm;
         setDepreciationFee(depreciation);
 
         // 4. Rent Charge (Finance Fee)
-        // Money Factor = APR / 2400
         const mf = useApr ? apr / 2400 : moneyFactor;
-        const rent = (adjustedCapCost + residual) * mf;
+        const rent = (adjustedCapCost + residualValue) * mf;
         setRentCharge(rent);
 
         // 5. Monthly Payment (Pre-Tax)
         const baseMonthlyPayment = depreciation + rent;
 
         // 6. Taxes
-        // Most states tax the monthly payment
-        const monthlyTaxAmount = baseMonthlyPayment * (salesTaxRate / 100);
+        let monthlyTaxAmount = 0;
+        let upfrontTaxAmount = 0;
+
+        if (isTaxMonthly) {
+            // Most common: Tax on monthly payment
+            monthlyTaxAmount = baseMonthlyPayment * (salesTaxRate / 100);
+        } else {
+            // Upfront Tax: Usually on the Total Lease Payments OR Total Vehicle Price depending on state.
+            // Let's use "Tax on Total Lease Payments" (Depreciation + Rent + Down) as a middle ground, 
+            // or "Tax on Selling Price" (Texas style).
+            // Let's go with Tax on Selling Price as it's the distinct "Upfront" alternative.
+            upfrontTaxAmount = negotiatedPrice * (salesTaxRate / 100);
+        }
+
         setMonthlyTax(monthlyTaxAmount);
+        setUpfrontTax(upfrontTaxAmount);
 
         // 7. Total Monthly Payment
         const totalMonthly = baseMonthlyPayment + monthlyTaxAmount;
         setMonthlyPayment(totalMonthly);
 
         // 8. Total Lease Cost
-        // (Monthly * Term) + Down + Trade + Fees (if paid upfront, but here included in cap cost logic usually)
-        // Simplified: Total out of pocket over lease
-        const totalCost = (totalMonthly * leaseTerm) + downPayment + tradeInValue + fees; // Fees usually part of drive-off or cap cost, simplified here
+        // (Monthly * Term) + Down + Trade + Fees (if upfront) + Upfront Tax
+        const totalCost = (totalMonthly * leaseTerm) + downPayment + tradeInValue + (areFeesUpfront ? fees : 0) + upfrontTaxAmount;
         setTotalLeaseCost(totalCost);
 
         setFinanceCharge(rent * leaseTerm);
@@ -108,21 +134,16 @@ const AutoLeaseCalculator = () => {
         const equivalentAPR = currentMF * 2400;
 
         if (equivalentAPR > 8) {
-            tips.push(`Your Money Factor translates to an APR of ${equivalentAPR.toFixed(2)}%. This is relatively high. If you have good credit (720+), try negotiating for a lower rate or check if there are manufacturer incentives.`);
-        } else if (equivalentAPR < 3) {
-            tips.push(`Great deal! An equivalent APR of ${equivalentAPR.toFixed(2)}% is very competitive in the current market.`);
+            tips.push(`Your Money Factor translates to an APR of ${equivalentAPR.toFixed(2)}%. This is relatively high. If you have good credit (720+), try negotiating for a lower rate.`);
         }
 
-        if (downPayment > (negotiatedPrice * 0.2)) {
-            tips.push("Caution: Putting a large down payment on a lease is risky. If the car is totaled early, you likely won't get that money back. Consider keeping your cash and paying a slightly higher monthly amount.");
+        const residualPercent = (residualValue / msrp) * 100;
+        if (residualPercent < 50 && leaseTerm <= 36) {
+            tips.push(`The residual value is quite low (${residualPercent.toFixed(1)}%). This increases your monthly payments. Ensure this aligns with market values (e.g., ALG guides).`);
         }
 
-        if (annualMileage > 15000) {
-            tips.push("High mileage leases can be expensive. Compare the cost of buying extra miles upfront versus the penalty rate. Sometimes buying the car at the end of the lease is better if you go way over.");
-        }
-
-        if (negotiatedPrice >= msrp) {
-            tips.push("You are paying MSRP or above. Unless this is a high-demand vehicle, try to negotiate the price down. Even a 5% discount can significantly lower your monthly payment.");
+        if (!isTaxMonthly && salesTaxRate > 0) {
+            tips.push("Paying taxes upfront significantly increases your drive-off cost. Ensure you have the cash on hand.");
         }
 
         setSuggestions(tips);
@@ -138,26 +159,35 @@ const AutoLeaseCalculator = () => {
         setMoneyFactor(0.0025);
         setUseApr(false);
         setApr(6.0);
-        setResidualValuePercent(58);
+        setResidualValue(20300);
         setAnnualMileage(12000);
         setFees(500);
+        setIsTaxMonthly(true);
+        setAreFeesUpfront(true);
     };
 
     // Chart Data
     const donutData = {
-        labels: ['Depreciation', 'Rent Charge (Interest)', 'Taxes'],
+        labels: ['Depreciation', 'Rent Charge', 'Taxes', 'Fees'],
         datasets: [
             {
-                data: [depreciationFee * leaseTerm, rentCharge * leaseTerm, monthlyTax * leaseTerm],
+                data: [
+                    depreciationFee * leaseTerm,
+                    rentCharge * leaseTerm,
+                    (monthlyTax * leaseTerm) + upfrontTax,
+                    fees
+                ],
                 backgroundColor: [
                     'rgba(59, 130, 246, 0.8)', // Blue
                     'rgba(16, 185, 129, 0.8)', // Green
                     'rgba(245, 158, 11, 0.8)', // Amber
+                    'rgba(107, 114, 128, 0.8)', // Gray
                 ],
                 borderColor: [
                     'rgba(59, 130, 246, 1)',
                     'rgba(16, 185, 129, 1)',
                     'rgba(245, 158, 11, 1)',
+                    'rgba(107, 114, 128, 1)',
                 ],
                 borderWidth: 1,
             },
@@ -225,6 +255,25 @@ const AutoLeaseCalculator = () => {
                                 </div>
                             </div>
 
+                            {/* Tax Method Toggle */}
+                            <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                <span className="text-sm font-medium text-gray-700">Tax Payment:</span>
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={() => setIsTaxMonthly(true)}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${isTaxMonthly ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        Monthly
+                                    </button>
+                                    <button
+                                        onClick={() => setIsTaxMonthly(false)}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${!isTaxMonthly ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        Upfront
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <label className="text-sm font-medium text-gray-700">Interest Rate Type</label>
@@ -256,14 +305,30 @@ const AutoLeaseCalculator = () => {
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Residual Value (%)</label>
-                                    <NumberInput value={residualValuePercent} onChange={setResidualValuePercent} suffix="%" />
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="block text-sm font-medium text-gray-700">Residual Value ($)</label>
+                                        <span className="text-xs text-gray-500">
+                                            {((residualValue / msrp) * 100).toFixed(1)}% of MSRP
+                                        </span>
+                                    </div>
+                                    <CurrencyInput value={residualValue} onChange={setResidualValue} />
                                 </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Acquisition/Doc Fees</label>
                                     <CurrencyInput value={fees} onChange={setFees} />
+                                </div>
+                                <div className="flex items-end pb-2">
+                                    <button
+                                        onClick={() => setAreFeesUpfront(!areFeesUpfront)}
+                                        className="text-xs text-blue-600 hover:text-blue-800 underline"
+                                    >
+                                        {areFeesUpfront ? 'Pay Upfront' : 'Roll into Loan'}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -279,7 +344,11 @@ const AutoLeaseCalculator = () => {
                                     <h2 className="text-4xl font-bold">
                                         ${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </h2>
-                                    <p className="text-blue-200 text-xs mt-1">(Includes ${monthlyTax.toFixed(2)} tax)</p>
+                                    <p className="text-blue-200 text-xs mt-1">
+                                        {isTaxMonthly
+                                            ? `(Includes $${monthlyTax.toFixed(2)} tax)`
+                                            : '(Tax paid upfront)'}
+                                    </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-blue-100 text-sm font-medium mb-1">Total Lease Cost</p>
@@ -288,6 +357,14 @@ const AutoLeaseCalculator = () => {
                                     </p>
                                 </div>
                             </div>
+                            {upfrontTax > 0 && (
+                                <div className="mt-4 pt-4 border-t border-blue-500/30">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-blue-100">Upfront Taxes Due</span>
+                                        <span className="font-bold">${upfrontTax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* AI Suggestions */}
