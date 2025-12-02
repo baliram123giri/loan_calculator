@@ -3,17 +3,20 @@ import React, { useState, useEffect } from 'react';
 interface NumberInputProps {
     value: number;
     onChange: (value: number) => void;
+    label?: string;
     placeholder?: string;
     className?: string;
     min?: number;
     max?: number;
     suffix?: string;
+    step?: number;
     decimalScale?: number;
 }
 
 export default function NumberInput({
     value,
     onChange,
+    label,
     placeholder = '0',
     className = '',
     min,
@@ -58,36 +61,42 @@ export default function NumberInput({
 
         // Format on blur
         let numValue = parseFloat(displayValue);
-        if (isNaN(numValue)) numValue = 0;
+        if (isNaN(numValue) || displayValue === '') numValue = min !== undefined ? min : 0;
 
         if (min !== undefined && numValue < min) numValue = min;
         if (max !== undefined && numValue > max) numValue = max;
 
-        // Update parent if changed by constraints
-        if (numValue !== value) {
-            onChange(numValue);
-        }
+        // Always update parent to ensure consistency
+        onChange(numValue);
 
+        // Update display value
         setDisplayValue(numValue.toString());
     };
 
     return (
-        <div className="relative">
-            <input
-                type="text"
-                inputMode="decimal"
-                value={displayValue}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                placeholder={placeholder}
-                className={`w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border ${suffix ? 'pr-8' : ''} ${className}`}
-            />
-            {suffix && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">{suffix}</span>
-                </div>
+        <div>
+            {label && (
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {label}
+                </label>
             )}
+            <div className="relative">
+                <input
+                    type="text"
+                    inputMode="decimal"
+                    value={displayValue}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder={placeholder}
+                    className={`w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border ${suffix ? 'pr-8' : ''} ${className}`}
+                />
+                {suffix && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">{suffix}</span>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
