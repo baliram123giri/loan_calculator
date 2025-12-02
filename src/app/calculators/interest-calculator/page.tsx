@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import InterestCalculator from '@/components/InterestCalculator';
-import { Calculator, TrendingUp, DollarSign, HelpCircle } from 'lucide-react';
+import { Calculator, TrendingUp, DollarSign, HelpCircle, Percent } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Interest Calculator | Simple & Compound Interest with Charts',
