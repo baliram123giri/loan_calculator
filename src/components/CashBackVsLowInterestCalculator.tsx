@@ -15,7 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
-import { ChevronDown, ChevronUp, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, CheckCircle, RotateCcw } from 'lucide-react';
 
 ChartJS.register(
     CategoryScale,
@@ -30,7 +30,7 @@ ChartJS.register(
 
 const CashBackVsLowInterestCalculator = () => {
     // Inputs
-    const [vehiclePrice, setVehiclePrice] = useState<number>(35000);
+    const [carPrice, setCarPrice] = useState<number>(35000);
     const [downPayment, setDownPayment] = useState<number>(5000);
     const [tradeInValue, setTradeInValue] = useState<number>(0);
     const [loanTerm, setLoanTerm] = useState<number>(60);
@@ -68,12 +68,12 @@ const CashBackVsLowInterestCalculator = () => {
 
     useEffect(() => {
         calculateComparison();
-    }, [vehiclePrice, downPayment, tradeInValue, loanTerm, cashBackAmount, standardRate, lowInterestRate, salesTaxRate, fees, includeTaxInLoan]);
+    }, [carPrice, downPayment, tradeInValue, loanTerm, cashBackAmount, standardRate, lowInterestRate, salesTaxRate, fees, includeTaxInLoan]);
 
     const calculateComparison = () => {
-        const taxAmount = (vehiclePrice * salesTaxRate) / 100;
+        const taxAmount = (carPrice * salesTaxRate) / 100;
         const totalFees = fees + (includeTaxInLoan ? taxAmount : 0);
-        const baseAmount = vehiclePrice + totalFees - downPayment - tradeInValue;
+        const baseAmount = carPrice + totalFees - downPayment - tradeInValue;
 
         // Option A: Cash Back
         const loanAmountA = baseAmount - cashBackAmount;
@@ -92,18 +92,6 @@ const CashBackVsLowInterestCalculator = () => {
             totalInterestA = (monthlyPaymentA * n) - loanAmountA;
         }
 
-        const totalCostA = loanAmountA + totalInterestA; // Total cost of loan only (excluding down payment/trade-in for comparison of financing)
-        // Or should total cost include the vehicle price? 
-        // Let's compare "Total Cost of Buying" = Down Payment + Trade In + Loan Payments.
-        // Actually, users usually care about "Total Cost out of pocket".
-        // Let's stick to Total Cost of Loan + Down Payment + Trade In (Value) - Cash Back?
-        // Simpler: Total Paid = Down Payment + (Monthly * Term). 
-        // Wait, Trade In is value provided, not cash paid.
-        // Total Cost = Vehicle Price + Tax + Fees + Interest - Cash Back.
-        // Let's calculate Total Paid over life of loan.
-        const totalPaidA = downPayment + (monthlyPaymentA * n); // This assumes Trade In reduces loan but isn't "paid".
-        // Correct comparison metric: Total Cost to Own = Total Payments + Down Payment + Trade In Value (opportunity cost)
-        // Let's just compare Total Payments + Down Payment.
         const totalCostToOwnA = downPayment + (monthlyPaymentA * n);
 
 
@@ -147,7 +135,7 @@ const CashBackVsLowInterestCalculator = () => {
     };
 
     const resetToDefaults = () => {
-        setVehiclePrice(35000);
+        setCarPrice(35000);
         setDownPayment(5000);
         setTradeInValue(0);
         setLoanTerm(60);
@@ -233,14 +221,23 @@ const CashBackVsLowInterestCalculator = () => {
                     {/* Inputs Section */}
                     <div className="lg:col-span-5 space-y-6">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                <Info className="w-5 h-5 mr-2 text-blue-600" />
-                                Loan Details
-                            </h3>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <Info className="w-5 h-5 mr-2 text-blue-600" />
+                                    Loan Details
+                                </h3>
+                                <button
+                                    onClick={resetToDefaults}
+                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors cursor-pointer"
+                                    title="Reset Values"
+                                >
+                                    <RotateCcw className="w-4 h-4" />
+                                </button>
+                            </div>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Price</label>
-                                    <CurrencyInput value={vehiclePrice} onChange={setVehiclePrice} />
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Car Price</label>
+                                    <CurrencyInput value={carPrice} onChange={setCarPrice} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
@@ -317,13 +314,6 @@ const CashBackVsLowInterestCalculator = () => {
                                 </div>
                             </div>
                         )}
-
-                        <button
-                            onClick={resetToDefaults}
-                            className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors cursor-pointer"
-                        >
-                            Reset Values
-                        </button>
                     </div>
 
                     {/* Results Section */}

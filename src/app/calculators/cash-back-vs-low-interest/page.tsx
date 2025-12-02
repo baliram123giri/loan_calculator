@@ -100,7 +100,7 @@ export default function CashBackVsLowInterestPage() {
                                 Is 0% APR really free money?
                             </h3>
                             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                Mathematically, yes—you are borrowing money without paying interest. However, dealers often sell cars at a higher price (closer to MSRP) when you use special financing because they lose the profit they'd make on a standard loan. Always negotiate the vehicle price <em>before</em> discussing financing.
+                                Mathematically, yes—you are borrowing money without paying interest. However, dealers often sell cars at a higher price (closer to MSRP) when you use special financing because they lose the profit they'd make on a standard loan. Always negotiate the car price <em>before</em> discussing financing.
                             </p>
                         </div>
                     </div>
