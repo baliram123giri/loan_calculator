@@ -51,7 +51,8 @@ export function calculateCompoundInterest(
     principal: number,
     annualRate: number,
     timeYears: number,
-    compoundingFrequency: 'yearly' | 'half-yearly' | 'quarterly' | 'monthly' | 'daily' = 'yearly'
+    compoundingFrequency: 'yearly' | 'half-yearly' | 'quarterly' | 'monthly' | 'daily' = 'yearly',
+    monthlyContribution: number = 0
 ): InterestCalculation {
     // Determine n (number of times interest is compounded per year)
     let n: number;
@@ -73,35 +74,110 @@ export function calculateCompoundInterest(
             break;
     }
 
-    // Compound Interest Formula: A = P(1 + r/n)^(nt)
-    const totalAmount = principal * Math.pow(1 + annualRate / (100 * n), n * timeYears);
-    const interest = totalAmount - principal;
-
-    // Generate yearly breakdown
-    const breakdown: YearlyBreakdown[] = [];
+    const r = annualRate / 100;
     let currentBalance = principal;
+    let totalContributed = principal;
+    const breakdown: YearlyBreakdown[] = [];
+
+    // We simulate period by period for accuracy with contributions
+    // Total periods = n * timeYears
+    // However, contributions are monthly. If compounding is not monthly, this gets tricky.
+    // Standard approximation: Contributions happen at the end of the month.
+    // If compounding is less frequent than monthly (e.g. yearly), contributions sit there until compounding event?
+    // Or do we assume standard "Future Value of a Series" formula which usually assumes compounding period = contribution period?
+    // For simplicity and common use case, we will iterate monthly.
+    // If compounding is daily, we compound daily.
+    // If compounding is yearly, we compound at month 12.
+
+    let accumulatedInterest = 0;
 
     for (let year = 1; year <= timeYears; year++) {
         const openingBalance = currentBalance;
-        const yearEndBalance = principal * Math.pow(1 + annualRate / (100 * n), n * year);
-        const yearInterest = yearEndBalance - currentBalance;
+
+        // Iterate through 12 months
+        for (let month = 1; month <= 12; month++) {
+            // Add contribution at the end of the month (or beginning? usually end for savings)
+            // Let's do beginning of month for simplicity of interest calculation for that month? 
+            // Standard is usually end of period. Let's stick to end of month contribution.
+
+            // Calculate interest for this month
+            // Rate per month = r / 12? No, depends on compounding.
+
+            // Let's stick to the precise definition:
+            // Balance grows by rate.
+            // If compounding is 'yearly', interest is added only at month 12.
+            // But contributions are added every month.
+
+            // Daily simulation is best for generic handling but expensive? 50 years * 365 = 18000 iterations. Fast enough.
+            // But let's do monthly simulation as it covers most cases.
+
+            // If compounding is Daily:
+            // We simulate days.
+
+            if (compoundingFrequency === 'daily') {
+                // Approximate 30.41 days per month
+                const daysInMonth = 30.4375; // 365.25 / 12
+                for (let d = 0; d < daysInMonth; d++) {
+                    const dailyRate = r / 365;
+                    accumulatedInterest += currentBalance * dailyRate;
+                    currentBalance += currentBalance * dailyRate;
+                }
+            } else {
+                // For other frequencies, we need to know if we compound this month.
+                // Monthly: Every month
+                // Quarterly: Month 3, 6, 9, 12
+                // Half-yearly: Month 6, 12
+                // Yearly: Month 12
+
+                // Interest accrues regardless, but compounds (is added to principal) at specific times.
+                // Actually, simple interest accrues if not compounded.
+
+                // Let's use a simpler approach for "Monthly Contribution" which is typical for "SIP" or "Recurring Deposit".
+                // Usually assumes Monthly Compounding for simplicity in many calculators.
+                // BUT, if user selects "Yearly" compounding, we should respect that.
+
+                // Accrue interest monthly based on simple rate, then compound at intervals.
+                const monthlySimpleRate = r / 12;
+                const interestForMonth = currentBalance * monthlySimpleRate;
+                accumulatedInterest += interestForMonth;
+
+                // Check if we compound this month
+                let shouldCompound = false;
+                if (compoundingFrequency === 'monthly') shouldCompound = true;
+                if (compoundingFrequency === 'quarterly' && month % 3 === 0) shouldCompound = true;
+                if (compoundingFrequency === 'half-yearly' && month % 6 === 0) shouldCompound = true;
+                if (compoundingFrequency === 'yearly' && month % 12 === 0) shouldCompound = true;
+
+                if (shouldCompound) {
+                    currentBalance += accumulatedInterest;
+                    accumulatedInterest = 0;
+                }
+            }
+
+            // Add contribution
+            currentBalance += monthlyContribution;
+            totalContributed += monthlyContribution;
+        }
 
         breakdown.push({
             year,
             openingBalance: Number(openingBalance.toFixed(2)),
-            interest: Number(yearInterest.toFixed(2)),
-            closingBalance: Number(yearEndBalance.toFixed(2))
+            interest: Number((currentBalance - openingBalance - (monthlyContribution * 12)).toFixed(2)), // Interest earned this year
+            closingBalance: Number(currentBalance.toFixed(2))
         });
-
-        currentBalance = yearEndBalance;
     }
+
+    // Final cleanup if any uncompounded interest remains (shouldn't happen for standard periods ending at year end)
+    currentBalance += accumulatedInterest;
+
+    const totalInterest = currentBalance - totalContributed;
 
     return {
         principal,
         rate: annualRate,
         time: timeYears,
-        interest: Number(interest.toFixed(2)),
-        totalAmount: Number(totalAmount.toFixed(2)),
+        interest: Number(totalInterest.toFixed(2)),
+        totalAmount: Number(currentBalance.toFixed(2)),
         breakdown
     };
 }
