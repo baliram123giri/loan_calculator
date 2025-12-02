@@ -69,7 +69,7 @@ export default function InterestCalculator() {
             if (monthlyContribution === 0) {
                 const withContribution = calculateCompoundInterest(principal, rate, time, compoundingFrequency, 500);
                 const extra = withContribution.totalAmount - calc.totalAmount - (500 * 12 * time);
-                newSuggestions.push(`💰 **Power of SIP:** Contributing just **₹500/month** could earn you an additional **${formatCurrency(extra)}** in interest alone!`);
+                newSuggestions.push(`💰 **Power of SIP:** Contributing just **$500/month** could earn you an additional **${formatCurrency(extra)}** in interest alone!`);
             }
         }
 
@@ -81,9 +81,9 @@ export default function InterestCalculator() {
     };
 
     const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('en-IN', {
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'INR',
+            currency: 'USD',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
         }).format(value);
@@ -126,7 +126,7 @@ export default function InterestCalculator() {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(context.parsed.y);
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(context.parsed.y);
                         }
                         return label;
                     }
@@ -137,7 +137,7 @@ export default function InterestCalculator() {
             y: {
                 ticks: {
                     callback: function (value: any) {
-                        return '₹' + value.toLocaleString('en-IN', { notation: 'compact', compactDisplay: 'short' });
+                        return '$' + value.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short' });
                     }
                 }
             }
@@ -184,7 +184,7 @@ export default function InterestCalculator() {
                                     Principal Amount
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">₹</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
                                     <input
                                         type="number"
                                         value={principal}
@@ -254,7 +254,7 @@ export default function InterestCalculator() {
                                             Monthly Contribution (Optional)
                                         </label>
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">₹</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
                                             <input
                                                 type="number"
                                                 value={monthlyContribution}
