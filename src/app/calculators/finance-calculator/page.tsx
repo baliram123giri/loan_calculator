@@ -1,6 +1,8 @@
 import React from 'react';
 import FinanceCalculator from '@/components/FinanceCalculator';
 import { Metadata } from 'next';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { TrendingUp, Home, Percent } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Finance Calculator | Free Time Value of Money (TVM) Calculator',
@@ -254,37 +256,40 @@ export default function FinanceCalculatorPage() {
                     </section>
 
                     {/* Related Tools */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Related Financial Calculators
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Explore our complete suite of financial planning tools:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/investment-calculator"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Investment Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate SIP, lumpsum, and step-up investments</p>
-                            </a>
-                            <a
-                                href="/calculators/mortgage"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate monthly mortgage payments with PITI</p>
-                            </a>
-                            <a
-                                href="/calculators/compound-interest"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Compound Interest</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">See the power of compound growth over time</p>
-                            </a>
-                        </div>
-                    </section>
+                    {/* Related Tools */}
+                    <div className="lg:col-span-4 space-y-8">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/investment-calculator",
+                                    title: "Investment Calculator",
+                                    description: "Calculate SIP, lumpsum, and step-up investments",
+                                    icon: TrendingUp,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Calculate monthly mortgage payments with PITI",
+                                    icon: Home,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                },
+                                {
+                                    href: "/calculators/compound-interest",
+                                    title: "Compound Interest",
+                                    description: "See the power of compound growth over time",
+                                    icon: Percent,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                }
+                            ]}
+                        />
+                    </div>
                 </div>
             </div>
         </>

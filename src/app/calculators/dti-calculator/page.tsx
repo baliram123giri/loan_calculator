@@ -1,5 +1,7 @@
 import React from 'react';
 import DTICalculator from '@/components/DTICalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Home, DollarSign, Calculator } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -339,37 +341,41 @@ export default function DTICalculatorPage() {
                     </section>
 
                     {/* Related Tools Section */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Related Financial Calculators
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Complete your financial planning with these tools:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/house-affordability"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">House Affordability</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">See how much house you can afford</p>
-                            </a>
-                            <a
-                                href="/calculators/loan"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Loan Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate loan payments and interest</p>
-                            </a>
-                            <a
-                                href="/calculators/mortgage"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Estimate monthly mortgage payments</p>
-                            </a>
-                        </div>
-                    </section>
+                    {/* Related Tools Section */}
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/house-affordability",
+                                    title: "House Affordability",
+                                    description: "See how much house you can afford",
+                                    icon: Home,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/loan",
+                                    title: "Loan Calculator",
+                                    description: "Calculate loan payments and interest",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Estimate monthly mortgage payments",
+                                    icon: Calculator,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="Related Financial Calculators"
+                        />
+                    </div>
                 </div>
             </div>
         </>

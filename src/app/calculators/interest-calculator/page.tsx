@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import InterestCalculator from '@/components/InterestCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
 import { Calculator, TrendingUp, DollarSign, HelpCircle, Percent } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -162,40 +163,37 @@ export default function InterestCalculatorPage() {
 
                     {/* Sidebar / Related Tools */}
                     <div className="lg:col-span-4 space-y-8">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 sticky top-8">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                                Popular Calculators
-                            </h3>
-                            <div className="space-y-3">
-                                <a href="/calculators/loan" className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
-                                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                        <DollarSign className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Loan Calculator</p>
-                                        <p className="text-xs text-gray-500">Calculate EMI & Amortization</p>
-                                    </div>
-                                </a>
-                                <a href="/calculators/mortgage" className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
-                                    <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                        <TrendingUp className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Mortgage Calculator</p>
-                                        <p className="text-xs text-gray-500">Plan your home loan</p>
-                                    </div>
-                                </a>
-                                <a href="/calculators/apr" className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
-                                    <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-green-600 group-hover:text-white transition-colors">
-                                        <Percent className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">APR Calculator</p>
-                                        <p className="text-xs text-gray-500">Find true cost of borrowing</p>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/loan",
+                                    title: "Loan Calculator",
+                                    description: "Calculate EMI & Amortization",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Plan your home loan",
+                                    icon: TrendingUp,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                },
+                                {
+                                    href: "/calculators/apr",
+                                    title: "APR Calculator",
+                                    description: "Find true cost of borrowing",
+                                    icon: Percent,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                }
+                            ]}
+                        />
                     </div>
                 </div>
             </div>
