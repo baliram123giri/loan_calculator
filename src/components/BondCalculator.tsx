@@ -65,7 +65,7 @@ interface BondResult {
 
 interface ScheduleItem {
     period: number;
-    year: number;
+    date: string;
     cashFlow: number;
     type: 'Coupon' | 'Principal' | 'Total';
     pv: number;
@@ -78,7 +78,14 @@ export default function BondCalculator() {
     // Inputs
     const [faceValue, setFaceValue] = useState(1000);
     const [couponRate, setCouponRate] = useState(5.0);
-    const [yearsToMaturity, setYearsToMaturity] = useState(10);
+    // Date States
+    const [settlementDate, setSettlementDate] = useState(new Date().toISOString().split('T')[0]);
+    const [maturityDate, setMaturityDate] = useState(() => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() + 10);
+        return d.toISOString().split('T')[0];
+    });
+
     const [marketRate, setMarketRate] = useState(4.0); // YTM input
     const [targetPrice, setTargetPrice] = useState(950); // Price input for YTM calc
 
@@ -92,7 +99,6 @@ export default function BondCalculator() {
     const [taxRate, setTaxRate] = useState(0);
 
     // AI Suggestions
-    // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [liked, setLiked] = useState(false);
 
@@ -105,7 +111,15 @@ export default function BondCalculator() {
         const par = faceValue;
         const cRate = couponRate / 100;
         const freq = frequency;
-        const nPer = yearsToMaturity * freq; // Total periods
+
+        // Calculate time to maturity from dates
+        const start = new Date(settlementDate);
+        const end = new Date(maturityDate);
+        const timeDiff = end.getTime() - start.getTime();
+        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        const yearsToMaturity = Math.max(0, daysDiff / 365.25);
+
+        const nPer = Math.ceil(yearsToMaturity * freq); // Total periods (approx)
         const couponPayment = (par * cRate) / freq;
 
         let calculatedPrice = 0;
@@ -135,13 +149,17 @@ export default function BondCalculator() {
                 pvSum += pv;
 
                 // Duration stats
+                // Duration stats
                 const timeInYears = t / freq;
                 weightedTimeSum += timeInYears * pv;
                 convexitySum += (pv * (timeInYears * timeInYears + timeInYears / freq)) / Math.pow(1 + r, 2);
 
+                const periodDate = new Date(start);
+                periodDate.setMonth(start.getMonth() + (t * 12 / freq));
+
                 scheduleData.push({
                     period: t,
-                    year: Math.ceil(t / freq),
+                    date: periodDate.toISOString().split('T')[0],
                     cashFlow: flow,
                     type: isLast ? 'Total' : 'Coupon',
                     pv: pv
@@ -202,9 +220,12 @@ export default function BondCalculator() {
                 const timeInYears = t / freq;
                 weightedTimeSum += timeInYears * pv;
 
+                const periodDate = new Date(start);
+                periodDate.setMonth(start.getMonth() + (t * 12 / freq));
+
                 scheduleData.push({
                     period: t,
-                    year: Math.ceil(t / freq),
+                    date: periodDate.toISOString().split('T')[0],
                     cashFlow: flow,
                     type: isLast ? 'Total' : 'Coupon',
                     pv: pv
@@ -238,7 +259,7 @@ export default function BondCalculator() {
             },
             schedule: scheduleData
         };
-    }, [calculationMode, faceValue, couponRate, yearsToMaturity, marketRate, targetPrice, frequency]);
+    }, [calculationMode, faceValue, couponRate, settlementDate, maturityDate, marketRate, targetPrice, frequency]);
 
     // Pull to Par Chart Logic
     const pullToParData = useMemo(() => {
@@ -247,7 +268,12 @@ export default function BondCalculator() {
         const data = [];
         const r = result.ytm / 100 / frequency;
 
-        for (let y = 0; y <= yearsToMaturity; y++) {
+        const start = new Date(settlementDate);
+        const end = new Date(maturityDate);
+        const yearsToMaturity = (end.getTime() - start.getTime()) / (1000 * 3600 * 24 * 365.25);
+        const flooredYears = Math.floor(yearsToMaturity);
+
+        for (let y = 0; y <= flooredYears; y++) {
             const timeRemaining = yearsToMaturity - y;
             if (timeRemaining < 0) continue;
 
@@ -287,7 +313,7 @@ export default function BondCalculator() {
                 }
             ]
         };
-    }, [result.ytm, yearsToMaturity, frequency, faceValue, couponRate]);
+    }, [result.ytm, settlementDate, maturityDate, frequency, faceValue, couponRate]);
 
     const pieData = useMemo(() => {
         return {
@@ -353,12 +379,14 @@ export default function BondCalculator() {
     const resetCalculator = () => {
         setFaceValue(1000);
         setCouponRate(5.0);
-        setYearsToMaturity(10);
+        setSettlementDate(new Date().toISOString().split('T')[0]);
+        const d = new Date();
+        d.setFullYear(d.getFullYear() + 10);
+        setMaturityDate(d.toISOString().split('T')[0]);
         setMarketRate(4.0);
         setTargetPrice(950);
         setFrequency(2);
         setTaxRate(0);
-        setCalculationMode('price');
         setCalculationMode('price');
         setCouponInputType('percent');
     };
@@ -431,6 +459,27 @@ export default function BondCalculator() {
                             </div>
 
                             <div className="space-y-6">
+                                {/* First Input: YTM or Price depending on mode */}
+                                {calculationMode === 'price' ? (
+                                    <NumberInput
+                                        label="Market Yield (YTM)"
+                                        value={marketRate}
+                                        onChange={setMarketRate}
+                                        min={0}
+                                        max={50}
+                                        step={0.1}
+                                        suffix="%"
+                                    />
+                                ) : (
+                                    <CurrencyInput
+                                        label="Current Bond Price"
+                                        value={targetPrice}
+                                        onChange={setTargetPrice}
+                                        min={0}
+                                        max={10000000}
+                                    />
+                                )}
+
                                 <CurrencyInput
                                     label="Face Value (Par)"
                                     value={faceValue}
@@ -485,33 +534,32 @@ export default function BondCalculator() {
                                     )}
                                 </div>
 
-                                <NumberInput
-                                    label="Years to Maturity"
-                                    value={yearsToMaturity}
-                                    onChange={setYearsToMaturity}
-                                    min={1}
-                                    max={100}
-                                />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            Settlement Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={settlementDate}
+                                            onChange={(e) => setSettlementDate(e.target.value)}
+                                            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            Maturity Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={maturityDate}
+                                            onChange={(e) => setMaturityDate(e.target.value)}
+                                            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                                        />
+                                    </div>
+                                </div>
 
-                                {calculationMode === 'price' ? (
-                                    <NumberInput
-                                        label="Market Yield (YTM)"
-                                        value={marketRate}
-                                        onChange={setMarketRate}
-                                        min={0}
-                                        max={50}
-                                        step={0.1}
-                                        suffix="%"
-                                    />
-                                ) : (
-                                    <CurrencyInput
-                                        label="Current Bond Price"
-                                        value={targetPrice}
-                                        onChange={setTargetPrice}
-                                        min={0}
-                                        max={10000000}
-                                    />
-                                )}
+
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -707,10 +755,10 @@ export default function BondCalculator() {
                             <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
                                 <h4 className="text-lg font-bold text-gray-900 dark:text-white">Cash Flow Schedule</h4>
                                 <ExportButton
-                                    columns={['Period', 'Year', 'Type', 'Cash Flow', 'Present Value']}
+                                    columns={['Period', 'Date', 'Type', 'Cash Flow', 'Present Value']}
                                     data={schedule.map(row => [
                                         row.period,
-                                        row.year,
+                                        row.date,
                                         row.type,
                                         formatCurrency(row.cashFlow),
                                         formatCurrency(row.pv)
@@ -720,7 +768,8 @@ export default function BondCalculator() {
                                         "Face Value": formatCurrency(faceValue),
                                         "Coupon Rate": `${couponRate}%`,
                                         "YTM": `${result.ytm.toFixed(2)}%`,
-                                        "Maturity": `${yearsToMaturity} Years`,
+                                        "Settlement": settlementDate,
+                                        "Maturity": maturityDate,
                                         "Bond Price": formatCurrency(result.price)
                                     }}
                                 />
@@ -730,7 +779,7 @@ export default function BondCalculator() {
                                     <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium sticky top-0 z-10">
                                         <tr>
                                             <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Period</th>
-                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Year</th>
+                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Date</th>
                                             <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Type</th>
                                             <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-right text-xs">Cash Flow</th>
                                             <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-right text-xs">PV</th>
@@ -740,7 +789,7 @@ export default function BondCalculator() {
                                         {paginatedSchedule.map((row, index) => (
                                             <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                                 <td className="px-4 py-2.5 font-medium text-gray-900 dark:text-white text-xs">{row.period}</td>
-                                                <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">{row.year}</td>
+                                                <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">{row.date}</td>
                                                 <td className="px-4 py-2.5">
                                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${row.type === 'Total'
                                                         ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
