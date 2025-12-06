@@ -211,7 +211,7 @@ export default function CDCalculatorPage() {
                     </div>
 
                     {/* Related Tools Section */}
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <div className="lg:col-span-12 bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
                         <RelatedCalculators
                             links={[
                                 {
