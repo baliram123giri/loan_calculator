@@ -103,9 +103,7 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
         doc.setTextColor(16, 185, 129); // Green color
         doc.text("Savings Calculator Report", 14, 20);
 
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 26);
+        // [REMOVED] 'Generated on' date as requested
 
         let startY = 35;
 
@@ -143,15 +141,16 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
         // --- Table ---
         const tableColumn = ["Date", "Total Contributed", "Interest Earned", "Total Interest", "Balance"];
 
-        // Format date helper for PDF "M/D/YYYY"
+        // Format date helper for PDF "MM/DD/YYYY" (2-digit)
         const formatPdfDate = (d: Date) => {
             return new Date(d).toLocaleDateString('en-US', {
                 year: 'numeric',
-                month: 'numeric',
-                day: 'numeric'
+                month: '2-digit',
+                day: '2-digit'
             });
         };
 
+        // Use schedule directly (it now includes Month 0)
         let pdfRows = schedule.map(row => [
             formatPdfDate(row.date),
             formatCurrency(row.totalContributed),
@@ -159,18 +158,6 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
             formatCurrency(row.totalInterest),
             formatCurrency(row.balance),
         ]);
-
-        // Prepend Initial Month (Month 0) if inputs exist
-        if (inputs) {
-            const startRow = [
-                formatPdfDate(new Date(inputs.startDate)),
-                formatCurrency(inputs.initialDeposit),
-                formatCurrency(0),
-                formatCurrency(0),
-                formatCurrency(inputs.initialDeposit)
-            ];
-            pdfRows = [startRow, ...pdfRows];
-        }
 
         autoTable(doc, {
             head: [tableColumn],
