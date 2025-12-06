@@ -42,7 +42,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     const [interestRate, setInterestRate] = useState<number>(4.5);
     const [years, setYears] = useState<number>(10);
     const [compoundingFrequency, setCompoundingFrequency] = useState<string>('monthly');
-    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+    const [showAdvanced, setShowAdvanced] = useState<boolean>(true);
 
     // New Advanced Inputs
     const [inflationRate, setInflationRate] = useState<number>(2.5);
@@ -287,8 +287,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                                 key={freq}
                                                 onClick={() => setCompoundingFrequency(freq)}
                                                 className={`py-2 px-3 text-sm rounded-md capitalize transition-colors cursor-pointer ${compoundingFrequency === freq
-                                                        ? 'bg-blue-600 text-white shadow-sm'
-                                                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                                    ? 'bg-blue-600 text-white shadow-sm'
+                                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                                                     }`}
                                             >
                                                 {freq}
