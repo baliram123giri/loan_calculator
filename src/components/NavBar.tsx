@@ -13,6 +13,7 @@ import {
     Scale,
     CreditCard
 } from 'lucide-react';
+import NavSearch from './NavSearch';
 
 interface CalculatorItem {
     href: string;
@@ -87,6 +88,21 @@ export default function NavBar() {
         { href: '/calculators/compare', label: 'Compare', icon: Scale },
     ];
 
+    const allSearchItems = [
+        ...categories.flatMap(cat =>
+            cat.items.map(item => ({
+                ...item,
+                category: cat.label
+            }))
+        ),
+        ...standaloneLinks.map(link => ({
+            href: link.href,
+            label: link.label,
+            description: 'Quick access tool',
+            category: 'Quick Links'
+        }))
+    ];
+
     const isActiveCategory = (items: CalculatorItem[]) => {
         return items.some(item => pathname === item.href);
     };
@@ -100,13 +116,18 @@ export default function NavBar() {
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">
                             L
                         </div>
-                        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 hidden sm:block">
                             Loanly
                         </h1>
                     </Link>
 
+                    {/* Search Bar */}
+                    <div className="flex-1 flex justify-center max-w-2xl mx-auto px-2 lg:px-8">
+                        <NavSearch items={allSearchItems} />
+                    </div>
+
                     {/* Desktop Navigation */}
-                    <nav className="hidden lg:flex items-center gap-1">
+                    <nav className="hidden xl:flex items-center gap-1">
                         {categories.map((category) => {
                             const Icon = category.icon;
                             const isActive = isActiveCategory(category.items);
@@ -119,7 +140,7 @@ export default function NavBar() {
                                     onMouseLeave={() => setOpenDropdown(null)}
                                 >
                                     <button
-                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive || openDropdown === category.label
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive || openDropdown === category.label
                                             ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                             }`}
@@ -131,7 +152,7 @@ export default function NavBar() {
 
                                     {/* Dropdown Menu */}
                                     {openDropdown === category.label && (
-                                        <div className="absolute top-full left-0 pt-2 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="absolute top-full right-0 pt-2 w-64 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
                                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2">
                                                 {category.items.map((item) => (
                                                     <Link
@@ -164,7 +185,7 @@ export default function NavBar() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+                                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
                                         ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
                                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                         }`}
@@ -177,17 +198,26 @@ export default function NavBar() {
                     </nav>
 
                     {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="lg:hidden p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
+                    <div className="flex items-center gap-2 xl:hidden">
+                        {/* Mobile Search Trigger could go here if we wanted a separate icon, but input is hidden on mobile currently */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
+                    </div>
+
                 </div>
 
                 {/* Mobile Navigation */}
                 {mobileMenuOpen && (
-                    <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 py-4 animate-in slide-in-from-top duration-200">
+                    <div className="xl:hidden border-t border-gray-200 dark:border-gray-800 py-4 animate-in slide-in-from-top duration-200 max-h-[85vh] overflow-y-auto">
+                        {/* Mobile Search */}
+                        <div className="px-4 mb-4 md:hidden">
+                            <NavSearch items={allSearchItems} />
+                        </div>
+
                         {categories.map((category) => {
                             const Icon = category.icon;
                             const isOpen = openDropdown === category.label;
