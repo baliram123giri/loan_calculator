@@ -14,25 +14,32 @@ export const dynamic = 'force-dynamic';
 
 export default function FinanceCalculatorPage() {
     return (
-        <>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Hero Section */}
-                <div className="mb-8">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Advanced Time Value of Money Calculator
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">
-                        Calculate Future Value, Present Value, Payments, Periods, and Interest Rates with our comprehensive TVM calculator.
-                        Features multiple compounding frequencies, payment timing options, and real-time visualization.
-                    </p>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+            {/* Hero Section */}
+            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/10 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-4xl mx-auto mb-12">
+                        <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Advanced{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                                TVM Calculator
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                            Calculate Future Value, Present Value, Payments, Periods, and Interest Rates with real-time visualization.
+                        </p>
+                    </div>
                 </div>
+            </div>
 
-                {/* Calculator Component */}
-                <FinanceCalculator />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Calculator Component - Overlapping */}
+                <div className="-mt-20 relative z-10">
+                    <FinanceCalculator />
+                </div>
 
                 {/* SEO Content */}
                 <div className="max-w-4xl mx-auto mt-16 space-y-12">
-
                     {/* What is TVM Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
@@ -131,7 +138,8 @@ export default function FinanceCalculatorPage() {
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                            How often interest compounds significantly impacts your returns. Our calculator supports five frequenciesannual, semi-annual, quarterly, monthly, and daily.\n                        </p>
+                            How often interest compounds significantly impacts your returns. Our calculator supports five frequencies: annual, semi-annual, quarterly, monthly, and daily.
+                        </p>
 
                         <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 my-8">
                             <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
@@ -256,7 +264,6 @@ export default function FinanceCalculatorPage() {
                     </section>
 
                     {/* Related Tools */}
-                    {/* Related Tools */}
                     <div className="lg:col-span-4 space-y-8">
                         <RelatedCalculators
                             links={[
@@ -288,10 +295,11 @@ export default function FinanceCalculatorPage() {
                                     hoverBgClass: "group-hover:bg-green-600"
                                 }
                             ]}
+                            title="Related Calculators"
                         />
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

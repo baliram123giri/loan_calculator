@@ -15,7 +15,7 @@ export default function APRCalculatorPage() {
     ];
 
     return (
-        <>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* JSON-LD Structured Data */}
             {schemas.map((schema, index) => (
                 <script
@@ -25,17 +25,28 @@ export default function APRCalculatorPage() {
                 />
             ))}
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        APR Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate the true cost of your loan by factoring in interest rates, fees, and closing costs.
-                    </p>
+            {/* Hero Section */}
+            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/10 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-4xl mx-auto mb-12">
+                        <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            True Loan Cost{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                                APR Calculator
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                            Calculate the true cost of your loan by factoring in interest rates, fees, and closing costs.
+                        </p>
+                    </div>
                 </div>
+            </div>
 
-                <APRCalculator />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Calculator Component */}
+                <div className="-mt-20 relative z-10">
+                    <APRCalculator />
+                </div>
 
                 {/* SEO Content */}
                 <div className="max-w-4xl mx-auto mt-16 space-y-12">
@@ -233,6 +244,6 @@ export default function APRCalculatorPage() {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

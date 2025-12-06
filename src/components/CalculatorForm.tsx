@@ -183,7 +183,7 @@ export default function CalculatorForm({
         }
     }, [loadScenario, onScenarioLoaded, persistenceKey]);
 
-    useEffect(() => {
+    const handleCalculate = () => {
         try {
             const tenureMonths = tenureYears * 12;
 
@@ -191,7 +191,6 @@ export default function CalculatorForm({
                 const result = calculateEMI(principal, rate, tenureMonths, extraPayments, startDate, rateChanges);
                 onResultChange(result, { principal, rate, tenureMonths, startDate, extraPayments, rateChanges });
             } else {
-                // Handle zero/negative principal gracefully
                 const zeroResult: EMIResult = {
                     emi: 0,
                     totalInterest: 0,
@@ -203,7 +202,15 @@ export default function CalculatorForm({
         } catch (e) {
             console.error("Calculation error:", e);
         }
-    }, [principal, rate, tenureYears, extraPayments, startDate, rateChanges, onResultChange]);
+    };
+
+    // Initial Calculation on Mount
+    useEffect(() => {
+        // Calculate once with default/initial values
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run only on mount (or when dependencies that SHOULD reset it change, but here we want manual)
+
 
     const addExtraPayment = () => {
         setExtraPayments([
@@ -321,7 +328,7 @@ export default function CalculatorForm({
                     selected={startDate}
                     onChange={(date: Date | null) => date && setStartDate(date)}
                     dateFormat="dd MMM yyyy"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                     wrapperClassName="w-full"
                 />
             </div>
@@ -464,7 +471,7 @@ export default function CalculatorForm({
                             </div>
                             <button
                                 onClick={() => removeRateChange(index)}
-                                className="text-red-500 hover:text-red-600"
+                                className="text-red-500 hover:text-red-600 cursor-pointer"
                             >
                                 Remove
                             </button>
@@ -474,6 +481,16 @@ export default function CalculatorForm({
                         <p className="text-sm text-gray-500 italic">No rate changes added.</p>
                     )}
                 </div>
+            </div>
+
+            {/* Calculate Button CTA */}
+            <div className="flex justify-center mt-6">
+                <button
+                    onClick={handleCalculate}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                >
+                    Calculate Payment 🚀
+                </button>
             </div>
         </div>
     );

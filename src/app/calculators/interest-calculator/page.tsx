@@ -15,12 +15,12 @@ export default function InterestCalculatorPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Hero Section */}
             {/* Hero Section */}
-            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/10 border-b border-gray-200 dark:border-gray-800 pb-20 pt-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center max-w-4xl mx-auto mb-12">
-                        <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                    <div className="text-center max-w-4xl mx-auto">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
                             Master Your Money with Our <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
                                 Smart Interest Calculator
                             </span>
                         </h1>

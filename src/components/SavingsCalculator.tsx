@@ -61,9 +61,11 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     const [aiSuggestion, setAiSuggestion] = useState<string>('');
     const [schedule, setSchedule] = useState<any[]>([]);
 
+    // Initial calculation on mount
     useEffect(() => {
         calculateSavings();
-    }, [initialDeposit, periodicContribution, contributionFrequency, interestRate, years, compoundingFrequency, inflationRate, taxRate, startDate, additionalContribution, additionalFrequency]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const calculateSavings = () => {
         const frequencyMap: { [key: string]: number } = {
@@ -316,7 +318,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                         <select
                                             value={contributionFrequency}
                                             onChange={(e) => setContributionFrequency(e.target.value)}
-                                            className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                                            className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm cursor-pointer"
                                         >
                                             <option value="monthly">Monthly</option>
                                             <option value="annually">Annually</option>
@@ -342,7 +344,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
                                 />
                             </div>
 
@@ -368,7 +370,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                                 <select
                                                     value={additionalFrequency}
                                                     onChange={(e) => setAdditionalFrequency(e.target.value)}
-                                                    className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                                                    className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm cursor-pointer"
                                                 >
                                                     <option value="monthly">Monthly</option>
                                                     <option value="annually">Annually</option>
@@ -425,6 +427,15 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                         }}
                                     />
                                 </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <button
+                                    onClick={calculateSavings}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                    Calculate Savings 🚀
+                                </button>
                             </div>
                         </div>
 

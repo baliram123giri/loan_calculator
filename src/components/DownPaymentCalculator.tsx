@@ -78,52 +78,32 @@ export default function DownPaymentCalculator() {
 
 
     // --- Calculation ---
-    const result: DownPaymentResult = useMemo(() => {
+    const [result, setResult] = useState<DownPaymentResult | null>(null);
+    const [comparisonScenarios, setComparisonScenarios] = useState<any[]>([]);
+
+    const handleCalculate = () => {
+        // Main Calculation
         let loanPrincipal = homePrice - downPayment;
-
-        if (financeClosingCosts) {
-            loanPrincipal += closingCostsAmount;
-        }
-
-        // Prevent negative loan
+        if (financeClosingCosts) loanPrincipal += closingCostsAmount;
         if (loanPrincipal < 0) loanPrincipal = 0;
 
         let emiRes: EMIResult;
-
         if (loanPrincipal > 0) {
-            emiRes = calculateEMI(
-                loanPrincipal,
-                interestRate,
-                loanTermYears * 12,
-                [],
-                startDate
-            );
+            emiRes = calculateEMI(loanPrincipal, interestRate, loanTermYears * 12, [], startDate);
         } else {
-            // Handle 100% down payment or negative loan scenarios
-            emiRes = {
-                emi: 0,
-                totalInterest: 0,
-                totalPayment: 0,
-                amortization: []
-            };
+            emiRes = { emi: 0, totalInterest: 0, totalPayment: 0, amortization: [] };
         }
 
-        // Monthly Extras
         const monthlyTax = (homePrice * (propertyTaxRate / 100)) / 12;
-
-        // PMI Calculation
-        // Usually PMI applies if LTV > 80% (Down Payment < 20%)
-        // PMI is calculated on the Loan Amount
         let monthlyPMI = 0;
         if (downPaymentPercent < 20) {
             monthlyPMI = (loanPrincipal * (pmiRate / 100)) / 12;
         }
 
         const totalMonthlyPayment = emiRes.emi + monthlyTax + homeInsurance + hoaFees + monthlyPMI;
-
         const cashToClose = financeClosingCosts ? downPayment : downPayment + closingCostsAmount;
 
-        return {
+        setResult({
             ...emiRes,
             monthlyTax,
             monthlyInsurance: homeInsurance,
@@ -133,45 +113,39 @@ export default function DownPaymentCalculator() {
             closingCostsAmount,
             cashToClose,
             loanAmount: loanPrincipal
-        };
-    }, [
-        homePrice, downPayment, downPaymentPercent, interestRate, loanTermYears, startDate,
-        closingCostsAmount, financeClosingCosts, propertyTaxRate, homeInsurance, hoaFees, pmiRate
-    ]);
+        });
 
-    // --- Comparison Logic ---
-    const comparisonScenarios = useMemo(() => {
-        const scenarios = [3.5, 10, 20]; // Percentages
-        return scenarios.map(pct => {
+        // Comparison Logic
+        const scenarios = [3.5, 10, 20].map(pct => {
             const dp = (homePrice * pct) / 100;
-            const loan = homePrice - dp; // Assuming closing costs not financed for simplicity in comparison or consistent with main toggle
-            // Let's keep comparison simple: standard loan, no financed costs to show pure down payment impact
-
+            const loan = homePrice - dp; // Simplified for comparison
             const r = interestRate / 12 / 100;
             const n = loanTermYears * 12;
             let emi = 0;
-            if (r === 0) {
-                emi = loan / n;
-            } else {
+            if (r === 0) emi = loan / n;
+            else {
                 const pow = Math.pow(1 + r, n);
                 emi = (loan * r * pow) / (pow - 1);
             }
-
             let pmi = 0;
-            if (pct < 20) {
-                pmi = (loan * (pmiRate / 100)) / 12;
-            }
+            if (pct < 20) pmi = (loan * (pmiRate / 100)) / 12;
 
             return {
                 percent: pct,
                 downPayment: dp,
-                monthlyPayment: emi + pmi, // Principal + Interest + PMI
-                pmi: pmi,
+                monthlyPayment: emi + pmi,
+                pmi,
                 totalInterest: (emi * n) - loan
             };
         });
-    }, [homePrice, interestRate, loanTermYears, pmiRate]);
+        setComparisonScenarios(scenarios);
+    };
 
+    // Initial calculation on mount
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleReset = () => {
         setHomePrice(300000);
@@ -187,7 +161,10 @@ export default function DownPaymentCalculator() {
         setHomeInsurance(100);
         setHoaFees(0);
         setPmiRate(0.5);
+        // Note: User must click Calculate after reset, or we could add a "needsCalc" effect.
     };
+
+    if (!result) return <div className="p-8 text-center">Loading...</div>;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -379,6 +356,13 @@ export default function DownPaymentCalculator() {
                             </div>
                         </div>
                     )}
+
+                    <button
+                        onClick={handleCalculate}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-6"
+                    >
+                        Calculate Down Payment 🚀
+                    </button>
                 </div>
             </div>
 

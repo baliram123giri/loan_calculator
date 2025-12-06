@@ -23,12 +23,12 @@ export default function InvestmentCalculatorPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Hero Section */}
-            <div className="bg-gradient-to-b from-white to-purple-50 dark:from-gray-900 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/10 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-4xl mx-auto mb-12">
                         <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
                             Build Your Wealth with {' '}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
                                 Smart Investment Planning
                             </span>
                         </h1>
@@ -55,7 +55,7 @@ export default function InvestmentCalculatorPage() {
                         {/* Introduction */}
                         <section className="prose dark:prose-invert max-w-none">
                             <h2 className="flex items-center text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                                <Calculator className="w-8 h-8 mr-3 text-purple-600" />
+                                <Calculator className="w-8 h-8 mr-3 text-blue-600" />
                                 Your Path to Financial Freedom Starts Here
                             </h2>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">

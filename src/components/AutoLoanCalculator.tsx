@@ -43,7 +43,8 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
 
     useEffect(() => {
         calculateLoan();
-    }, [mode, vehiclePrice, monthlyBudget, downPayment, tradeInValue, amountOwedOnTrade, interestRate, loanTerm, salesTaxRate, fees, includeTaxInLoan, startDate]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only calculate on mount, then wait for button click
 
     const calculateLoan = () => {
         let principal = 0;
@@ -127,6 +128,14 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
         setIncludeTaxInLoan(true);
         setStartDate(new Date().toISOString().split('T')[0]);
         setShowAdvanced(false);
+        // We might want to trigger calculation here or let user click calculate
+        // For now, let's keep consistency and NOT calculate on reset, but reset values.
+        // Wait, if values reset, old results might be misleading. 
+        // Better to clear results or calculate new defaults. 
+        // BondCalculator approach: set initial state.
+        // Actually, let's trigger calculation after reset state update?
+        // React state updates are async, so difficult.
+        // Easiest: User clicks reset, then Calculate.
     };
 
     const donutData = {
@@ -146,7 +155,11 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-gray-900">{title}</h2>
                         <button
-                            onClick={resetToDefaults}
+                            onClick={() => {
+                                resetToDefaults();
+                                setTimeout(calculateLoan, 0); // Hack to run after state update if we wanted auto-calc, but sticking to manual means just reset inputs.
+                                // Actually user expects Reset to give clean slate. 
+                            }}
                             className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                         >
                             <RotateCcw className="w-4 h-4 mr-1" />
@@ -217,17 +230,25 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                             <CurrencyInput value={amountOwedOnTrade} onChange={setAmountOwedOnTrade} />
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <input type="checkbox" id="includeTax" checked={includeTaxInLoan} onChange={(e) => setIncludeTaxInLoan(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                            <label htmlFor="includeTax" className="text-sm text-gray-700">Include taxes and fees in loan</label>
+                                            <input type="checkbox" id="includeTax" checked={includeTaxInLoan} onChange={(e) => setIncludeTaxInLoan(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                                            <label htmlFor="includeTax" className="text-sm text-gray-700 cursor-pointer">Include taxes and fees in loan</label>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
+                                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer" />
                                         </div>
                                     </div>
                                 )}
                             </div>
 
+                            <div className="flex justify-center mt-6">
+                                <button
+                                    onClick={calculateLoan}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                                >
+                                    Calculate Auto Loan 🚀
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">

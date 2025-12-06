@@ -41,8 +41,7 @@ export default function APRCalculator() {
     const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
     const [viewMode, setViewMode] = useState<'schedule' | 'analysis'>('schedule');
 
-    // Calculate on change
-    useEffect(() => {
+    const handleCalculate = () => {
         const totalFees = fees.origination + fees.documentation + fees.other;
         const termMonths = termType === 'years' ? termValue * 12 : termValue;
 
@@ -75,8 +74,13 @@ export default function APRCalculator() {
             summary.monthlyPayment
         );
         setAmortizationSchedule(schedule.amortization);
+    };
 
-    }, [principal, interestRate, termValue, termType, fees]);
+    // Calculate on mount
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const chartData = [
         { name: 'Principal', value: principal, color: '#3b82f6' }, // Blue
@@ -213,6 +217,15 @@ export default function APRCalculator() {
                                     </div>
                                 </div>
                             )}
+                        </div>
+
+                        <div className="flex justify-center mt-6">
+                            <button
+                                onClick={handleCalculate}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                            >
+                                Calculate APR 🚀
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -27,9 +27,6 @@ export default function SimpleInterestCalculator() {
     const [prepayments, setPrepayments] = useState<Prepayment[]>([]);
     const [rateChanges, setRateChanges] = useState<RateChange[]>([]);
 
-    // Helper functions for advanced features
-    // No longer needed here as they are handled inside AdvancedOptions component or via state updates
-
     const handlePrepaymentsChange = (newPrepayments: Prepayment[]) => {
         setPrepayments(newPrepayments);
     };
@@ -48,6 +45,7 @@ export default function SimpleInterestCalculator() {
         setShowAdvanced(false);
     };
 
+    // Initialize from URL params
     useEffect(() => {
         const p = searchParams.get('p');
         const r = searchParams.get('r');
@@ -58,10 +56,16 @@ export default function SimpleInterestCalculator() {
         if (t) setTime(Number(t));
     }, [searchParams]);
 
-    useEffect(() => {
+    const handleCalculate = () => {
         const res = calculateAdvancedSimpleInterest(principal, rate, time, startDate, prepayments, rateChanges);
         setResult(res);
-    }, [principal, rate, time, startDate, prepayments, rateChanges]);
+    };
+
+    // Calculate on mount/params change
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
@@ -190,6 +194,15 @@ export default function SimpleInterestCalculator() {
                         onRateChangesChange={handleRateChangesChange}
                         startDate={startDate}
                     />
+
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={handleCalculate}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                        >
+                            Calculate Simple Interest 🚀
+                        </button>
+                    </div>
                 </div>
             </div>
 

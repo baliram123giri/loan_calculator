@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -85,29 +85,57 @@ export default function InvestmentCalculator() {
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 
-    // Calculate results based on active tab
-    const result: InvestmentResult | null = useMemo(() => {
-        if (activeTab === 'goal') return null;
+    // State for Results
+    const [result, setResult] = useState<InvestmentResult | null>(null);
+    const [yearlyBreakdown, setYearlyBreakdown] = useState<YearlyBreakdown[]>([]);
+    const [requiredSIP, setRequiredSIP] = useState(0);
+
+    const handleCalculate = () => {
+        if (activeTab === 'goal') {
+            try {
+                const req = calculateGoalPlanning({
+                    targetAmount,
+                    currentSavings,
+                    annualRate: annualReturn,
+                    years
+                });
+                setRequiredSIP(req);
+            } catch (error) {
+                console.error('Goal calculation error:', error);
+            }
+            return;
+        }
 
         try {
+            let res: InvestmentResult | null = null;
+            let breakdown: YearlyBreakdown[] = [];
+
             if (activeTab === 'lumpsum') {
-                return calculateLumpsum({
+                res = calculateLumpsum({
                     principal: lumpsumAmount,
                     annualRate: annualReturn,
                     years,
                     inflationRate: inflationRate || undefined,
                     taxRate: taxRate || undefined
                 });
+                breakdown = generateYearlyBreakdown(
+                    { principal: lumpsumAmount, annualRate: annualReturn, years },
+                    'lumpsum'
+                );
             } else if (activeTab === 'sip') {
-                return calculateSIP({
+                res = calculateSIP({
                     monthlyInvestment: monthlySIP,
                     annualRate: annualReturn,
                     years,
                     inflationRate: inflationRate || undefined,
                     taxRate: taxRate || undefined
                 });
+                breakdown = generateYearlyBreakdown(
+                    { monthlyInvestment: monthlySIP, annualRate: annualReturn, years },
+                    'sip'
+                );
             } else if (activeTab === 'combined') {
-                return calculateCombined({
+                res = calculateCombined({
                     lumpsum: combinedLumpsum,
                     monthlyInvestment: combinedMonthlySIP,
                     annualRate: annualReturn,
@@ -115,8 +143,12 @@ export default function InvestmentCalculator() {
                     inflationRate: inflationRate || undefined,
                     taxRate: taxRate || undefined
                 });
+                breakdown = generateYearlyBreakdown(
+                    { lumpsum: combinedLumpsum, monthlyInvestment: combinedMonthlySIP, annualRate: annualReturn, years },
+                    'combined'
+                );
             } else if (activeTab === 'stepup') {
-                return calculateStepUpSIP({
+                res = calculateStepUpSIP({
                     initialMonthlyInvestment: stepupMonthlySIP,
                     annualRate: annualReturn,
                     years,
@@ -124,65 +156,28 @@ export default function InvestmentCalculator() {
                     inflationRate: inflationRate || undefined,
                     taxRate: taxRate || undefined
                 });
-            }
-        } catch (error) {
-            console.error('Calculation error:', error);
-            return null;
-        }
-        return null;
-    }, [activeTab, lumpsumAmount, monthlySIP, combinedLumpsum, combinedMonthlySIP,
-        stepupMonthlySIP, stepupRate, years, annualReturn, inflationRate, taxRate]);
-
-    // Calculate required SIP for goal planner
-    const requiredSIP = useMemo(() => {
-        if (activeTab !== 'goal') return 0;
-        try {
-            return calculateGoalPlanning({
-                targetAmount,
-                currentSavings,
-                annualRate: annualReturn,
-                years
-            });
-        } catch (error) {
-            console.error('Goal calculation error:', error);
-            return 0;
-        }
-    }, [activeTab, targetAmount, currentSavings, annualReturn, years]);
-
-    // Generate yearly breakdown
-    const yearlyBreakdown = useMemo((): YearlyBreakdown[] => {
-        if (activeTab === 'goal') return [];
-
-        try {
-            if (activeTab === 'lumpsum') {
-                return generateYearlyBreakdown(
-                    { principal: lumpsumAmount, annualRate: annualReturn, years },
-                    'lumpsum'
-                );
-            } else if (activeTab === 'sip') {
-                return generateYearlyBreakdown(
-                    { monthlyInvestment: monthlySIP, annualRate: annualReturn, years },
-                    'sip'
-                );
-            } else if (activeTab === 'combined') {
-                return generateYearlyBreakdown(
-                    { lumpsum: combinedLumpsum, monthlyInvestment: combinedMonthlySIP, annualRate: annualReturn, years },
-                    'combined'
-                );
-            } else if (activeTab === 'stepup') {
-                return generateYearlyBreakdown(
+                breakdown = generateYearlyBreakdown(
                     { initialMonthlyInvestment: stepupMonthlySIP, annualRate: annualReturn, years, stepUpRate: stepupRate },
                     'stepup'
                 );
             }
-        } catch (error) {
-            console.error('Breakdown error:', error);
-        }
-        return [];
-    }, [activeTab, lumpsumAmount, monthlySIP, combinedLumpsum, combinedMonthlySIP,
-        stepupMonthlySIP, stepupRate, years, annualReturn]);
+            setResult(res);
+            setYearlyBreakdown(breakdown);
 
-    // Generate AI suggestions
+        } catch (error) {
+            console.error('Calculation error:', error);
+            setResult(null);
+            setYearlyBreakdown([]);
+        }
+    };
+
+    // Calculate on mount only
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only mount
+
+    // Generate AI suggestions (depend on result state now)
     const suggestions = useMemo(() => {
         const inputData = {
             annualRate: annualReturn,
@@ -260,8 +255,8 @@ export default function InvestmentCalculator() {
         setInflationRate(0);
         setTaxRate(0);
         setCurrentPage(1);
+        // Do not force recalculate on reset, let user click.
     };
-
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -438,8 +433,17 @@ export default function InvestmentCalculator() {
                                 />
                             </div>
 
+                            <div className="flex justify-center mt-6">
+                                <button
+                                    onClick={handleCalculate}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                                >
+                                    Calculate Investment 🚀
+                                </button>
+                            </div>
+
                             {/* Advanced options */}
-                            <details className="group">
+                            <details className="group mt-4">
                                 <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 list-none flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
                                     <span className="flex items-center">
                                         <Info className="w-4 h-4 mr-2" />
@@ -468,6 +472,15 @@ export default function InvestmentCalculator() {
                                     />
                                 </div>
                             </details>
+
+                            <div className="flex justify-center mt-6">
+                                <button
+                                    onClick={handleCalculate}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                                >
+                                    Calculate Investment 🚀
+                                </button>
+                            </div>
                         </div>
 
                         {/* Results Section */}
@@ -622,7 +635,8 @@ export default function InvestmentCalculator() {
                                             tooltip: {
                                                 callbacks: {
                                                     label: function (context) {
-                                                        return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                                        const val = context.parsed.y;
+                                                        return context.dataset.label + ': ' + formatCurrency(val !== null ? val : 0);
                                                     }
                                                 }
                                             }
@@ -665,7 +679,7 @@ export default function InvestmentCalculator() {
                                 </h4>
                             </div>
                             <div className="space-y-3">
-                                {suggestions.map((suggestion, index) => (
+                                {suggestions.map((suggestion: string, index: number) => (
                                     <div
                                         key={index}
                                         className="bg-white/80 dark:bg-gray-900/60 p-4 rounded-lg border border-purple-100 dark:border-purple-800"

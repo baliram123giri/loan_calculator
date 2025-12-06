@@ -5,6 +5,8 @@ import { calculateAffordability } from './logic';
 import { AffordabilityInput, AffordabilityResult, StateData } from './schema';
 import statesData from './states.json';
 import { ChevronDown, ChevronUp, Info, RotateCcw } from 'lucide-react';
+import CurrencyInput from '@/components/CurrencyInput';
+import NumberInput from '@/components/NumberInput';
 
 export default function HouseAffordabilityCalculator() {
     const [input, setInput] = useState<AffordabilityInput>({
@@ -23,10 +25,15 @@ export default function HouseAffordabilityCalculator() {
     const [result, setResult] = useState<AffordabilityResult | null>(null);
     const [selectedState, setSelectedState] = useState<string>('');
 
-    useEffect(() => {
+    const handleCalculate = () => {
         const res = calculateAffordability(input);
         setResult(res);
-    }, [input]);
+    };
+
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const stateName = e.target.value;
@@ -55,6 +62,7 @@ export default function HouseAffordabilityCalculator() {
             mortgageType: 'Conventional'
         });
         setSelectedState('');
+        setResult(null);
     };
 
     return (
@@ -80,31 +88,25 @@ export default function HouseAffordabilityCalculator() {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Income ($)</label>
-                            <input
-                                type="number"
+                            <CurrencyInput
                                 value={input.annualIncome}
-                                onChange={(e) => handleInputChange('annualIncome', Number(e.target.value))}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                onChange={(val) => handleInputChange('annualIncome', val)}
                             />
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Debts ($)</label>
-                            <input
-                                type="number"
+                            <CurrencyInput
                                 value={input.monthlyDebts}
-                                onChange={(e) => handleInputChange('monthlyDebts', Number(e.target.value))}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                onChange={(val) => handleInputChange('monthlyDebts', val)}
                             />
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Down Payment ($)</label>
-                            <input
-                                type="number"
+                            <CurrencyInput
                                 value={input.downPayment}
-                                onChange={(e) => handleInputChange('downPayment', Number(e.target.value))}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                onChange={(val) => handleInputChange('downPayment', val)}
                             />
                         </div>
 
@@ -113,7 +115,7 @@ export default function HouseAffordabilityCalculator() {
                             <select
                                 value={selectedState}
                                 onChange={handleStateChange}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
                             >
                                 <option value="">Select State (Auto-fills Tax Rate)</option>
                                 {(statesData as StateData[]).map(state => (
@@ -128,12 +130,10 @@ export default function HouseAffordabilityCalculator() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
-                                <input
-                                    type="number"
-                                    step="0.1"
+                                <NumberInput
                                     value={input.interestRate}
-                                    onChange={(e) => handleInputChange('interestRate', Number(e.target.value))}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    onChange={(val) => handleInputChange('interestRate', val)}
+                                    suffix="%"
                                 />
                             </div>
                             <div>
@@ -141,7 +141,7 @@ export default function HouseAffordabilityCalculator() {
                                 <select
                                     value={input.loanTermYears}
                                     onChange={(e) => handleInputChange('loanTermYears', Number(e.target.value))}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
                                 >
                                     <option value={15}>15 Years</option>
                                     <option value={20}>20 Years</option>
@@ -155,7 +155,7 @@ export default function HouseAffordabilityCalculator() {
                             <select
                                 value={input.mortgageType}
                                 onChange={(e) => handleInputChange('mortgageType', e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
                             >
                                 <option value="Conventional">Conventional</option>
                                 <option value="FHA">FHA</option>
@@ -170,37 +170,36 @@ export default function HouseAffordabilityCalculator() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Front-End DTI (%)</label>
-                                <input
-                                    type="number"
-                                    placeholder={input.mortgageType === 'FHA' ? '31' : '28'}
-                                    value={input.frontEndDTI || ''}
-                                    onChange={(e) => handleInputChange('frontEndDTI', e.target.value ? Number(e.target.value) : undefined)}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                <NumberInput
+                                    value={input.frontEndDTI ?? (input.mortgageType === 'FHA' ? 31 : 28)}
+                                    onChange={(val) => handleInputChange('frontEndDTI', val)}
+                                    suffix="%"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Back-End DTI (%)</label>
-                                <input
-                                    type="number"
-                                    placeholder={input.mortgageType === 'FHA' ? '43' : '36'}
-                                    value={input.backEndDTI || ''}
-                                    onChange={(e) => handleInputChange('backEndDTI', e.target.value ? Number(e.target.value) : undefined)}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                <NumberInput
+                                    value={input.backEndDTI ?? (input.mortgageType === 'FHA' ? 43 : (input.mortgageType === 'VA' ? 41 : 36))}
+                                    onChange={(val) => handleInputChange('backEndDTI', val)}
+                                    suffix="%"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PMI Rate (%)</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder={input.mortgageType === 'FHA' ? '0.85' : '0.5'}
-                                    value={input.pmiRate !== undefined ? input.pmiRate : ''}
-                                    onChange={(e) => handleInputChange('pmiRate', e.target.value ? Number(e.target.value) : undefined)}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                <NumberInput
+                                    value={input.pmiRate ?? (input.mortgageType === 'FHA' ? 0.85 : 0.5)}
+                                    onChange={(val) => handleInputChange('pmiRate', val)}
+                                    suffix="%"
                                 />
                             </div>
                         </div>
                     </div>
+                    <button
+                        onClick={handleCalculate}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-6"
+                    >
+                        Calculate Affordability 🚀
+                    </button>
                 </div>
 
                 {/* Results */}

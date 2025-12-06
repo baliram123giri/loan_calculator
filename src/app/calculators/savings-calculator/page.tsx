@@ -12,19 +12,27 @@ export const metadata: Metadata = {
 
 export default function SavingsCalculatorPage() {
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    Savings Calculator
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                    Estimate how much your money will grow over time with compound interest. Plan for your future goals today.
-                </p>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+            {/* Hero Section */}
+            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/10 border-b border-gray-200 dark:border-gray-800 pb-20 pt-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-4xl mx-auto">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Start Building Your <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 dark:from-green-400 dark:to-blue-400">
+                                Future Savings Today
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                            Estimate how much your money will grow over time with compound interest. Plan for your future goals today.
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <main>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
                 {/* Calculator Section */}
-                <div className="mb-12">
+                <div className="-mt-32 mb-12">
                     <SavingsCalculator />
                 </div>
 

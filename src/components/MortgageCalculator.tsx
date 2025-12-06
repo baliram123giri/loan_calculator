@@ -6,7 +6,6 @@ import CalculatorForm from '@/components/CalculatorForm';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
 import ExportButton from '@/components/ExportButton';
-import SaveScenario from '@/components/SaveScenario';
 import ShareButton from '@/components/ShareButton';
 import { EMIResult } from '@/lib/calc/emi';
 import { LoanTypeConfig } from '@/types/loanTypes';
@@ -30,7 +29,6 @@ const MORTGAGE_CONFIG: LoanTypeConfig = {
 export default function MortgageCalculator() {
     const [result, setResult] = useState<EMIResult | null>(null);
     const [loanParams, setLoanParams] = useState({ principal: 300000, rate: 6.5, tenureMonths: 360 });
-    const [loadScenario, setLoadScenario] = useState<any>(null);
     const [resetKey, setResetKey] = useState(0);
 
     const resetToDefaults = () => {
@@ -51,20 +49,6 @@ export default function MortgageCalculator() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column: Inputs */}
-            <div className="lg:col-span-4 space-y-6">
-                <CalculatorForm
-                    key={resetKey}
-                    onResultChange={handleResultChange}
-                    loanTypeConfig={MORTGAGE_CONFIG}
-                    currencySymbol="$"
-                    loadScenario={loadScenario}
-                    onScenarioLoaded={() => setLoadScenario(null)}
-                    persistenceKey="mortgage_calculator_state"
-                    onReset={resetToDefaults}
-                />
-            </div>
-
-            {/* Right Column: Results */}
             <div className="lg:col-span-8 space-y-8">
                 {result && (
                     <>
@@ -73,15 +57,6 @@ export default function MortgageCalculator() {
                                 <EMIResultCard result={result} currencySymbol="$" />
                             </div>
                             <div className="flex items-start pt-2 gap-2">
-                                <SaveScenario
-                                    loanType="home"
-                                    principal={loanParams.principal}
-                                    rate={loanParams.rate}
-                                    tenureMonths={loanParams.tenureMonths}
-                                    result={result}
-                                    currencySymbol="$"
-                                    onLoad={(scenario) => setLoadScenario(scenario)}
-                                />
                                 <ShareButton data={shareData} />
                             </div>
                         </div>

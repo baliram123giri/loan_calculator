@@ -75,28 +75,39 @@ export default function BondCalculator() {
     // Mode: Calculate Price or Calculate YTM
     const [calculationMode, setCalculationMode] = useState<'price' | 'yield'>('price');
 
-    // Inputs
+    // Inputs (Form State)
     const [faceValue, setFaceValue] = useState(1000);
     const [couponRate, setCouponRate] = useState(5.0);
-    // Date States
     const [settlementDate, setSettlementDate] = useState(new Date().toISOString().split('T')[0]);
     const [maturityDate, setMaturityDate] = useState(() => {
         const d = new Date();
         d.setFullYear(d.getFullYear() + 10);
         return d.toISOString().split('T')[0];
     });
-
     const [marketRate, setMarketRate] = useState(4.0); // YTM input
     const [targetPrice, setTargetPrice] = useState(950); // Price input for YTM calc
-
     const [frequency, setFrequency] = useState(2); // Semiannual default
+    const [taxRate, setTaxRate] = useState(0);
+
+    // Active Calculation State (Triggers updates)
+    const [activeParams, setActiveParams] = useState({
+        faceValue: 1000,
+        couponRate: 5.0,
+        settlementDate: new Date().toISOString().split('T')[0],
+        maturityDate: (() => {
+            const d = new Date();
+            d.setFullYear(d.getFullYear() + 10);
+            return d.toISOString().split('T')[0];
+        })(),
+        marketRate: 4.0,
+        targetPrice: 950,
+        frequency: 2,
+        calculationMode: 'price' as 'price' | 'yield'
+    });
 
     // UI States
     const [couponInputType, setCouponInputType] = useState<'percent' | 'amount'>('percent');
     const [couponAmount, setCouponAmount] = useState(50); // Derived state for UI convenience
-
-    // Advanced Inputs
-    const [taxRate, setTaxRate] = useState(0);
 
     // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -106,15 +117,31 @@ export default function BondCalculator() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    // Trigger Calculation
+    const handleCalculate = () => {
+        setActiveParams({
+            faceValue,
+            couponRate,
+            settlementDate,
+            maturityDate,
+            marketRate,
+            targetPrice,
+            frequency,
+            calculationMode
+        });
+    };
+
     // Calculation Logic
     const { result, schedule } = useMemo(() => {
-        const par = faceValue;
-        const cRate = couponRate / 100;
-        const freq = frequency;
+        const par = activeParams.faceValue;
+        const cRate = activeParams.couponRate / 100;
+        const freq = activeParams.frequency;
+        const calcMode = activeParams.calculationMode;
 
         // Calculate time to maturity from dates
-        const start = new Date(settlementDate);
-        const end = new Date(maturityDate);
+        const start = new Date(activeParams.settlementDate);
+        const end = new Date(activeParams.maturityDate);
+
         const timeDiff = end.getTime() - start.getTime();
         const daysDiff = timeDiff / (1000 * 3600 * 24);
         const yearsToMaturity = Math.max(0, daysDiff / 365.25);
@@ -130,9 +157,9 @@ export default function BondCalculator() {
 
         const scheduleData: ScheduleItem[] = [];
 
-        if (calculationMode === 'price') {
-            const r = marketRate / 100 / freq; // Periodic yield
-            calculatedYTM = marketRate;
+        if (calcMode === 'price') {
+            const r = activeParams.marketRate / 100 / freq; // Periodic yield
+            calculatedYTM = activeParams.marketRate;
 
             // Price Calculation: Sum of PV of Coupons + PV of Par
             // P = C * (1 - (1+r)^-n)/r + F / (1+r)^n
@@ -148,7 +175,6 @@ export default function BondCalculator() {
 
                 pvSum += pv;
 
-                // Duration stats
                 // Duration stats
                 const timeInYears = t / freq;
                 weightedTimeSum += timeInYears * pv;
@@ -174,7 +200,7 @@ export default function BondCalculator() {
 
         } else {
             // Calculate YTM given Price (Iterative Newton-Raphson)
-            calculatedPrice = targetPrice;
+            calculatedPrice = activeParams.targetPrice;
 
             // Initial guess: Current Yield
             let guess = cRate;
@@ -195,7 +221,7 @@ export default function BondCalculator() {
                     derivative -= (t * flow) / (df * (1 + r));
                 }
 
-                const diff = priceGuess - targetPrice;
+                const diff = priceGuess - activeParams.targetPrice;
                 if (Math.abs(diff) < tolerance) break;
 
                 // Update guess (r = r - f(r)/f'(r)) note: derivative is dP/dr, we want dP/d(yield) essentially
@@ -259,17 +285,17 @@ export default function BondCalculator() {
             },
             schedule: scheduleData
         };
-    }, [calculationMode, faceValue, couponRate, settlementDate, maturityDate, marketRate, targetPrice, frequency]);
+    }, [activeParams]);
 
     // Pull to Par Chart Logic
     const pullToParData = useMemo(() => {
         // Concept: Calculate bond price at each year approaching maturity, holding Yield constant
         const labels = [];
         const data = [];
-        const r = result.ytm / 100 / frequency;
+        const r = result.ytm / 100 / activeParams.frequency;
 
-        const start = new Date(settlementDate);
-        const end = new Date(maturityDate);
+        const start = new Date(activeParams.settlementDate);
+        const end = new Date(activeParams.maturityDate);
         const yearsToMaturity = (end.getTime() - start.getTime()) / (1000 * 3600 * 24 * 365.25);
         const flooredYears = Math.floor(yearsToMaturity);
 
@@ -277,16 +303,16 @@ export default function BondCalculator() {
             const timeRemaining = yearsToMaturity - y;
             if (timeRemaining < 0) continue;
 
-            const periodsRemaining = timeRemaining * frequency;
+            const periodsRemaining = timeRemaining * activeParams.frequency;
             let p = 0;
-            const flow = (faceValue * (couponRate / 100)) / frequency;
+            const flow = (activeParams.faceValue * (activeParams.couponRate / 100)) / activeParams.frequency;
 
             // Exact calculation for remaining periods
             // P = C * (1 - (1+r)^-n)/r + F / (1+r)^n
             if (periodsRemaining === 0) {
-                p = faceValue;
+                p = activeParams.faceValue;
             } else {
-                p = flow * ((1 - Math.pow(1 + r, -periodsRemaining)) / r) + faceValue / Math.pow(1 + r, periodsRemaining);
+                p = flow * ((1 - Math.pow(1 + r, -periodsRemaining)) / r) + activeParams.faceValue / Math.pow(1 + r, periodsRemaining);
             }
 
             labels.push(`Year ${y}`);
@@ -306,14 +332,14 @@ export default function BondCalculator() {
                 },
                 {
                     label: 'Par Value',
-                    data: new Array(labels.length).fill(faceValue),
+                    data: new Array(labels.length).fill(activeParams.faceValue),
                     borderColor: 'rgb(107, 114, 128)',
                     borderDash: [5, 5],
                     fill: false
                 }
             ]
         };
-    }, [result.ytm, settlementDate, maturityDate, frequency, faceValue, couponRate]);
+    }, [result.ytm, activeParams]);
 
     const pieData = useMemo(() => {
         return {
@@ -332,11 +358,13 @@ export default function BondCalculator() {
     // AI Suggestions
     useEffect(() => {
         const newSuggestions = [];
+        const par = activeParams.faceValue;
+        const cRate = activeParams.couponRate;
 
-        if (result.price < faceValue) {
-            newSuggestions.push(`📉 **Discount Bond**: This bond is trading below par ($${faceValue}). This usually happens when market rates (${result.ytm.toFixed(2)}%) are higher than the coupon rate (${couponRate}%). You earn capital gains as it approaches maturity.`);
-        } else if (result.price > faceValue) {
-            newSuggestions.push(`📈 **Premium Bond**: This bond is trading above par ($${faceValue}). This occurs when market rates (${result.ytm.toFixed(2)}%) are lower than the coupon rate (${couponRate}%). Expect a capital loss at maturity, but higher income now.`);
+        if (result.price < par) {
+            newSuggestions.push(`📉 **Discount Bond**: This bond is trading below par ($${par}). This usually happens when market rates (${result.ytm.toFixed(2)}%) are higher than the coupon rate (${cRate}%). You earn capital gains as it approaches maturity.`);
+        } else if (result.price > par) {
+            newSuggestions.push(`📈 **Premium Bond**: This bond is trading above par ($${par}). This occurs when market rates (${result.ytm.toFixed(2)}%) are lower than the coupon rate (${cRate}%). Expect a capital loss at maturity, but higher income now.`);
         }
 
         if (result.macaulayDuration > 7) {
@@ -347,12 +375,12 @@ export default function BondCalculator() {
             newSuggestions.push("💡 **Yield Alert**: Current Yield is higher than YTM. This indicates the bond is trading at a premium and you will lose some principal value if held to maturity.");
         }
 
-        if (calculationMode === 'yield' && result.ytm < 0) {
+        if (activeParams.calculationMode === 'yield' && result.ytm < 0) {
             newSuggestions.push("🛑 **Negative Yield**: calculations indicate a negative yield. Ensure the entered price is realistic relative to the coupon and par value.");
         }
 
         setSuggestions(newSuggestions);
-    }, [result, faceValue, couponRate, calculationMode]);
+    }, [result, activeParams]);
 
     // Handle Pagination
     useEffect(() => {
@@ -543,7 +571,7 @@ export default function BondCalculator() {
                                             type="date"
                                             value={settlementDate}
                                             onChange={(e) => setSettlementDate(e.target.value)}
-                                            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                                            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white cursor-pointer"
                                         />
                                     </div>
                                     <div>
@@ -554,7 +582,7 @@ export default function BondCalculator() {
                                             type="date"
                                             value={maturityDate}
                                             onChange={(e) => setMaturityDate(e.target.value)}
-                                            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                                            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white cursor-pointer"
                                         />
                                     </div>
                                 </div>
@@ -605,6 +633,15 @@ export default function BondCalculator() {
                                         <p className="text-xs text-gray-500">Note: Tax is currently used for informational purposes and does not affect YTM calculation in this version.</p>
                                     </div>
                                 </details>
+
+                                <div className="flex justify-center mt-6">
+                                    <button
+                                        onClick={handleCalculate}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                                    >
+                                        Calculate Analysis 🚀
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -872,7 +909,7 @@ export default function BondCalculator() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </div >
         </div >
     );
 }

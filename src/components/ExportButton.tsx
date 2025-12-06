@@ -111,7 +111,9 @@ export default function ExportButton({
 
             doc.setFontSize(10);
             doc.setTextColor(107, 114, 128); // Gray-500
-            const dateStr = `Generated on ${new Date().toLocaleDateString()}`;
+            doc.setTextColor(107, 114, 128); // Gray-500
+            const today = new Date();
+            const dateStr = `Generated on ${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
             doc.text(dateStr, 14, 28);
 
             let startY = 40;

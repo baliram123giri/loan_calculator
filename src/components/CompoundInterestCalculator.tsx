@@ -33,11 +33,16 @@ export default function CompoundInterestCalculator() {
         }
     }, [searchParams]);
 
-    useEffect(() => {
+    const handleCalculate = () => {
         const res = calculateCompoundInterest(principal, rate, time, frequency);
         setResult(res);
         setApy(calculateAPY(rate, frequency));
-    }, [principal, rate, time, frequency]);
+    };
+
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]); // Recalculate if URL params change (initial load with params), otherwise manual.
 
     const resetToDefaults = () => {
         setPrincipal(10000);
@@ -168,6 +173,15 @@ export default function CompoundInterestCalculator() {
                             step={1}
                             onChange={(e) => setTime(Number(e.target.value))}
                         />
+                    </div>
+
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={handleCalculate}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                        >
+                            Calculate Compound Interest 🚀
+                        </button>
                     </div>
                 </div>
             </div>

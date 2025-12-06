@@ -77,8 +77,18 @@ export default function CDCalculator() {
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [liked, setLiked] = useState(false);
 
-    // Calculation Logic
-    const { result, schedule } = useMemo(() => {
+    // Results State (moved from useMemo to state for manual trigger)
+    const [result, setResults] = useState<CDResult>({
+        totalBalance: 0,
+        totalInterest: 0,
+        apy: 0,
+        realValue: 0,
+        taxAmount: 0,
+        afterTaxBalance: 0
+    });
+    const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+
+    const handleCalculate = () => {
         const principal = depositAmount;
         const annualRate = rate / 100;
         const totalYears = termYears + (termMonths / 12);
@@ -86,25 +96,22 @@ export default function CDCalculator() {
 
         // Validation for zero/negative values to avoid NaN
         if (principal <= 0 || totalYears <= 0) {
-            return {
-                result: {
-                    totalBalance: 0,
-                    totalInterest: 0,
-                    apy: 0,
-                    realValue: 0,
-                    taxAmount: 0,
-                    afterTaxBalance: 0
-                },
-                schedule: []
-            };
+            setResults({
+                totalBalance: 0,
+                totalInterest: 0,
+                apy: 0,
+                realValue: 0,
+                taxAmount: 0,
+                afterTaxBalance: 0
+            });
+            setSchedule([]);
+            return;
         }
 
         // Standard Compound Interest Formula: A = P(1 + r/n)^(nt)
         const totalPeriods = totalYears * frequency;
         const ratePerPeriod = annualRate / frequency;
 
-        let currentBalance = principal;
-        let totalInterest = 0;
         const scheduleData: ScheduleItem[] = [];
 
         // Generate Schedule
@@ -140,20 +147,24 @@ export default function CDCalculator() {
         const taxAmt = finalInterest * (taxRate / 100);
         const afterTaxBal = finalBalance - taxAmt;
 
-        return {
-            result: {
-                totalBalance: finalBalance,
-                totalInterest: finalInterest,
-                apy,
-                realValue: realVal,
-                taxAmount: taxAmt,
-                afterTaxBalance: afterTaxBal
-            },
-            schedule: scheduleData
-        };
-    }, [depositAmount, rate, termYears, termMonths, compoundingFrequency, taxRate, inflationRate]);
+        setResults({
+            totalBalance: finalBalance,
+            totalInterest: finalInterest,
+            apy,
+            realValue: realVal,
+            taxAmount: taxAmt,
+            afterTaxBalance: afterTaxBal
+        });
+        setSchedule(scheduleData);
+    };
 
-    // AI Suggestions Generation
+    // Calculate on mount
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // AI Suggestions Generation (depends on result)
     useEffect(() => {
         const newSuggestions = [];
         const totalYears = termYears + (termMonths / 12);
@@ -233,6 +244,7 @@ export default function CDCalculator() {
         setCompoundingFrequency(12);
         setTaxRate(0);
         setInflationRate(0);
+        // Do not auto-calculate on reset
     };
 
     return (
@@ -344,6 +356,15 @@ export default function CDCalculator() {
                                         />
                                     </div>
                                 </details>
+
+                                <div className="flex justify-center mt-6">
+                                    <button
+                                        onClick={handleCalculate}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                                    >
+                                        Calculate CD 🚀
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -11,7 +11,9 @@ import {
     Menu,
     X,
     Scale,
-    CreditCard
+    CreditCard,
+    Sun,
+    Moon
 } from 'lucide-react';
 import NavSearch from './NavSearch';
 
@@ -31,6 +33,32 @@ export default function NavBar() {
     const pathname = usePathname();
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [darkMode, setDarkMode] = useState(false);
+
+    useEffect(() => {
+        // Init theme
+        const isDark = localStorage.getItem('theme') === 'dark' ||
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        setDarkMode(isDark);
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const newMode = !darkMode;
+        setDarkMode(newMode);
+        if (newMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    };
+
 
     const categories: Category[] = [
         {
@@ -196,6 +224,15 @@ export default function NavBar() {
                                 </Link>
                             );
                         })}
+
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 ml-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                            aria-label="Toggle Theme"
+                        >
+                            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
                     </nav>
 
                     {/* Mobile Menu Button */}

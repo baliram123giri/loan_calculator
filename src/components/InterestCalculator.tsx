@@ -49,7 +49,7 @@ export default function InterestCalculator() {
         setMonthlyContribution(0);
     };
 
-    useEffect(() => {
+    const handleCalculate = () => {
         try {
             let calc: InterestCalculation;
             if (calculationType === 'simple') {
@@ -62,7 +62,13 @@ export default function InterestCalculator() {
         } catch (e) {
             console.error('Interest calculation error:', e);
         }
-    }, [calculationType, principal, rate, time, compoundingFrequency, monthlyContribution]);
+    };
+
+    // Initial calculation on mount
+    useEffect(() => {
+        handleCalculate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const generateSuggestions = (calc: InterestCalculation) => {
         const newSuggestions: string[] = [];
@@ -183,93 +189,100 @@ export default function InterestCalculator() {
                         </div>
 
                         {/* Type Toggle */}
-                        <div className="bg-white dark:bg-gray-900 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex">
-                            <button
-                                onClick={() => setCalculationType('simple')}
-                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${calculationType === 'simple'
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                                    }`}
-                            >
-                                Simple Interest
-                            </button>
-                            <button
-                                onClick={() => setCalculationType('compound')}
-                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${calculationType === 'compound'
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                                    }`}
-                            >
-                                Compound Interest
-                            </button>
+                        <button
+                            onClick={() => setCalculationType('simple')}
+                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${calculationType === 'simple'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }`}
+                        >
+                            Simple Interest
+                        </button>
+                        <button
+                            onClick={() => setCalculationType('compound')}
+                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${calculationType === 'compound'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }`}
+                        >
+                            Compound Interest
+                        </button>
+                    </div>
+
+                    <div className="space-y-5">
+                        <div>
+                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <DollarSign className="w-4 h-4 mr-2 text-blue-500" />
+                                Principal Amount
+                            </label>
+                            <CurrencyInput value={principal} onChange={setPrincipal} />
                         </div>
 
-                        <div className="space-y-5">
-                            <div>
-                                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    <DollarSign className="w-4 h-4 mr-2 text-blue-500" />
-                                    Principal Amount
-                                </label>
-                                <CurrencyInput value={principal} onChange={setPrincipal} />
-                            </div>
+                        <div>
+                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <Percent className="w-4 h-4 mr-2 text-green-500" />
+                                Annual Interest Rate (%)
+                            </label>
+                            <NumberInput value={rate} onChange={setRate} suffix="%" />
+                        </div>
 
-                            <div>
-                                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    <Percent className="w-4 h-4 mr-2 text-green-500" />
-                                    Annual Interest Rate (%)
-                                </label>
-                                <NumberInput value={rate} onChange={setRate} suffix="%" />
-                            </div>
+                        <div>
+                            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <Clock className="w-4 h-4 mr-2 text-purple-500" />
+                                Time Period (Years)
+                            </label>
+                            <NumberInput value={time} onChange={setTime} />
+                            <input
+                                type="range"
+                                min="1"
+                                max="50"
+                                value={time}
+                                onChange={(e) => setTime(Number(e.target.value))}
+                                className="w-full mt-2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-blue-600"
+                            />
+                        </div>
 
-                            <div>
-                                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    <Clock className="w-4 h-4 mr-2 text-purple-500" />
-                                    Time Period (Years)
-                                </label>
-                                <NumberInput value={time} onChange={setTime} />
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="50"
-                                    value={time}
-                                    onChange={(e) => setTime(Number(e.target.value))}
-                                    className="w-full mt-2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-blue-600"
-                                />
-                            </div>
-
-                            {calculationType === 'compound' && (
-                                <div className="animate-in fade-in slide-in-from-top-4 space-y-5">
-                                    <div>
-                                        <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            <PieChart className="w-4 h-4 mr-2 text-orange-500" />
-                                            Compounding Frequency
-                                        </label>
-                                        <select
-                                            value={compoundingFrequency}
-                                            onChange={(e) => setCompoundingFrequency(e.target.value as any)}
-                                            className="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
-                                        >
-                                            <option value="yearly">Yearly</option>
-                                            <option value="half-yearly">Half-Yearly</option>
-                                            <option value="quarterly">Quarterly</option>
-                                            <option value="monthly">Monthly</option>
-                                            <option value="daily">Daily</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            <TrendingUp className="w-4 h-4 mr-2 text-teal-500" />
-                                            Monthly Contribution (Optional)
-                                        </label>
-                                        <CurrencyInput value={monthlyContribution} onChange={setMonthlyContribution} />
-                                    </div>
+                        {calculationType === 'compound' && (
+                            <div className="animate-in fade-in slide-in-from-top-4 space-y-5">
+                                <div>
+                                    <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <PieChart className="w-4 h-4 mr-2 text-orange-500" />
+                                        Compounding Frequency
+                                    </label>
+                                    <select
+                                        value={compoundingFrequency}
+                                        onChange={(e) => setCompoundingFrequency(e.target.value as any)}
+                                        className="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm cursor-pointer"
+                                    >
+                                        <option value="yearly">Yearly</option>
+                                        <option value="half-yearly">Half-Yearly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="daily">Daily</option>
+                                    </select>
                                 </div>
-                            )}
+
+                                <div>
+                                    <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <TrendingUp className="w-4 h-4 mr-2 text-teal-500" />
+                                        Monthly Contribution (Optional)
+                                    </label>
+                                    <CurrencyInput value={monthlyContribution} onChange={setMonthlyContribution} />
+                                </div>
+                            </div>
+                        )}
 
 
+                        <div className="pt-4">
+                            <button
+                                onClick={handleCalculate}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transform transition-all active:scale-[0.98] shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                Calculate Interest 🚀
+                            </button>
                         </div>
                     </div>
+
 
                     {/* Right Panel: Results & Visuals */}
                     <div className="lg:col-span-8 p-8 space-y-8">
