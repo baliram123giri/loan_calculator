@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import InvestmentCalculator from '@/components/InvestmentCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
 import {
     Calculator,
     TrendingUp,
@@ -49,7 +50,7 @@ export default function InvestmentCalculatorPage() {
                 <div className="mt-24 grid grid-cols-1 lg:grid-cols-12 gap-12">
 
                     {/* Main Content */}
-                    <div className="lg:col-span-8 space-y-12">
+                    <div className="lg:col-span-12 space-y-12">
 
                         {/* Introduction */}
                         <section className="prose dark:prose-invert max-w-none">
@@ -439,63 +440,40 @@ export default function InvestmentCalculatorPage() {
                         </section>
                     </div>
 
-                    {/* Sidebar - Related Tools */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 sticky top-8">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                                Related Financial Tools
-                            </h3>
-                            <div className="space-y-3">
-                                <a
-                                    href="/calculators/compound-interest"
-                                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-                                >
-                                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                        <TrendingUp className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Compound Interest</p>
-                                        <p className="text-xs text-gray-500">Calculate compound growth</p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="/calculators/simple-interest"
-                                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-                                >
-                                    <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-green-600 group-hover:text-white transition-colors">
-                                        <DollarSign className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Simple Interest</p>
-                                        <p className="text-xs text-gray-500">Calculate simple returns</p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="/calculators/real-estate-calculator"
-                                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-                                >
-                                    <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                        <PiggyBank className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Real Estate ROI</p>
-                                        <p className="text-xs text-gray-500">Property investment returns</p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="/calculators/house-affordability"
-                                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-                                >
-                                    <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mr-3 group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                                        <Target className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">House Affordability</p>
-                                        <p className="text-xs text-gray-500">How much can you afford</p>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+                    {/* Related Tools Section */}
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/compound-interest",
+                                    title: "Compound Interest",
+                                    description: "Calculate compound growth",
+                                    icon: TrendingUp,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/simple-interest",
+                                    title: "Simple Interest",
+                                    description: "Calculate simple returns",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/real-estate-calculator",
+                                    title: "Real Estate ROI",
+                                    description: "Property investment returns",
+                                    icon: PiggyBank,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="Related Financial Tools"
+                        />
                     </div>
                 </div>
             </div>

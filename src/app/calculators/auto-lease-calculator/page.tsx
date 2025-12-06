@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import AutoLeaseCalculator from '@/components/AutoLeaseCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Car, DollarSign, Percent } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Auto Lease Calculator | Estimate Monthly Payments & Costs',
@@ -103,34 +105,40 @@ export default function AutoLeaseCalculatorPage() {
                 </section>
 
                 {/* Related Tools Section */}
-                <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        More Auto Finance Tools
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <a
-                            href="/calculators/auto-loan-calculator"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Auto Loan Calculator</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Calculate monthly loan payments</p>
-                        </a>
-                        <a
-                            href="/calculators/cash-back-vs-low-interest"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Rebate vs. Interest</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Compare cash back to low APR</p>
-                        </a>
-                        <a
-                            href="/calculators/apr"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">APR Calculator</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Find the true cost of borrowing</p>
-                        </a>
-                    </div>
-                </section>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <RelatedCalculators
+                        links={[
+                            {
+                                href: "/calculators/auto-loan-calculator",
+                                title: "Auto Loan Calculator",
+                                description: "Calculate monthly loan payments",
+                                icon: Car,
+                                iconColorClass: "text-blue-600",
+                                iconBgClass: "bg-blue-100",
+                                hoverBgClass: "group-hover:bg-blue-600"
+                            },
+                            {
+                                href: "/calculators/cash-back-vs-low-interest",
+                                title: "Rebate vs. Interest",
+                                description: "Compare cash back to low APR",
+                                icon: DollarSign,
+                                iconColorClass: "text-green-600",
+                                iconBgClass: "bg-green-100",
+                                hoverBgClass: "group-hover:bg-green-600"
+                            },
+                            {
+                                href: "/calculators/apr",
+                                title: "APR Calculator",
+                                description: "Find the true cost of borrowing",
+                                icon: Percent,
+                                iconColorClass: "text-purple-600",
+                                iconBgClass: "bg-purple-100",
+                                hoverBgClass: "group-hover:bg-purple-600"
+                            }
+                        ]}
+                        title="More Auto Finance Tools"
+                    />
+                </div>
             </div>
         </div>
     );

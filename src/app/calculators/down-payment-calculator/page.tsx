@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import DownPaymentCalculator from '@/components/DownPaymentCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Home, DollarSign, Calculator } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Down Payment Calculator | Calculate Cash to Close & PMI',
@@ -151,34 +153,40 @@ export default function DownPaymentCalculatorPage() {
                 </section>
 
                 {/* Related Tools Section */}
-                <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        More Home Buying Tools
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <a
-                            href="/calculators/mortgage"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Standard mortgage payment estimation</p>
-                        </a>
-                        <a
-                            href="/calculators/house-affordability"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">House Affordability</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Find out how much house you can afford</p>
-                        </a>
-                        <a
-                            href="/calculators/fha-loan-calculator"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">FHA Loan Calculator</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Calculate FHA payments with MIP</p>
-                        </a>
-                    </div>
-                </section>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <RelatedCalculators
+                        links={[
+                            {
+                                href: "/calculators/mortgage",
+                                title: "Mortgage Calculator",
+                                description: "Standard mortgage payment estimation",
+                                icon: Home,
+                                iconColorClass: "text-blue-600",
+                                iconBgClass: "bg-blue-100",
+                                hoverBgClass: "group-hover:bg-blue-600"
+                            },
+                            {
+                                href: "/calculators/house-affordability",
+                                title: "House Affordability",
+                                description: "Find out how much house you can afford",
+                                icon: DollarSign,
+                                iconColorClass: "text-green-600",
+                                iconBgClass: "bg-green-100",
+                                hoverBgClass: "group-hover:bg-green-600"
+                            },
+                            {
+                                href: "/calculators/fha-loan-calculator",
+                                title: "FHA Loan Calculator",
+                                description: "Calculate FHA payments with MIP",
+                                icon: Calculator,
+                                iconColorClass: "text-purple-600",
+                                iconBgClass: "bg-purple-100",
+                                hoverBgClass: "group-hover:bg-purple-600"
+                            }
+                        ]}
+                        title="More Home Buying Tools"
+                    />
+                </div>
             </div>
         </div>
     );

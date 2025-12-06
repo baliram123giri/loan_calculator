@@ -1,5 +1,7 @@
 import React from 'react';
 import RentalPropertyCalculator from '@/components/RentalPropertyCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Home, Building, DollarSign, FileText, RefreshCw, Calculator } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -393,58 +395,67 @@ export default function RentalPropertyCalculatorPage() {
                     </section>
 
                     {/* Related Tools Section */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            More Real Estate Calculators
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Complete your real estate analysis with our other free tools:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/mortgage"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate monthly payments & amortization schedules</p>
-                            </a>
-                            <a
-                                href="/calculators/real-estate-calculator"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Real Estate Investment Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Advanced investment property analysis</p>
-                            </a>
-                            <a
-                                href="/calculators/house-affordability"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">House Affordability</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">How much house can you afford?</p>
-                            </a>
-                            <a
-                                href="/calculators/property-tax"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Property Tax Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Estimate annual property taxes</p>
-                            </a>
-                            <a
-                                href="/calculators/refinance-calculator"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Refinance Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Should you refinance your mortgage?</p>
-                            </a>
-                            <a
-                                href="/calculators/rent-calculator"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Rent vs Buy Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Should you rent or buy a home?</p>
-                            </a>
-                        </div>
-                    </section>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Calculate monthly payments & amortization schedules",
+                                    icon: Home,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/real-estate-calculator",
+                                    title: "Real Estate Investment",
+                                    description: "Advanced investment property analysis",
+                                    icon: Building,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/house-affordability",
+                                    title: "House Affordability",
+                                    description: "How much house can you afford?",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                },
+                                {
+                                    href: "/calculators/property-tax",
+                                    title: "Property Tax Calculator",
+                                    description: "Estimate annual property taxes",
+                                    icon: FileText,
+                                    iconColorClass: "text-orange-600",
+                                    iconBgClass: "bg-orange-100",
+                                    hoverBgClass: "group-hover:bg-orange-600"
+                                },
+                                {
+                                    href: "/calculators/refinance-calculator",
+                                    title: "Refinance Calculator",
+                                    description: "Should you refinance your mortgage?",
+                                    icon: RefreshCw,
+                                    iconColorClass: "text-indigo-600",
+                                    iconBgClass: "bg-indigo-100",
+                                    hoverBgClass: "group-hover:bg-indigo-600"
+                                },
+                                {
+                                    href: "/calculators/rent-calculator",
+                                    title: "Rent vs Buy Calculator",
+                                    description: "Should you rent or buy a home?",
+                                    icon: Calculator,
+                                    iconColorClass: "text-teal-600",
+                                    iconBgClass: "bg-teal-100",
+                                    hoverBgClass: "group-hover:bg-teal-600"
+                                }
+                            ]}
+                            title="More Real Estate Calculators"
+                        />
+                    </div>
                 </div>
             </div>
         </>

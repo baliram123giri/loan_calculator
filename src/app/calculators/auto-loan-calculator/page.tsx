@@ -1,7 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import AutoLoanCalculator from '@/components/AutoLoanCalculator';
-import { Car, DollarSign, Percent, Calendar } from 'lucide-react';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Car, DollarSign, Percent, Calendar, Home, RefreshCw } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Auto Loan Calculator | Calculate Car Payments & Affordability',
@@ -176,37 +177,40 @@ export default function AutoLoanCalculatorPage() {
                 </section>
 
                 {/* Related Tools Section */}
-                <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        More Financial Calculators
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300 mb-6">
-                        Plan your finances with our complete suite of calculators:
-                    </p>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <a
-                            href="/calculators/loan"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Personal Loan</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Calculate personal loan payments</p>
-                        </a>
-                        <a
-                            href="/calculators/mortgage"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Estimate home loan payments</p>
-                        </a>
-                        <a
-                            href="/calculators/refinance-calculator"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Refinance</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Compare refinancing options</p>
-                        </a>
-                    </div>
-                </section>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <RelatedCalculators
+                        links={[
+                            {
+                                href: "/calculators/loan",
+                                title: "Personal Loan",
+                                description: "Calculate personal loan payments",
+                                icon: DollarSign,
+                                iconColorClass: "text-blue-600",
+                                iconBgClass: "bg-blue-100",
+                                hoverBgClass: "group-hover:bg-blue-600"
+                            },
+                            {
+                                href: "/calculators/mortgage",
+                                title: "Mortgage",
+                                description: "Estimate home loan payments",
+                                icon: Home,
+                                iconColorClass: "text-green-600",
+                                iconBgClass: "bg-green-100",
+                                hoverBgClass: "group-hover:bg-green-600"
+                            },
+                            {
+                                href: "/calculators/refinance-calculator",
+                                title: "Refinance",
+                                description: "Compare refinancing options",
+                                icon: RefreshCw,
+                                iconColorClass: "text-purple-600",
+                                iconBgClass: "bg-purple-100",
+                                hoverBgClass: "group-hover:bg-purple-600"
+                            }
+                        ]}
+                        title="More Financial Calculators"
+                    />
+                </div>
             </div>
         </div>
     );

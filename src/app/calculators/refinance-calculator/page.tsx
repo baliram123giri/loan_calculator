@@ -1,5 +1,7 @@
 import React from 'react';
 import RefinanceCalculator from '@/components/RefinanceCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Home, Calculator, DollarSign } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -122,6 +124,42 @@ export default function RefinanceCalculatorPage() {
                             </div>
                         </div>
                     </section>
+
+                    {/* Related Tools Section */}
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Estimate new loan payments",
+                                    icon: Home,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/loan",
+                                    title: "Loan Calculator",
+                                    description: "General loan amortization",
+                                    icon: Calculator,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/house-affordability",
+                                    title: "House Affordability",
+                                    description: "Check your buying power",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="More Home Finance Tools"
+                        />
+                    </div>
                 </div>
             </div>
         </>

@@ -1,5 +1,7 @@
 import React from 'react';
 import LoanCalculator from '@/components/LoanCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Home, DollarSign, Calculator } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -251,37 +253,40 @@ export default function LoanPage() {
                     </section>
 
                     {/* Related Tools Section */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Explore More Financial Calculators
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Make better financial decisions with our comprehensive suite of calculators:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/mortgage"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate home loan payments and interest</p>
-                            </a>
-                            <a
-                                href="/calculators/house-affordability"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">House Affordability</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Determine how much house you can afford</p>
-                            </a>
-                            <a
-                                href="/calculators/rent-calculator"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Rent Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Find out how much rent you can afford</p>
-                            </a>
-                        </div>
-                    </section>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Calculate home loan payments and interest",
+                                    icon: Home,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/house-affordability",
+                                    title: "House Affordability",
+                                    description: "Determine how much house you can afford",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/rent-calculator",
+                                    title: "Rent Calculator",
+                                    description: "Find out how much rent you can afford",
+                                    icon: Calculator,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="Explore More Financial Calculators"
+                        />
+                    </div>
                 </div>
             </div>
         </>

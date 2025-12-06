@@ -1,5 +1,7 @@
 import React from 'react';
 import PaymentCalculator from '@/components/PaymentCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Calculator, Percent, TrendingUp } from 'lucide-react';
 
 export const metadata = {
     title: 'Payment Calculator - Calculate Monthly Payments or Loan Term',
@@ -265,37 +267,40 @@ export default function PaymentPage() {
                     </section>
 
                     {/* Related Tools Section */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            More Loan Planning Tools
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Plan your complete debt strategy with these calculators:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/loan"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Loan Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Full amortization schedule and breakdowns</p>
-                            </a>
-                            <a
-                                href="/calculators/simple-interest"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Simple Interest</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate interest on short-term loans</p>
-                            </a>
-                            <a
-                                href="/calculators/compound-interest"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Compound Interest</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">See how savings grow over time</p>
-                            </a>
-                        </div>
-                    </section>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/loan",
+                                    title: "Loan Calculator",
+                                    description: "Full amortization schedule and breakdowns",
+                                    icon: Calculator,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/simple-interest",
+                                    title: "Simple Interest",
+                                    description: "Calculate interest on short-term loans",
+                                    icon: Percent,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/compound-interest",
+                                    title: "Compound Interest",
+                                    description: "See how savings grow over time",
+                                    icon: TrendingUp,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="More Loan Planning Tools"
+                        />
+                    </div>
                 </div>
             </div>
         </>

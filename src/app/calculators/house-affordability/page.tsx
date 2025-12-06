@@ -1,5 +1,7 @@
 import React from 'react';
 import HouseAffordabilityCalculator from '@/modules/house-affordability/component';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Home, FileText, Calculator } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -268,37 +270,40 @@ export default function HouseAffordabilityPage() {
                 </section>
 
                 {/* Related Tools Section */}
-                <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        Complete Your Home Buying Plan
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300 mb-6">
-                        Use our full suite of home buying calculators:
-                    </p>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <a
-                            href="/calculators/mortgage"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Calculate exact monthly payments</p>
-                        </a>
-                        <a
-                            href="/calculators/property-tax"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Property Tax</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Estimate taxes by state</p>
-                        </a>
-                        <a
-                            href="/calculators/loan"
-                            className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                        >
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Loan Calculator</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Plan for other loans</p>
-                        </a>
-                    </div>
-                </section>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <RelatedCalculators
+                        links={[
+                            {
+                                href: "/calculators/mortgage",
+                                title: "Mortgage Calculator",
+                                description: "Calculate exact monthly payments",
+                                icon: Home,
+                                iconColorClass: "text-blue-600",
+                                iconBgClass: "bg-blue-100",
+                                hoverBgClass: "group-hover:bg-blue-600"
+                            },
+                            {
+                                href: "/calculators/property-tax",
+                                title: "Property Tax",
+                                description: "Estimate taxes by state",
+                                icon: FileText,
+                                iconColorClass: "text-green-600",
+                                iconBgClass: "bg-green-100",
+                                hoverBgClass: "group-hover:bg-green-600"
+                            },
+                            {
+                                href: "/calculators/loan",
+                                title: "Loan Calculator",
+                                description: "Plan for other loans",
+                                icon: Calculator,
+                                iconColorClass: "text-purple-600",
+                                iconBgClass: "bg-purple-100",
+                                hoverBgClass: "group-hover:bg-purple-600"
+                            }
+                        ]}
+                        title="Complete Your Home Buying Plan"
+                    />
+                </div>
             </div>
         </div>
     );

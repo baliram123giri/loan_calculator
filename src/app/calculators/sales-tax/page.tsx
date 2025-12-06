@@ -1,5 +1,7 @@
 import React from 'react';
 import SalesTaxCalculator from '@/components/SalesTaxCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Building, Calculator, Home } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -285,37 +287,40 @@ export default function SalesTaxPage() {
                     </section>
 
                     {/* Related Tools Section */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            More Tax and Financial Tools
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Plan your complete financial picture with these calculators:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/property-tax"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Property Tax</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate annual property taxes</p>
-                            </a>
-                            <a
-                                href="/calculators/loan"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Loan Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Plan loan payments and interest</p>
-                            </a>
-                            <a
-                                href="/calculators/mortgage"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Calculate home loan costs</p>
-                            </a>
-                        </div>
-                    </section>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/property-tax",
+                                    title: "Property Tax",
+                                    description: "Calculate annual property taxes",
+                                    icon: Building,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/loan",
+                                    title: "Loan Calculator",
+                                    description: "Plan loan payments and interest",
+                                    icon: Calculator,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Calculate home loan costs",
+                                    icon: Home,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="More Tax and Financial Tools"
+                        />
+                    </div>
                 </div>
             </div>
         </>

@@ -25,12 +25,12 @@ export default function RelatedCalculators({
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                 {title}
             </h3>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {links.map((link, index) => (
                     <a
                         key={index}
                         href={link.href}
-                        className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                        className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group border border-gray-100 dark:border-gray-800"
                     >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 transition-colors group-hover:text-white ${link.iconBgClass || 'bg-blue-100'} ${link.iconColorClass || 'text-blue-600'} ${link.hoverBgClass || 'group-hover:bg-blue-600'}`}>
                             <link.icon className="w-5 h-5" />

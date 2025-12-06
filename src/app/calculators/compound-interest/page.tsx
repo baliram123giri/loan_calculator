@@ -1,5 +1,7 @@
 import React from 'react';
 import CompoundInterestCalculator from '@/components/CompoundInterestCalculator';
+import RelatedCalculators from '@/components/RelatedCalculators';
+import { Percent, Home, DollarSign } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -280,37 +282,40 @@ export default function CompoundInterestPage() {
                     </section>
 
                     {/* Related Tools Section */}
-                    <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Plan Your Financial Future
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">
-                            Use these calculators to build your complete financial plan:
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <a
-                                href="/calculators/simple-interest"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Simple Interest</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Compare with simple interest calculations</p>
-                            </a>
-                            <a
-                                href="/calculators/mortgage"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Mortgage Calculator</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Plan your home purchase</p>
-                            </a>
-                            <a
-                                href="/calculators/house-affordability"
-                                className="block p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                            >
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">House Affordability</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Determine your buying power</p>
-                            </a>
-                        </div>
-                    </section>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                        <RelatedCalculators
+                            links={[
+                                {
+                                    href: "/calculators/simple-interest",
+                                    title: "Simple Interest",
+                                    description: "Compare with simple interest calculations",
+                                    icon: Percent,
+                                    iconColorClass: "text-blue-600",
+                                    iconBgClass: "bg-blue-100",
+                                    hoverBgClass: "group-hover:bg-blue-600"
+                                },
+                                {
+                                    href: "/calculators/mortgage",
+                                    title: "Mortgage Calculator",
+                                    description: "Plan your home purchase",
+                                    icon: Home,
+                                    iconColorClass: "text-green-600",
+                                    iconBgClass: "bg-green-100",
+                                    hoverBgClass: "group-hover:bg-green-600"
+                                },
+                                {
+                                    href: "/calculators/house-affordability",
+                                    title: "House Affordability",
+                                    description: "Determine your buying power",
+                                    icon: DollarSign,
+                                    iconColorClass: "text-purple-600",
+                                    iconBgClass: "bg-purple-100",
+                                    hoverBgClass: "group-hover:bg-purple-600"
+                                }
+                            ]}
+                            title="Plan Your Financial Future"
+                        />
+                    </div>
                 </div>
             </div>
         </>
