@@ -15,6 +15,9 @@ import {
 import { Doughnut, Line } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
+import { CalculateButton } from './Shared/CalculateButton';
+import AmortizationTable from './AmortizationTable';
+import { AmortizationRow } from '@/lib/calc/emi';
 import { Info, RotateCcw, ChevronDown, ChevronUp, Sparkles, TrendingUp, AlertTriangle } from 'lucide-react';
 
 ChartJS.register(
@@ -59,6 +62,8 @@ const AutoLeaseCalculator = () => {
     const [rentCharge, setRentCharge] = useState<number>(0);
     const [financeCharge, setFinanceCharge] = useState<number>(0);
     const [upfrontTax, setUpfrontTax] = useState<number>(0);
+    const [amortizationSchedule, setAmortizationSchedule] = useState<AmortizationRow[]>([]);
+    const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
     // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -66,7 +71,7 @@ const AutoLeaseCalculator = () => {
     useEffect(() => {
         calculateLease();
         generateSuggestions();
-    }, [msrp, negotiatedPrice, downPayment, tradeInValue, salesTaxRate, leaseTerm, moneyFactor, useApr, apr, residualValue, annualMileage, fees, isTaxMonthly, areFeesUpfront]);
+    }, [msrp, negotiatedPrice, downPayment, tradeInValue, salesTaxRate, leaseTerm, moneyFactor, useApr, apr, residualValue, annualMileage, fees, isTaxMonthly, areFeesUpfront, startDate]);
 
     const calculateLease = () => {
         // 1. Capitalized Cost
@@ -125,6 +130,48 @@ const AutoLeaseCalculator = () => {
         const totalCost = (totalMonthly * leaseTerm) + downPayment + tradeInValue + (areFeesUpfront ? fees : 0) + upfrontTaxAmount;
         setTotalLeaseCost(totalCost);
 
+        // 9. Generate Schedule
+        const schedule: AmortizationRow[] = [];
+        let balance = adjustedCapCost;
+        let totalInt = 0;
+        const start = new Date(startDate);
+
+        // Ensure we don't exceed extreme limits
+        const safeTerm = Math.min(leaseTerm, 600);
+
+        for (let i = 1; i <= safeTerm; i++) {
+            // For a lease:
+            // "Principal" part is the Depreciation Fee
+            // "Interest" part is the Rent Charge
+            // Balance reduces by the Depreciation amount
+
+            const interest = rentCharge;
+            const principal = depreciation;
+            const payment = baseMonthlyPayment + monthlyTaxAmount;
+
+            balance -= principal;
+            // Floating point correction
+            if (i === safeTerm) {
+                // Force match residual at end? Or just let math flow
+                // balance = residualValue; 
+            }
+
+            totalInt += interest;
+
+            const date = new Date(start);
+            date.setMonth(start.getMonth() + i - 1);
+
+            schedule.push({
+                month: i,
+                date: date,
+                payment: payment,
+                principal: principal,
+                interest: interest,
+                balance: balance
+            });
+        }
+
+        setAmortizationSchedule(schedule);
         setFinanceCharge(rent * leaseTerm);
     };
 
@@ -203,237 +250,254 @@ const AutoLeaseCalculator = () => {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-            <div className="p-6 md:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Inputs Section */}
-                    <div className="lg:col-span-5 space-y-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                                <Info className="w-5 h-5 mr-2 text-blue-600" />
-                                Lease Details
-                            </h3>
-                            <button
-                                onClick={resetToDefaults}
-                                className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
-                            >
-                                <RotateCcw className="w-4 h-4 mr-1" />
-                                Reset
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">List Price (MSRP)</label>
-                                <CurrencyInput value={msrp} onChange={setMsrp} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Agreed Price</label>
-                                <CurrencyInput value={negotiatedPrice} onChange={setNegotiatedPrice} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Down Payment</label>
-                                    <CurrencyInput value={downPayment} onChange={setDownPayment} />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Trade-in Credit</label>
-                                    <CurrencyInput value={tradeInValue} onChange={setTradeInValue} />
-                                </div>
+        <>
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="p-6 md:p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Inputs Section */}
+                        <div className="lg:col-span-5 space-y-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <Info className="w-5 h-5 mr-2 text-blue-600" />
+                                    Lease Details
+                                </h3>
+                                <button
+                                    onClick={resetToDefaults}
+                                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                                >
+                                    <RotateCcw className="w-4 h-4 mr-1" />
+                                    Reset
+                                </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Lease Term</label>
-                                    <select
-                                        value={leaseTerm}
-                                        onChange={(e) => setLeaseTerm(Number(e.target.value))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    >
-                                        <option value={24}>24 Months</option>
-                                        <option value={36}>36 Months</option>
-                                        <option value={39}>39 Months</option>
-                                        <option value={48}>48 Months</option>
-                                        <option value={60}>60 Months</option>
-                                    </select>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">List Price (MSRP)</label>
+                                    <CurrencyInput value={msrp} onChange={setMsrp} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sales Tax (%)</label>
-                                    <NumberInput value={salesTaxRate} onChange={setSalesTaxRate} suffix="%" />
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Agreed Price</label>
+                                    <CurrencyInput value={negotiatedPrice} onChange={setNegotiatedPrice} />
                                 </div>
-                            </div>
-
-                            {/* Tax Method Toggle - Redesigned */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Tax Payment Method</label>
-                                <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-lg">
-                                    <button
-                                        onClick={() => setIsTaxMonthly(true)}
-                                        className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 ${isTaxMonthly
-                                            ? 'bg-white text-blue-600 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                            }`}
-                                    >
-                                        Monthly (Rolled In)
-                                    </button>
-                                    <button
-                                        onClick={() => setIsTaxMonthly(false)}
-                                        className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 ${!isTaxMonthly
-                                            ? 'bg-white text-blue-600 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                            }`}
-                                    >
-                                        Upfront
-                                    </button>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Down Payment</label>
+                                        <CurrencyInput value={downPayment} onChange={setDownPayment} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Trade-in Credit</label>
+                                        <CurrencyInput value={tradeInValue} onChange={setTradeInValue} />
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-sm font-medium text-gray-700">Interest Rate Type</label>
-                                    <div className="flex bg-white rounded-lg p-1 border border-gray-200">
-                                        <button
-                                            onClick={() => setUseApr(false)}
-                                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${!useApr ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Lease Term</label>
+                                        <select
+                                            value={leaseTerm}
+                                            onChange={(e) => setLeaseTerm(Number(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                         >
-                                            Money Factor
+                                            <option value={24}>24 Months</option>
+                                            <option value={36}>36 Months</option>
+                                            <option value={39}>39 Months</option>
+                                            <option value={48}>48 Months</option>
+                                            <option value={60}>60 Months</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Sales Tax (%)</label>
+                                        <NumberInput value={salesTaxRate} onChange={setSalesTaxRate} suffix="%" />
+                                    </div>
+                                </div>
+
+                                {/* Tax Method Toggle - Redesigned */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Tax Payment Method</label>
+                                    <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-lg">
+                                        <button
+                                            onClick={() => setIsTaxMonthly(true)}
+                                            className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${isTaxMonthly
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                                }`}
+                                        >
+                                            Monthly (Rolled In)
                                         </button>
                                         <button
-                                            onClick={() => setUseApr(true)}
-                                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${useApr ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                            onClick={() => setIsTaxMonthly(false)}
+                                            className={`py-2 px-4 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${!isTaxMonthly
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                                }`}
                                         >
-                                            APR
+                                            Upfront
                                         </button>
                                     </div>
                                 </div>
-                                {useApr ? (
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-500 mb-1">Annual Percentage Rate (APR)</label>
-                                        <NumberInput value={apr} onChange={setApr} suffix="%" />
-                                    </div>
-                                ) : (
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-500 mb-1">Money Factor (e.g., 0.0025)</label>
-                                        <NumberInput value={moneyFactor} onChange={setMoneyFactor} decimalScale={5} />
-                                    </div>
-                                )}
-                            </div>
 
-                            <div className="grid grid-cols-1 gap-4">
-                                <div>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <label className="block text-sm font-medium text-gray-700">Residual Value ($)</label>
-                                        <span className="text-xs text-gray-500">
-                                            {((residualValue / msrp) * 100).toFixed(1)}% of List Price
-                                        </span>
-                                    </div>
-                                    <CurrencyInput value={residualValue} onChange={setResidualValue} />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Acquisition/Doc Fees</label>
-                                    <CurrencyInput value={fees} onChange={setFees} />
-                                </div>
-                                <div className="flex items-end pb-2">
-                                    <button
-                                        onClick={() => setAreFeesUpfront(!areFeesUpfront)}
-                                        className="text-xs text-blue-600 hover:text-blue-800 underline"
-                                    >
-                                        {areFeesUpfront ? 'Pay Upfront' : 'Roll into Loan'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Results Section */}
-                    <div className="lg:col-span-7 space-y-6">
-                        {/* Main Result Card */}
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg">
-                            <div className="flex justify-between items-start mb-2">
-                                <div>
-                                    <p className="text-blue-100 text-sm font-medium mb-1">Estimated Monthly Payment</p>
-                                    <h2 className="text-4xl font-bold">
-                                        ${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </h2>
-                                    <p className="text-blue-200 text-xs mt-1">
-                                        {isTaxMonthly
-                                            ? `(Includes $${monthlyTax.toFixed(2)} tax)`
-                                            : '(Tax paid upfront)'}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-blue-100 text-sm font-medium mb-1">Total Lease Cost</p>
-                                    <p className="text-2xl font-bold">
-                                        ${totalLeaseCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                    </p>
-                                </div>
-                            </div>
-                            {upfrontTax > 0 && (
-                                <div className="mt-4 pt-4 border-t border-blue-500/30">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-blue-100">Upfront Taxes Due</span>
-                                        <span className="font-bold">${upfrontTax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* AI Suggestions */}
-                        <div className="bg-purple-50 border border-purple-100 rounded-xl p-5">
-                            <h4 className="text-purple-800 font-bold flex items-center mb-3">
-                                <Sparkles className="w-5 h-5 mr-2" />
-                                AI Smart Tips
-                            </h4>
-                            <div className="space-y-2">
-                                {suggestions.length > 0 ? (
-                                    suggestions.map((tip, index) => (
-                                        <div key={index} className="flex items-start gap-2 text-sm text-purple-900">
-                                            <div className="min-w-[4px] h-[4px] rounded-full bg-purple-500 mt-2" />
-                                            <p>{tip}</p>
+                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium text-gray-700">Interest Rate Type</label>
+                                        <div className="flex bg-white rounded-lg p-1 border border-gray-200">
+                                            <button
+                                                onClick={() => setUseApr(false)}
+                                                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${!useApr ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                            >
+                                                Money Factor
+                                            </button>
+                                            <button
+                                                onClick={() => setUseApr(true)}
+                                                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${useApr ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'}`}
+                                            >
+                                                APR
+                                            </button>
                                         </div>
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-purple-700">Enter your lease details to get personalized insights.</p>
-                                )}
+                                    </div>
+                                    {useApr ? (
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">Annual Percentage Rate (APR)</label>
+                                            <NumberInput value={apr} onChange={setApr} suffix="%" />
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">Money Factor (e.g., 0.0025)</label>
+                                            <NumberInput value={moneyFactor} onChange={setMoneyFactor} decimalScale={5} />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <label className="block text-sm font-medium text-gray-700">Residual Value ($)</label>
+                                            <span className="text-xs text-gray-500">
+                                                {((residualValue / msrp) * 100).toFixed(1)}% of List Price
+                                            </span>
+                                        </div>
+                                        <CurrencyInput value={residualValue} onChange={setResidualValue} />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Acquisition/Doc Fees</label>
+                                        <CurrencyInput value={fees} onChange={setFees} />
+                                    </div>
+                                    <div className="flex items-end pb-2">
+                                        <button
+                                            onClick={() => setAreFeesUpfront(!areFeesUpfront)}
+                                            className="text-xs text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                                        >
+                                            {areFeesUpfront ? 'Pay Upfront' : 'Roll into Loan'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Breakdown Chart */}
-                            <div className="bg-white p-4 rounded-xl border border-gray-200">
-                                <h4 className="text-sm font-semibold text-gray-700 mb-4 text-center">Total Cost Breakdown</h4>
-                                <div className="h-48 flex justify-center">
-                                    <Doughnut data={donutData} options={{ maintainAspectRatio: false }} />
+                        {/* Results Section */}
+                        <div className="lg:col-span-7 space-y-6">
+                            {/* Main Result Card */}
+                            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                        <p className="text-blue-100 text-sm font-medium mb-1">Estimated Monthly Payment</p>
+                                        <h2 className="text-4xl font-bold">
+                                            ${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </h2>
+                                        <p className="text-blue-200 text-xs mt-1">
+                                            {isTaxMonthly
+                                                ? `(Includes $${monthlyTax.toFixed(2)} tax)`
+                                                : '(Tax paid upfront)'}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-blue-100 text-sm font-medium mb-1">Total Lease Cost</p>
+                                        <p className="text-2xl font-bold">
+                                            ${totalLeaseCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                        </p>
+                                    </div>
+                                </div>
+                                {upfrontTax > 0 && (
+                                    <div className="mt-4 pt-4 border-t border-blue-500/30">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-blue-100">Upfront Taxes Due</span>
+                                            <span className="font-bold">${upfrontTax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* AI Suggestions */}
+                            <div className="bg-purple-50 border border-purple-100 rounded-xl p-5">
+                                <h4 className="text-purple-800 font-bold flex items-center mb-3">
+                                    <Sparkles className="w-5 h-5 mr-2" />
+                                    AI Smart Tips
+                                </h4>
+                                <div className="space-y-2">
+                                    {suggestions.length > 0 ? (
+                                        suggestions.map((tip, index) => (
+                                            <div key={index} className="flex items-start gap-2 text-sm text-purple-900">
+                                                <div className="min-w-[4px] h-[4px] rounded-full bg-purple-500 mt-2" />
+                                                <p>{tip}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-purple-700">Enter your lease details to get personalized insights.</p>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Detailed Stats */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                    <span className="text-sm text-gray-600">Residual Value</span>
-                                    <span className="text-sm font-semibold text-gray-900">${residualValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Breakdown Chart */}
+                                <div className="bg-white p-4 rounded-xl border border-gray-200">
+                                    <h4 className="text-sm font-semibold text-gray-700 mb-4 text-center">Total Cost Breakdown</h4>
+                                    <div className="h-48 flex justify-center">
+                                        <Doughnut data={donutData} options={{ maintainAspectRatio: false }} />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                    <span className="text-sm text-gray-600">Total Finance Charge</span>
-                                    <span className="text-sm font-semibold text-gray-900">${financeCharge.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                </div>
-                                <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                    <span className="text-sm text-gray-600">Total Depreciation</span>
-                                    <span className="text-sm font-semibold text-gray-900">${(depreciationFee * leaseTerm).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                </div>
-                                <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                    <span className="text-sm text-gray-600">Equivalent APR</span>
-                                    <span className="text-sm font-semibold text-gray-900">{(useApr ? apr : moneyFactor * 2400).toFixed(2)}%</span>
+
+                                {/* Detailed Stats */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                        <span className="text-sm text-gray-600">Residual Value</span>
+                                        <span className="text-sm font-semibold text-gray-900">${residualValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                        <span className="text-sm text-gray-600">Total Finance Charge</span>
+                                        <span className="text-sm font-semibold text-gray-900">${financeCharge.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                        <span className="text-sm text-gray-600">Total Depreciation</span>
+                                        <span className="text-sm font-semibold text-gray-900">${(depreciationFee * leaseTerm).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                    </div>
+                                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                        <span className="text-sm text-gray-600">Equivalent APR</span>
+                                        <span className="text-sm font-semibold text-gray-900">{(useApr ? apr : moneyFactor * 2400).toFixed(2)}%</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div className="mt-12">
+                <AmortizationTable
+                    schedule={amortizationSchedule}
+                    calculatorName="Auto Lease"
+                    loanDetails={{
+                        loanAmount: negotiatedPrice + (areFeesUpfront ? 0 : fees) - (downPayment + tradeInValue), // Adjusted Cap Cost effectively
+                        interestRate: useApr ? apr : parseFloat((moneyFactor * 2400).toFixed(2)),
+                        loanTerm: leaseTerm,
+                        monthlyPayment: monthlyPayment,
+                        totalInterest: financeCharge,
+                        totalCost: totalLeaseCost
+                    }}
+                />
+            </div>
+        </>
     );
 };
 
