@@ -131,7 +131,7 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
             // Column 2
             doc.text(`Period: ${inputs.years} Years`, 80, 46);
             doc.text(`Frequency: ${inputs.compoundingFrequency}`, 80, 52);
-            doc.text(`Start Date: ${inputs.startDate}`, 80, 58);
+            doc.text(`Start Date: ${new Date(inputs.startDate).toLocaleDateString('en-US')}`, 80, 58);
 
             // Column 3
             doc.text(`Inflation Rate: ${inputs.inflationRate}%`, 140, 46);
@@ -142,24 +142,46 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
 
         // --- Table ---
         const tableColumn = ["Date", "Total Contributed", "Interest Earned", "Total Interest", "Balance"];
-        const tableRows = schedule.map(row => [
-            formatDate(row.date),
+
+        // Format date helper for PDF "M/D/YYYY"
+        const formatPdfDate = (d: Date) => {
+            return new Date(d).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            });
+        };
+
+        let pdfRows = schedule.map(row => [
+            formatPdfDate(row.date),
             formatCurrency(row.totalContributed),
             formatCurrency(row.interestEarned),
             formatCurrency(row.totalInterest),
             formatCurrency(row.balance),
         ]);
 
+        // Prepend Initial Month (Month 0) if inputs exist
+        if (inputs) {
+            const startRow = [
+                formatPdfDate(new Date(inputs.startDate)),
+                formatCurrency(inputs.initialDeposit),
+                formatCurrency(0),
+                formatCurrency(0),
+                formatCurrency(inputs.initialDeposit)
+            ];
+            pdfRows = [startRow, ...pdfRows];
+        }
+
         autoTable(doc, {
             head: [tableColumn],
-            body: tableRows,
+            body: pdfRows,
             startY: startY,
             theme: 'grid',
             headStyles: {
                 fillColor: [16, 185, 129],
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
-                halign: 'right' // Default right align for headers to match numbers
+                halign: 'right'
             },
             styles: {
                 fontSize: 8,
@@ -167,16 +189,28 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
                 valign: 'middle'
             },
             columnStyles: {
-                0: { halign: 'left', cellWidth: 30 }, // Date left-aligned
-                1: { halign: 'right' },
+                0: { halign: 'left', cellWidth: 30 },
+                1: { halign: 'right', fontStyle: 'bold' }, // Total Contributed
                 2: { halign: 'right' },
                 3: { halign: 'right' },
-                4: { halign: 'right', fontStyle: 'bold' },
+                4: { halign: 'right', fontStyle: 'bold' }, // Balance
             },
-            // Override header alignment for Date column specifically
             didParseCell: function (data) {
+                // Header alignment override
                 if (data.section === 'head' && data.column.index === 0) {
                     data.cell.styles.halign = 'left';
+                }
+
+                // Body Color Logic
+                if (data.section === 'body') {
+                    if (data.column.index === 1) {
+                        // Total Contributed -> Blue
+                        data.cell.styles.textColor = [37, 99, 235];
+                    }
+                    if (data.column.index === 2 || data.column.index === 3) {
+                        // Interest Columns -> Green
+                        data.cell.styles.textColor = [22, 163, 74];
+                    }
                 }
             }
         });
