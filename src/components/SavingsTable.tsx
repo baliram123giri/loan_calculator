@@ -18,9 +18,19 @@ interface SavingsRow {
 interface SavingsTableProps {
     schedule: SavingsRow[];
     currencySymbol?: string;
+    inputs?: {
+        initialDeposit: number;
+        monthlyContribution: number;
+        interestRate: number;
+        years: number;
+        compoundingFrequency: string;
+        inflationRate: number;
+        taxRate: number;
+        startDate: string;
+    };
 }
 
-export default function SavingsTable({ schedule, currencySymbol = "$" }: SavingsTableProps) {
+export default function SavingsTable({ schedule, currencySymbol = "$", inputs }: SavingsTableProps) {
     // State for expanded years.
     // Default expand the first year available in schedule
     const firstYear = schedule.length > 0 ? schedule[0].year : new Date().getFullYear();
@@ -87,8 +97,50 @@ export default function SavingsTable({ schedule, currencySymbol = "$" }: Savings
 
     const downloadPDF = () => {
         const doc = new jsPDF();
-        doc.text("Savings Growth Schedule", 14, 20);
 
+        // --- Header Section ---
+        doc.setFontSize(18);
+        doc.setTextColor(16, 185, 129); // Green color
+        doc.text("Savings Calculator Report", 14, 20);
+
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 26);
+
+        let startY = 35;
+
+        // --- Inputs Summary ---
+        if (inputs) {
+            doc.setDrawColor(200);
+            doc.setFillColor(248, 250, 252); // Light gray bg
+            doc.roundedRect(14, 30, 182, 35, 3, 3, 'FD');
+
+            doc.setFontSize(11);
+            doc.setTextColor(50);
+            doc.setFont("helvetica", "bold");
+            doc.text("Simulation Details", 18, 38);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+
+            // Column 1
+            doc.text(`Initial Deposit: ${formatCurrency(inputs.initialDeposit)}`, 18, 46);
+            doc.text(`Monthly Contribution: ${formatCurrency(inputs.monthlyContribution)}`, 18, 52);
+            doc.text(`Interest Rate: ${inputs.interestRate}%`, 18, 58);
+
+            // Column 2
+            doc.text(`Period: ${inputs.years} Years`, 80, 46);
+            doc.text(`Frequency: ${inputs.compoundingFrequency}`, 80, 52);
+            doc.text(`Start Date: ${inputs.startDate}`, 80, 58);
+
+            // Column 3
+            doc.text(`Inflation Rate: ${inputs.inflationRate}%`, 140, 46);
+            doc.text(`Tax Rate: ${inputs.taxRate}%`, 140, 52);
+
+            startY = 75; // Shift table down
+        }
+
+        // --- Table ---
         const tableColumn = ["Date", "Total Contributed", "Interest Earned", "Total Interest", "Balance"];
         const tableRows = schedule.map(row => [
             formatDate(row.date),
@@ -101,23 +153,35 @@ export default function SavingsTable({ schedule, currencySymbol = "$" }: Savings
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
-            startY: 30,
+            startY: startY,
             theme: 'grid',
             headStyles: {
                 fillColor: [16, 185, 129],
-                fontStyle: 'bold'
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                halign: 'right' // Default right align for headers to match numbers
             },
-            styles: { fontSize: 8, cellPadding: 2 },
+            styles: {
+                fontSize: 8,
+                cellPadding: 3,
+                valign: 'middle'
+            },
             columnStyles: {
-                0: { cellWidth: 25 }, // Date
+                0: { halign: 'left', cellWidth: 30 }, // Date left-aligned
                 1: { halign: 'right' },
                 2: { halign: 'right' },
                 3: { halign: 'right' },
-                4: { halign: 'right' },
+                4: { halign: 'right', fontStyle: 'bold' },
+            },
+            // Override header alignment for Date column specifically
+            didParseCell: function (data) {
+                if (data.section === 'head' && data.column.index === 0) {
+                    data.cell.styles.halign = 'left';
+                }
             }
         });
 
-        doc.save("savings_schedule.pdf");
+        doc.save("savings_simulation_report.pdf");
     };
 
     const years = Object.keys(groupedData).map(Number).sort((a, b) => a - b);

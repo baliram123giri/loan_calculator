@@ -454,7 +454,19 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                 </div>
             </div>
 
-            <SavingsTable schedule={schedule} />
+            <SavingsTable
+                schedule={schedule}
+                inputs={{
+                    initialDeposit,
+                    monthlyContribution,
+                    interestRate,
+                    years,
+                    compoundingFrequency,
+                    inflationRate,
+                    taxRate,
+                    startDate
+                }}
+            />
         </div>
     );
 };
