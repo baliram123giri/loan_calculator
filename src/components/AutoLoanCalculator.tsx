@@ -10,8 +10,12 @@ import {
 import { Doughnut } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
+import { CalculateButton } from './Shared/CalculateButton';
+import { DatePicker } from './Shared/DatePicker';
+import { ResetButton } from './Shared/ResetButton';
 import AmortizationTable from './AmortizationTable';
-import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
+import { AmortizationRow } from '@/lib/calc/emi';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -39,21 +43,47 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
     const [totalInterest, setTotalInterest] = useState<number>(0);
     const [totalCost, setTotalCost] = useState<number>(0);
     const [payoffDate, setPayoffDate] = useState<string>('');
-    const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
+    const [amortizationSchedule, setAmortizationSchedule] = useState<AmortizationRow[]>([]);
 
     useEffect(() => {
         calculateLoan();
-    }, [mode, vehiclePrice, monthlyBudget, downPayment, tradeInValue, amountOwedOnTrade, interestRate, loanTerm, salesTaxRate, fees, includeTaxInLoan, startDate]);
+    }, []); // Only run on mount
 
-    const calculateLoan = () => {
+    const calculateLoan = (overrides?: {
+        mode?: 'price' | 'monthly',
+        vehiclePrice?: number,
+        monthlyBudget?: number,
+        downPayment?: number,
+        tradeInValue?: number,
+        amountOwedOnTrade?: number,
+        interestRate?: number,
+        loanTerm?: number,
+        salesTaxRate?: number,
+        fees?: number,
+        includeTaxInLoan?: boolean,
+        startDate?: string
+    }) => {
+        const currentMode = overrides?.mode ?? mode;
+        const currentVehiclePrice = overrides?.vehiclePrice ?? vehiclePrice;
+        const currentMonthlyBudget = overrides?.monthlyBudget ?? monthlyBudget;
+        const currentDownPayment = overrides?.downPayment ?? downPayment;
+        const currentTradeInValue = overrides?.tradeInValue ?? tradeInValue;
+        const currentAmountOwedOnTrade = overrides?.amountOwedOnTrade ?? amountOwedOnTrade;
+        const currentInterestRate = overrides?.interestRate ?? interestRate;
+        const currentLoanTerm = overrides?.loanTerm ?? loanTerm;
+        const currentSalesTaxRate = overrides?.salesTaxRate ?? salesTaxRate;
+        const currentFees = overrides?.fees ?? fees;
+        const currentIncludeTaxInLoan = overrides?.includeTaxInLoan ?? includeTaxInLoan;
+        const currentStartDate = overrides?.startDate ?? startDate;
+
         let principal = 0;
         let calculatedMonthlyPayment = 0;
-        const netTradeIn = tradeInValue - amountOwedOnTrade;
-        const taxAmount = (vehiclePrice * salesTaxRate) / 100;
-        const totalFees = fees + (includeTaxInLoan ? taxAmount : 0);
+        const netTradeIn = currentTradeInValue - currentAmountOwedOnTrade;
+        const taxAmount = (currentVehiclePrice * currentSalesTaxRate) / 100;
+        const totalFees = currentFees + (currentIncludeTaxInLoan ? taxAmount : 0);
 
-        if (mode === 'price') {
-            principal = vehiclePrice + totalFees - downPayment - netTradeIn;
+        if (currentMode === 'price') {
+            principal = currentVehiclePrice + totalFees - currentDownPayment - netTradeIn;
             if (principal <= 0) {
                 setMonthlyPayment(0);
                 setTotalLoanAmount(0);
@@ -62,46 +92,44 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                 setAmortizationSchedule([]);
                 return;
             }
-            const r = interestRate / 100 / 12;
-            const n = loanTerm;
-            calculatedMonthlyPayment = interestRate === 0 ? principal / n : (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            const r = currentInterestRate / 100 / 12;
+            const n = currentLoanTerm;
+            calculatedMonthlyPayment = currentInterestRate === 0 ? principal / n : (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
         } else {
-            const r = interestRate / 100 / 12;
-            const n = loanTerm;
-            const maxLoanAmount = interestRate === 0 ? monthlyBudget * n : (monthlyBudget * (1 - Math.pow(1 + r, -n))) / r;
-            const effectiveTaxRate = includeTaxInLoan ? salesTaxRate / 100 : 0;
-            const calculatedPrice = (maxLoanAmount - fees + downPayment + netTradeIn) / (1 + effectiveTaxRate);
+            const r = currentInterestRate / 100 / 12;
+            const n = currentLoanTerm;
+            const maxLoanAmount = currentInterestRate === 0 ? currentMonthlyBudget * n : (currentMonthlyBudget * (1 - Math.pow(1 + r, -n))) / r;
+            const effectiveTaxRate = currentIncludeTaxInLoan ? currentSalesTaxRate / 100 : 0;
+            const calculatedPrice = (maxLoanAmount - currentFees + currentDownPayment + netTradeIn) / (1 + effectiveTaxRate);
             setVehiclePrice(calculatedPrice > 0 ? calculatedPrice : 0);
             principal = maxLoanAmount;
-            calculatedMonthlyPayment = monthlyBudget;
+            calculatedMonthlyPayment = currentMonthlyBudget;
         }
 
         setMonthlyPayment(calculatedMonthlyPayment);
         setTotalLoanAmount(principal);
 
-        const schedule = [];
+        const schedule: AmortizationRow[] = [];
         let balance = principal;
         let totalInt = 0;
-        const r = interestRate / 100 / 12;
-        const start = new Date(startDate);
+        const r = currentInterestRate / 100 / 12;
+        const start = new Date(currentStartDate);
 
-        for (let i = 1; i <= loanTerm; i++) {
+        for (let i = 1; i <= currentLoanTerm; i++) {
             const interest = balance * r;
             const principalPayment = calculatedMonthlyPayment - interest;
             balance -= principalPayment;
             if (balance < 0) balance = 0;
             totalInt += interest;
             const date = new Date(start);
-            date.setMonth(start.getMonth() + i);
+            date.setMonth(start.getMonth() + i - 1);
             schedule.push({
                 month: i,
-                date: date.toLocaleDateString(),
+                date: date,
                 payment: calculatedMonthlyPayment,
                 principal: principalPayment,
                 interest: interest,
-                balance: balance,
-                totalInterest: totalInt,
-                totalPrincipal: principal - balance
+                balance: balance
             });
         }
 
@@ -109,24 +137,44 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
         setTotalCost(principal + totalInt);
         setAmortizationSchedule(schedule);
         const payoff = new Date(start);
-        payoff.setMonth(start.getMonth() + loanTerm);
+        payoff.setMonth(start.getMonth() + currentLoanTerm);
         setPayoffDate(payoff.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
     };
 
+
+
     const resetToDefaults = () => {
-        setMode('price');
-        setVehiclePrice(35000);
-        setMonthlyBudget(600);
-        setDownPayment(5000);
-        setTradeInValue(0);
-        setAmountOwedOnTrade(0);
-        setInterestRate(5.5);
-        setLoanTerm(60);
-        setSalesTaxRate(0);
-        setFees(0);
-        setIncludeTaxInLoan(true);
-        setStartDate(new Date().toISOString().split('T')[0]);
+        const defaults = {
+            mode: 'price' as const,
+            vehiclePrice: 35000,
+            monthlyBudget: 600,
+            downPayment: 5000,
+            tradeInValue: 0,
+            amountOwedOnTrade: 0,
+            interestRate: 5.5,
+            loanTerm: 60,
+            salesTaxRate: 0,
+            fees: 0,
+            includeTaxInLoan: true,
+            startDate: new Date().toISOString().split('T')[0]
+        };
+
+        setMode(defaults.mode);
+        setVehiclePrice(defaults.vehiclePrice);
+        setMonthlyBudget(defaults.monthlyBudget);
+        setDownPayment(defaults.downPayment);
+        setTradeInValue(defaults.tradeInValue);
+        setAmountOwedOnTrade(defaults.amountOwedOnTrade);
+        setInterestRate(defaults.interestRate);
+        setLoanTerm(defaults.loanTerm);
+        setSalesTaxRate(defaults.salesTaxRate);
+        setFees(defaults.fees);
+        setIncludeTaxInLoan(defaults.includeTaxInLoan);
+        setStartDate(defaults.startDate);
         setShowAdvanced(false);
+
+        // trigger immediate calculation with default values
+        calculateLoan(defaults);
     };
 
     const donutData = {
@@ -145,24 +193,21 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                 <div className="p-6 md:p-8">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-                        <button
-                            onClick={resetToDefaults}
-                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
-                        >
-                            <RotateCcw className="w-4 h-4 mr-1" />
-                            Reset
-                        </button>
+
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
-                            <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
-                                <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                    By Vehicle Price
-                                </button>
-                                <button onClick={() => setMode('monthly')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                    By Monthly Payment
-                                </button>
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="flex bg-gray-100 p-1 rounded-lg flex-1">
+                                    <button onClick={() => setMode('price')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'price' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                        By Vehicle Price
+                                    </button>
+                                    <button onClick={() => setMode('monthly')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === 'monthly' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                        By Monthly Payment
+                                    </button>
+                                </div>
+                                <ResetButton onClick={resetToDefaults} />
                             </div>
                             <div className="space-y-4">
                                 {mode === 'price' ? (
@@ -193,7 +238,7 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Loan Term (Months)</label>
-                                        <NumberInput value={loanTerm} onChange={setLoanTerm} suffix="mo" />
+                                        <NumberInput value={loanTerm} onChange={(val) => setLoanTerm(Math.min(val, 600))} suffix="mo" />
                                     </div>
                                 </div>
                                 <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm mt-2 cursor-pointer">
@@ -221,50 +266,69 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                             <label htmlFor="includeTax" className="text-sm text-gray-700">Include taxes and fees in loan</label>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
+                                            <DatePicker
+                                                label="Start Date"
+                                                value={startDate}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                            />
                                         </div>
                                     </div>
                                 )}
                             </div>
-
-                        </div>
-                    </div>
-                    <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Summary</h3>
-                        <div className="mb-8 text-center">
-                            <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
-                            <div className="text-4xl font-bold text-blue-600">
-                                {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                            </div>
-                            {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
-                        </div>
-                        <div className="space-y-4 mb-8">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Total Loan Amount</span>
-                                <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Total Interest</span>
-                                <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Total Cost (Loan + Interest)</span>
-                                <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Payoff Date</span>
-                                <span className="font-semibold text-gray-900">{payoffDate}</span>
+                            <div className="mt-8">
+                                <CalculateButton
+                                    onClick={() => calculateLoan()}
+                                    label={mode === 'price' ? 'Calculate Payment' : 'Calculate Price'}
+                                />
                             </div>
                         </div>
-                        <div className="h-64 flex items-center justify-center">
-                            <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
+                        <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Summary</h3>
+                            <div className="mb-8 text-center">
+                                <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
+                                <div className="text-4xl font-bold text-blue-600">
+                                    {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                                </div>
+                                {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
+                            </div>
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Total Loan Amount</span>
+                                    <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Total Interest</span>
+                                    <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Total Cost (Loan + Interest)</span>
+                                    <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-600">Payoff Date</span>
+                                    <span className="font-semibold text-gray-900">{payoffDate}</span>
+                                </div>
+                            </div>
+                            <div className="h-64 flex items-center justify-center">
+                                <Doughnut data={donutData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }} />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="mt-12">
-                <AmortizationTable schedule={amortizationSchedule} />
+                <AmortizationTable
+                    schedule={amortizationSchedule}
+                    calculatorName="Auto Loan"
+                    loanDetails={{
+                        loanAmount: totalLoanAmount,
+                        interestRate: interestRate,
+                        loanTerm: loanTerm,
+                        monthlyPayment: monthlyPayment,
+                        totalInterest: totalInterest,
+                        totalCost: totalCost
+                    }}
+                />
             </div>
         </>
     );

@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { AmortizationRow } from '@/lib/calc/emi';
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface AmortizationTableProps {
     schedule: AmortizationRow[];
     currencySymbol?: string;
+    calculatorName?: string;
+    loanDetails?: {
+        loanAmount: number;
+        interestRate: number;
+        loanTerm: number;
+        monthlyPayment: number;
+        totalInterest: number;
+        totalCost: number;
+    };
 }
 
-export default function AmortizationTable({ schedule, currencySymbol = "$" }: AmortizationTableProps) {
+export default function AmortizationTable({ schedule, currencySymbol = "$", calculatorName, loanDetails }: AmortizationTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [yearView, setYearView] = useState<'CY' | 'FY' | 'none'>('none');
     const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set());
@@ -96,37 +107,166 @@ export default function AmortizationTable({ schedule, currencySymbol = "$" }: Am
         }
     };
 
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // 1. Header Section with Gradient-like Bar
+        doc.setFillColor(37, 99, 235); // Blue-600
+        doc.rect(0, 0, 210, 24, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        const headerTitle = calculatorName ? `${calculatorName} Schedule` : 'Amortization Schedule';
+        doc.text(headerTitle, 14, 16);
+
+        let startY = 34;
+
+        // 2. Loan Details Section (Modern Box UI)
+        if (loanDetails) {
+            const boxX = 14;
+            const boxY = 32;
+            const boxWidth = 182;
+            const boxHeight = 40;
+
+            // Draw Box Background
+            doc.setFillColor(248, 250, 252); // Slate-50
+            doc.setDrawColor(226, 232, 240); // Slate-200
+            doc.roundedRect(boxX, boxY, boxWidth, boxHeight, 3, 3, 'FD');
+
+            // Loan Details Title
+            doc.setTextColor(30, 41, 59); // Slate-800
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Loan Overview", boxX + 6, boxY + 10);
+
+            // Details Grid
+            doc.setFontSize(10);
+            const col1X = boxX + 6;
+            const col2X = boxX + 100;
+            const row1Y = boxY + 20;
+            const row2Y = boxY + 28;
+            const row3Y = boxY + 36;
+
+            const drawDetail = (label: string, value: string, x: number, y: number) => {
+                // Label (Key) - Bold & Dark
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(15, 23, 42); // Slate-900
+                doc.text(label, x, y);
+
+                // Value - Normal & Lighter
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(71, 85, 105); // Slate-600
+                doc.text(value, x + 35, y);
+            };
+
+            // Left Column
+            drawDetail("Loan Amount:", formatCurrency(loanDetails.loanAmount), col1X, row1Y);
+            drawDetail("Interest Rate:", `${loanDetails.interestRate}%`, col1X, row2Y);
+            drawDetail("Loan Term:", `${loanDetails.loanTerm} months`, col1X, row3Y);
+
+            // Right Column
+            drawDetail("Monthly Payment:", formatCurrency(loanDetails.monthlyPayment), col2X, row1Y);
+            drawDetail("Total Interest:", formatCurrency(loanDetails.totalInterest), col2X, row2Y);
+            drawDetail("Total Cost:", formatCurrency(loanDetails.totalCost), col2X, row3Y);
+
+            startY = boxY + boxHeight + 10;
+        }
+
+        const tableBody = schedule.map(row => [
+            row.month.toString(),
+            formatDate(new Date(row.date)),
+            formatCurrency(row.principal),
+            formatCurrency(row.interest),
+            formatCurrency(row.payment),
+            formatCurrency(row.balance)
+        ]);
+
+        // Generate Table with Perfect Alignment
+        autoTable(doc, {
+            startY: startY,
+            head: [['Sr', 'Date', 'Principal', 'Interest', 'Payment', 'Balance']],
+            body: tableBody,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [37, 99, 235], // Blue-600
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'center', // Center headers for symmetry
+                lineWidth: 0.1,
+                lineColor: [200, 200, 200]
+            },
+            bodyStyles: {
+                lineWidth: 0.1,
+                lineColor: [226, 232, 240], // Slate-200
+                textColor: [51, 65, 85] // Slate-700
+            },
+            alternateRowStyles: {
+                fillColor: [248, 250, 252] // Slate-50
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 3,
+                valign: 'middle',
+                overflow: 'linebreak'
+            },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 15 }, // Sr
+                1: { halign: 'left' },   // Date
+                2: { halign: 'right' }, // Principal
+                3: { halign: 'right' }, // Interest
+                4: { halign: 'right' }, // Payment
+                5: { halign: 'right' }  // Balance
+            }
+        });
+
+        const timestamp = Date.now().toString();
+        const filename = calculatorName
+            ? `${calculatorName.replace(/\s+/g, '_')}_${timestamp}.pdf`
+            : `Amortization_Schedule_${timestamp}.pdf`;
+
+        doc.save(filename);
+    };
+
     return (
         <div className="flex flex-col gap-4">
-            {/* Year View Toggle */}
-            <div className="flex gap-2 justify-end">
+            {/* Controls Header */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800">
                 <button
-                    onClick={() => setYearView('none')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'none'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                        }`}
+                    onClick={handleExportPDF}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer"
                 >
-                    All Months
+                    <Download size={16} />
+                    Export PDF
                 </button>
-                <button
-                    onClick={() => setYearView('CY')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'CY'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                        }`}
-                >
-                    Calendar Year
-                </button>
-                <button
-                    onClick={() => setYearView('FY')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${yearView === 'FY'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                        }`}
-                >
-                    Financial Year
-                </button>
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setYearView('none')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${yearView === 'none'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                    >
+                        All Months
+                    </button>
+                    <button
+                        onClick={() => setYearView('CY')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${yearView === 'CY'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                    >
+                        Calendar Year
+                    </button>
+                    <button
+                        onClick={() => setYearView('FY')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${yearView === 'FY'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                    >
+                        Financial Year
+                    </button>
+                </div>
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
@@ -232,36 +372,38 @@ export default function AmortizationTable({ schedule, currencySymbol = "$" }: Am
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && yearView === 'none' && (
-                <div className="flex items-center justify-between px-2">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Showing {startIndex + 1} to {Math.min(startIndex + rowsPerPage, schedule.length)} of {schedule.length} months
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            aria-label="Previous Page"
-                        >
-                            <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
-                        </button>
+            {
+                totalPages > 1 && yearView === 'none' && (
+                    <div className="flex items-center justify-between px-2">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Showing {startIndex + 1} to {Math.min(startIndex + rowsPerPage, schedule.length)} of {schedule.length} months
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                aria-label="Previous Page"
+                            >
+                                <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
+                            </button>
 
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            Page {currentPage} of {totalPages}
-                        </span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                Page {currentPage} of {totalPages}
+                            </span>
 
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            aria-label="Next Page"
-                        >
-                            <ChevronRight size={20} className="text-gray-600 dark:text-gray-400" />
-                        </button>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                aria-label="Next Page"
+                            >
+                                <ChevronRight size={20} className="text-gray-600 dark:text-gray-400" />
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
