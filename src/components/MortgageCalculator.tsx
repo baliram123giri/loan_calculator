@@ -31,6 +31,11 @@ export default function MortgageCalculator() {
     const [result, setResult] = useState<EMIResult | null>(null);
     const [loanParams, setLoanParams] = useState({ principal: 300000, rate: 6.5, tenureMonths: 360 });
     const [loadScenario, setLoadScenario] = useState<any>(null);
+    const [resetKey, setResetKey] = useState(0);
+
+    const resetToDefaults = () => {
+        setResetKey(prev => prev + 1);
+    };
 
     const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
         setResult(newResult);
@@ -48,13 +53,14 @@ export default function MortgageCalculator() {
             {/* Left Column: Inputs */}
             <div className="lg:col-span-4 space-y-6">
                 <CalculatorForm
+                    key={resetKey}
                     onResultChange={handleResultChange}
                     loanTypeConfig={MORTGAGE_CONFIG}
-                    title="Mortgage Details"
                     currencySymbol="$"
                     loadScenario={loadScenario}
                     onScenarioLoaded={() => setLoadScenario(null)}
                     persistenceKey="mortgage_calculator_state"
+                    onReset={resetToDefaults}
                 />
             </div>
 

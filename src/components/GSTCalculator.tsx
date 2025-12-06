@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { calculateGST, GSTCalculation } from '@/lib/calc/gst';
-import { Calculator, ArrowRightLeft } from 'lucide-react';
+import { Calculator, ArrowRightLeft, RotateCcw } from 'lucide-react';
 
 export default function GSTCalculator() {
     const [amount, setAmount] = useState<number>(10000);
@@ -12,6 +12,13 @@ export default function GSTCalculator() {
     const [result, setResult] = useState<GSTCalculation | null>(null);
 
     const gstRates = [5, 12, 18, 28];
+
+    const resetToDefaults = () => {
+        setAmount(10000);
+        setGstRate(18);
+        setIsInterState(false);
+        setIsReverse(false);
+    };
 
     useEffect(() => {
         try {
@@ -46,7 +53,16 @@ export default function GSTCalculator() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Input Section */}
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-6">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    </div>
 
                     {/* Calculation Type Toggle */}
                     <div className="flex items-center gap-4">
@@ -91,8 +107,8 @@ export default function GSTCalculator() {
                                     key={rate}
                                     onClick={() => setGstRate(rate)}
                                     className={`py-3 rounded-lg font-semibold transition-colors ${gstRate === rate
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                                         }`}
                                 >
                                     {rate}%

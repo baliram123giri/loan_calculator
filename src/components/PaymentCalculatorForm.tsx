@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
+import { RotateCcw } from 'lucide-react';
 
 import { AdvancedOptions } from './AdvancedOptions';
 import { calculateMonthlyPayment, calculateLoanTerm, generatePaymentAmortization, PaymentResult, Prepayment, RateChange } from '@/lib/calc/paymentCalc';
@@ -19,12 +20,14 @@ interface PaymentCalculatorFormProps {
     }) => void;
     currencySymbol?: string;
     persistenceKey?: string;
+    onReset?: () => void;
 }
 
 export default function PaymentCalculatorForm({
     onResultChange,
     currencySymbol = "$",
-    persistenceKey
+    persistenceKey,
+    onReset
 }: PaymentCalculatorFormProps) {
     const [mode, setMode] = useState<'fixed-term' | 'fixed-payment'>('fixed-term');
     const [principal, setPrincipal] = useState(20000);
@@ -128,7 +131,18 @@ export default function PaymentCalculatorForm({
     return (
         <div className="space-y-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800">
             <div className="flex flex-col gap-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Payment Calculator</h2>
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Payment Calculator</h2>
+                    {onReset && (
+                        <button
+                            onClick={onReset}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    )}
+                </div>
 
                 {/* Mode Toggle */}
                 <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">

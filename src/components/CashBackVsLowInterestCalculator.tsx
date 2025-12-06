@@ -228,10 +228,10 @@ const CashBackVsLowInterestCalculator = () => {
                                 </h3>
                                 <button
                                     onClick={resetToDefaults}
-                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors cursor-pointer"
-                                    title="Reset Values"
+                                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                                 >
-                                    <RotateCcw className="w-4 h-4" />
+                                    <RotateCcw className="w-4 h-4 mr-1" />
+                                    Reset
                                 </button>
                             </div>
                             <div className="space-y-4">

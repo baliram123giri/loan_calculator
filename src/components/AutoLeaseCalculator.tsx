@@ -215,10 +215,10 @@ const AutoLeaseCalculator = () => {
                             </h3>
                             <button
                                 onClick={resetToDefaults}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                             >
-                                <RotateCcw className="w-4 h-4" />
-                                Reset Values
+                                <RotateCcw className="w-4 h-4 mr-1" />
+                                Reset
                             </button>
                         </div>
 

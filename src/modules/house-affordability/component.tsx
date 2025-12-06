@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { calculateAffordability } from './logic';
 import { AffordabilityInput, AffordabilityResult, StateData } from './schema';
 import statesData from './states.json';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, RotateCcw } from 'lucide-react';
 
 export default function HouseAffordabilityCalculator() {
     const [input, setInput] = useState<AffordabilityInput>({
@@ -41,6 +41,22 @@ export default function HouseAffordabilityCalculator() {
         setInput(prev => ({ ...prev, [field]: value }));
     };
 
+    const resetToDefaults = () => {
+        setInput({
+            annualIncome: 80000,
+            monthlyDebts: 500,
+            downPayment: 20000,
+            interestRate: 6.5,
+            loanTermYears: 30,
+            hoaFees: 0,
+            propertyTaxRate: 1.2,
+            homeownersInsurance: 100,
+            creditScore: 720,
+            mortgageType: 'Conventional'
+        });
+        setSelectedState('');
+    };
+
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
@@ -51,7 +67,16 @@ export default function HouseAffordabilityCalculator() {
                 {/* Inputs */}
                 <div className="space-y-6">
                     <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl space-y-4">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Your Details</h2>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Your Details</h2>
+                            <button
+                                onClick={resetToDefaults}
+                                className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                            >
+                                <RotateCcw className="w-4 h-4 mr-1" />
+                                Reset
+                            </button>
+                        </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Income ($)</label>

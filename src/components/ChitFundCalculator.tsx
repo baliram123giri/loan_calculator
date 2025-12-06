@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { calculateChitFund, ChitFundResult } from '@/lib/calc/chit';
-import { TrendingUp, PiggyBank, Coins } from 'lucide-react';
+import { TrendingUp, PiggyBank, Coins, RotateCcw } from 'lucide-react';
 import { InputNumber } from './Shared/InputNumber';
 
 export default function ChitFundCalculator() {
@@ -20,6 +20,13 @@ export default function ChitFundCalculator() {
             console.error(e);
         }
     }, [chitValue, months, commission, avgBid]);
+
+    const resetToDefaults = () => {
+        setChitValue(500000);
+        setMonths(50);
+        setCommission(5);
+        setAvgBid(20);
+    };
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -44,7 +51,16 @@ export default function ChitFundCalculator() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Inputs */}
                 <div className="lg:col-span-1 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-6">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Scheme Details</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Scheme Details</h2>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    </div>
 
                     <InputNumber
                         label="Chit Value"

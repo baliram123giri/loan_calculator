@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { DollarSign, RefreshCw, PieChart as PieChartIcon, AlertCircle, CheckCircle, Info, TrendingUp } from 'lucide-react';
+import { DollarSign, RefreshCw, PieChart as PieChartIcon, AlertCircle, CheckCircle, Info, TrendingUp, RotateCcw } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import CurrencyInput from './CurrencyInput';
 
@@ -17,6 +17,16 @@ export default function RentCalculator() {
     const [savings, setSavings] = useState<number>(500);
 
     const [result, setResult] = useState<any>(null);
+
+    const resetToDefaults = () => {
+        setMode('affordability');
+        setIncome(60000);
+        setDebt(0);
+        setRent(1500);
+        setRatio(30);
+        setUtilities(150);
+        setSavings(500);
+    };
 
     useEffect(() => {
         calculate();
@@ -175,6 +185,13 @@ export default function RentCalculator() {
                                 ? 'Calculate how much rent you can afford based on your income.'
                                 : 'Calculate how much income you need for a specific rent.'}
                         </p>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer mt-2"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
                     </div>
 
                     <button

@@ -326,7 +326,7 @@ export default function InvestmentCalculator() {
                                 </h3>
                                 <button
                                     onClick={resetToDefaults}
-                                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
                                 >
                                     <RotateCcw className="w-4 h-4 mr-1" />
                                     Reset

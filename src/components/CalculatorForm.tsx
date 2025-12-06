@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
+import { RotateCcw } from 'lucide-react';
 import { calculateEMI, EMIResult, ExtraPayment, RateChange } from '@/lib/calc/emi';
 import { LoanTypeConfig } from '@/types/loanTypes';
 
@@ -31,6 +32,7 @@ interface CalculatorFormProps {
     } | null;
     onScenarioLoaded?: () => void;
     persistenceKey?: string;
+    onReset?: () => void;
 }
 
 export default function CalculatorForm({
@@ -40,7 +42,8 @@ export default function CalculatorForm({
     currencySymbol = "$",
     loadScenario = null,
     onScenarioLoaded,
-    persistenceKey
+    persistenceKey,
+    onReset
 }: CalculatorFormProps) {
     const searchParams = useSearchParams();
     const [principal, setPrincipal] = useState(loanTypeConfig.minAmount);
@@ -235,7 +238,18 @@ export default function CalculatorForm({
 
     return (
         <div className="space-y-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
+                {onReset && (
+                    <button
+                        onClick={onReset}
+                        className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                    >
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        Reset
+                    </button>
+                )}
+            </div>
 
             {/* Principal */}
             <div className="space-y-4">

@@ -6,6 +6,7 @@ import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { calculateSalesTax, TaxResult } from '@/lib/calc/tax';
 import ShareButton from '@/components/ShareButton';
+import { RotateCcw } from 'lucide-react';
 
 export default function SalesTaxCalculator() {
     const searchParams = useSearchParams();
@@ -26,6 +27,11 @@ export default function SalesTaxCalculator() {
         setResult(res);
     }, [amount, rate]);
 
+    const resetToDefaults = () => {
+        setAmount(100);
+        setRate(7.25);
+    };
+
     const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
     const shareData = {
@@ -37,7 +43,16 @@ export default function SalesTaxCalculator() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-6">
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 space-y-6">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    </div>
 
                     <div className="space-y-4">
                         <InputNumber

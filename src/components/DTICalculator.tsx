@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Plus, Trash2, TrendingUp, AlertCircle, CheckCircle, RotateCcw } from 'lucide-react';
 import {
     calculateDTI,
     type IncomeSource,
@@ -85,8 +85,38 @@ export default function DTICalculator() {
         return badges[status];
     };
 
+    const resetToDefaults = () => {
+        setIncome({
+            primary: 5000,
+            secondary: 0,
+            bonus: 0,
+            rental: 0,
+            other: 0,
+        });
+        setHousing({
+            mortgageOrRent: 1200,
+            propertyTax: 200,
+            homeInsurance: 100,
+            hoaFees: 0,
+        });
+        setDebts([
+            { id: '1', name: 'Car Loan', monthlyPayment: 350, balance: 15000, interestRate: 5.5, type: 'auto' },
+            { id: '2', name: 'Student Loan', monthlyPayment: 250, balance: 25000, interestRate: 4.5, type: 'student' },
+        ]);
+    };
+
     return (
-        <div className="w-full">
+        <div className="w-full space-y-8">
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">DTI Calculator</h2>
+                <button
+                    onClick={resetToDefaults}
+                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                >
+                    <RotateCcw className="w-4 h-4 mr-1" />
+                    Reset
+                </button>
+            </div>
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Left Column - Inputs */}
                 <div className="space-y-6">

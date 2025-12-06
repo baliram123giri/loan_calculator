@@ -31,6 +31,11 @@ export default function LoanCalculator() {
     const [result, setResult] = useState<EMIResult | null>(null);
     const [loanParams, setLoanParams] = useState({ principal: 10000, rate: 10.0, tenureMonths: 36 });
     const [loadScenario, setLoadScenario] = useState<any>(null);
+    const [resetKey, setResetKey] = useState(0);
+
+    const resetToDefaults = () => {
+        setResetKey(prev => prev + 1);
+    };
 
     const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
         setResult(newResult);
@@ -45,18 +50,21 @@ export default function LoanCalculator() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: Inputs */}
             <div className="lg:col-span-4 space-y-6">
                 <CalculatorForm
+                    key={resetKey}
                     onResultChange={handleResultChange}
                     loanTypeConfig={PERSONAL_LOAN_CONFIG}
-                    title="Loan Details"
                     currencySymbol="$"
                     loadScenario={loadScenario}
                     onScenarioLoaded={() => setLoadScenario(null)}
                     persistenceKey="personal_loan_calculator_state"
+                    onReset={resetToDefaults}
                 />
             </div>
 
+            {/* Right Column: Results */}
             <div className="lg:col-span-8 space-y-8">
                 {result && (
                     <>

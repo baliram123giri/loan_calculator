@@ -11,7 +11,7 @@ import ChartBalance from './ChartBalance';
 import ChartPaymentComposition from './ChartPaymentComposition';
 import ExportButton from './ExportButton';
 import NumberInput from './NumberInput';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, RotateCcw } from 'lucide-react';
 
 export default function APRCalculator() {
     // State for inputs
@@ -88,15 +88,39 @@ export default function APRCalculator() {
         setFees(prev => ({ ...prev, [key]: value }));
     };
 
+    const resetToDefaults = () => {
+        setPrincipal(200000);
+        setInterestRate(5.0);
+        setTermValue(30);
+        setTermType('years');
+        setFees({
+            origination: 1000,
+            documentation: 500,
+            other: 0
+        });
+        setShowFees(true);
+        setViewMode('schedule');
+        setActiveChart('balance');
+    };
+
     return (
         <div className="space-y-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Column: Inputs */}
                 <div className="lg:col-span-5 space-y-6">
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
-                            Loan Details
-                        </h2>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                Loan Details
+                            </h2>
+                            <button
+                                onClick={resetToDefaults}
+                                className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                            >
+                                <RotateCcw className="w-4 h-4 mr-1" />
+                                Reset
+                            </button>
+                        </div>
 
                         <div className="space-y-4">
                             <div>

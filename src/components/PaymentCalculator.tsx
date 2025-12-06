@@ -36,10 +36,16 @@ export default function PaymentCalculator() {
         mode: 'fixed-term'
     });
 
+    const [resetKey, setResetKey] = useState(0);
+
     const handleResultChange = React.useCallback((newResult: PaymentResult, params: any) => {
         setResult(newResult);
         setCalcParams(params);
     }, []);
+
+    const resetToDefaults = () => {
+        setResetKey(prev => prev + 1);
+    };
 
     const shareData = {
         p: calcParams.principal,
@@ -53,9 +59,11 @@ export default function PaymentCalculator() {
             {/* Left Column: Inputs */}
             <div className="lg:col-span-4 space-y-6">
                 <PaymentCalculatorForm
+                    key={resetKey}
                     onResultChange={handleResultChange}
                     currencySymbol="$"
                     persistenceKey="payment_calculator_state"
+                    onReset={resetToDefaults}
                 />
             </div>
 

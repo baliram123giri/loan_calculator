@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { calculateCompoundInterest, calculateAPY, InterestCalculation } from '@/lib/calc/interest';
-import { Download } from 'lucide-react';
+import { Download, RotateCcw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import ShareButton from '@/components/ShareButton';
@@ -38,6 +38,13 @@ export default function CompoundInterestCalculator() {
         setResult(res);
         setApy(calculateAPY(rate, frequency));
     }, [principal, rate, time, frequency]);
+
+    const resetToDefaults = () => {
+        setPrincipal(10000);
+        setRate(5);
+        setTime(5);
+        setFrequency('yearly');
+    };
 
     const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
@@ -81,7 +88,16 @@ export default function CompoundInterestCalculator() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-6">
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 space-y-6">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    </div>
 
                     <div className="space-y-4">
                         <InputNumber

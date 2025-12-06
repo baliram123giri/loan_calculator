@@ -12,7 +12,8 @@ import {
     ChevronDown,
     ChevronUp,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    RotateCcw
 } from 'lucide-react';
 import {
     calculateRefinanceMetrics,
@@ -65,6 +66,22 @@ export default function RefinanceCalculator() {
         });
     };
 
+    const resetToDefaults = () => {
+        setInput({
+            currentLoanBalance: 300000,
+            currentInterestRate: 7.0,
+            currentTermYears: 25,
+            newLoanAmount: 300000,
+            newInterestRate: 5.5,
+            newTermYears: 30,
+            closingCosts: 5000,
+            cashOutAmount: 0
+        });
+        setIsCashOut(false);
+        setActiveTab('overview');
+        setCurrentPage(1);
+    };
+
     const result: RefinanceResult = useMemo(() => {
         // Adjust new loan amount if cash out is selected
         const effectiveNewLoanAmount = isCashOut
@@ -90,6 +107,16 @@ export default function RefinanceCalculator() {
             <div className="grid lg:grid-cols-12 gap-8">
                 {/* Inputs Column */}
                 <div className="lg:col-span-4 space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Loan Details</h2>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    </div>
                     {/* Current Loan */}
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">

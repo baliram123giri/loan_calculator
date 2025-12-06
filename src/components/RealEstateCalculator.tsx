@@ -13,7 +13,8 @@ import {
     ChevronUp,
     Info,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    RotateCcw
 } from 'lucide-react';
 import {
     calculateRealEstateMetrics,
@@ -75,6 +76,32 @@ export default function RealEstateCalculator() {
         setInput(prev => ({ ...prev, [field]: value }));
     };
 
+    const resetToDefaults = () => {
+        setInput({
+            purchasePrice: 200000,
+            downPayment: 40000,
+            interestRate: 7.0,
+            loanTermYears: 30,
+            closingCosts: 5000,
+            rehabCosts: 0,
+            grossRent: 2000,
+            otherIncome: 0,
+            vacancyRate: 5,
+            propertyTax: 250,
+            insurance: 100,
+            hoaFees: 0,
+            maintenance: 5,
+            managementFee: 0,
+            otherExpenses: 0,
+            appreciationRate: 3,
+            rentIncreaseRate: 2,
+            expenseIncreaseRate: 2,
+            sellingCosts: 6,
+            holdingPeriod: 30
+        });
+        setShowAdvanced(false);
+    };
+
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -94,10 +121,19 @@ export default function RealEstateCalculator() {
                 <div className="lg:col-span-4 space-y-6">
                     {/* Property & Loan */}
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                            <Home className="w-5 h-5 text-blue-600" />
-                            Property & Loan
-                        </h3>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Home className="w-5 h-5 text-blue-600" />
+                                Property & Loan
+                            </h3>
+                            <button
+                                onClick={resetToDefaults}
+                                className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                            >
+                                <RotateCcw className="w-4 h-4 mr-1" />
+                                Reset
+                            </button>
+                        </div>
                         <div className="space-y-4">
                             <InputNumber
                                 label="Purchase Price"

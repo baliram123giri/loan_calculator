@@ -10,7 +10,7 @@ import ShareButton from '@/components/ShareButton';
 import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
 import { LoanTypeConfig } from '@/types/loanTypes';
-import { ChevronDown, ChevronUp, RefreshCw, Calendar } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, RotateCcw } from 'lucide-react';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
@@ -99,10 +99,10 @@ export default function FHALoanCalculator() {
                         </h2>
                         <button
                             onClick={handleReset}
-                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Reset Calculator"
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
                         >
-                            <RefreshCw size={20} />
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
                         </button>
                     </div>
 

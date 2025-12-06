@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { calculateEMI, EMIResult } from '@/lib/calc/emi';
 import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
-import { ChevronDown, ChevronUp, RefreshCw, Calendar, DollarSign, Percent, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, DollarSign, Percent, Info, RotateCcw } from 'lucide-react';
 import ExportButton from '@/components/ExportButton';
 import AmortizationTable from '@/components/AmortizationTable';
 
@@ -201,10 +201,10 @@ export default function DownPaymentCalculator() {
                         </h2>
                         <button
                             onClick={handleReset}
-                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Reset Calculator"
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
                         >
-                            <RefreshCw size={20} />
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
                         </button>
                     </div>
 

@@ -18,7 +18,8 @@ import {
     FileText,
     AlertCircle,
     CheckCircle2,
-    XCircle
+    XCircle,
+    RotateCcw
 } from 'lucide-react';
 import { InputNumber } from './Shared/InputNumber';
 import {
@@ -87,6 +88,32 @@ export default function RentalPropertyCalculator() {
         setInput(prev => ({ ...prev, [field]: value }));
     };
 
+    const resetToDefaults = () => {
+        setInput({
+            purchasePrice: 250000,
+            downPaymentPercent: 20,
+            closingCosts: 7500,
+            rehabCosts: 0,
+            interestRate: 7.0,
+            loanTerm: 30,
+            monthlyRent: 2000,
+            otherMonthlyIncome: 0,
+            annualRentIncrease: 3,
+            annualPropertyTax: 3000,
+            annualInsurance: 1200,
+            monthlyHOA: 0,
+            propertyManagementPercent: 10,
+            maintenancePercent: 10,
+            vacancyRatePercent: 5,
+            monthlyUtilities: 0,
+            capexReservePercent: 5,
+            marginalTaxRate: 24,
+            buildingValuePercent: 80,
+            annualAppreciation: 3
+        });
+        setShowAdvanced(false);
+    };
+
     const results: RentalPropertyResults = useMemo(() => {
         return calculateRentalProperty(input);
     }, [input]);
@@ -149,10 +176,19 @@ export default function RentalPropertyCalculator() {
             <div className="space-y-6">
                 {/* Input Section */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                        <Building2 className="text-blue-600" size={28} />
-                        Property Details
-                    </h2>
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Building2 className="text-blue-600" size={28} />
+                            Property Details
+                        </h2>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Reset
+                        </button>
+                    </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
                         {/* Purchase Details */}
@@ -165,41 +201,36 @@ export default function RentalPropertyCalculator() {
                             <InputNumber
                                 label="Purchase Price"
                                 value={input.purchasePrice}
-                                onChange={(val) => updateInput('purchasePrice', val)}
-                                prefix="$"
+                                onChange={(e) => updateInput('purchasePrice', Number(e.target.value))}
+                                symbol="$"
                                 step={1000}
-                                icon={<DollarSign size={18} />}
                             />
 
                             <InputNumber
-                                label="Down Payment"
+                                label="Down Payment (%)"
                                 value={input.downPaymentPercent}
-                                onChange={(val) => updateInput('downPaymentPercent', val)}
-                                suffix="%"
+                                onChange={(e) => updateInput('downPaymentPercent', Number(e.target.value))}
                                 step={1}
                                 min={0}
                                 max={100}
-                                icon={<Percent size={18} />}
-                                tooltip="Typical: 20-25% for investment properties"
+                                helperText="Typical: 20-25% for investment properties"
                             />
 
                             <InputNumber
                                 label="Closing Costs"
                                 value={input.closingCosts}
-                                onChange={(val) => updateInput('closingCosts', val)}
-                                prefix="$"
+                                onChange={(e) => updateInput('closingCosts', Number(e.target.value))}
+                                symbol="$"
                                 step={100}
-                                icon={<FileText size={18} />}
-                                tooltip="Usually 2-5% of purchase price"
+                                helperText="Usually 2-5% of purchase price"
                             />
 
                             <InputNumber
                                 label="Rehab/Renovation Costs"
                                 value={input.rehabCosts}
-                                onChange={(val) => updateInput('rehabCosts', val)}
-                                prefix="$"
+                                onChange={(e) => updateInput('rehabCosts', Number(e.target.value))}
+                                symbol="$"
                                 step={500}
-                                icon={<Building2 size={18} />}
                             />
                         </div>
 
@@ -218,23 +249,19 @@ export default function RentalPropertyCalculator() {
                             </div>
 
                             <InputNumber
-                                label="Interest Rate"
+                                label="Interest Rate (%)"
                                 value={input.interestRate}
-                                onChange={(val) => updateInput('interestRate', val)}
-                                suffix="%"
+                                onChange={(e) => updateInput('interestRate', Number(e.target.value))}
                                 step={0.125}
-                                icon={<Percent size={18} />}
                             />
 
                             <InputNumber
-                                label="Loan Term"
+                                label="Loan Term (Years)"
                                 value={input.loanTerm}
-                                onChange={(val) => updateInput('loanTerm', val)}
-                                suffix="years"
+                                onChange={(e) => updateInput('loanTerm', Number(e.target.value))}
                                 step={5}
                                 min={10}
                                 max={30}
-                                icon={<TrendingUp size={18} />}
                             />
 
                             <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
@@ -257,30 +284,26 @@ export default function RentalPropertyCalculator() {
                             <InputNumber
                                 label="Monthly Rent"
                                 value={input.monthlyRent}
-                                onChange={(val) => updateInput('monthlyRent', val)}
-                                prefix="$"
+                                onChange={(e) => updateInput('monthlyRent', Number(e.target.value))}
+                                symbol="$"
                                 step={50}
-                                icon={<Home size={18} />}
                             />
 
                             <InputNumber
                                 label="Other Monthly Income"
                                 value={input.otherMonthlyIncome}
-                                onChange={(val) => updateInput('otherMonthlyIncome', val)}
-                                prefix="$"
+                                onChange={(e) => updateInput('otherMonthlyIncome', Number(e.target.value))}
+                                symbol="$"
                                 step={10}
-                                icon={<Wallet size={18} />}
-                                tooltip="Laundry, parking, storage, etc."
+                                helperText="Laundry, parking, storage, etc."
                             />
 
                             <InputNumber
-                                label="Annual Rent Increase"
+                                label="Annual Rent Increase (%)"
                                 value={input.annualRentIncrease}
-                                onChange={(val) => updateInput('annualRentIncrease', val)}
-                                suffix="%"
+                                onChange={(e) => updateInput('annualRentIncrease', Number(e.target.value))}
                                 step={0.5}
-                                icon={<TrendingUp size={18} />}
-                                tooltip="Typical: 2-4% per year"
+                                helperText="Typical: 2-4% per year"
                             />
                         </div>
                     </div>
@@ -303,106 +326,88 @@ export default function RentalPropertyCalculator() {
                                 <InputNumber
                                     label="Annual Property Tax"
                                     value={input.annualPropertyTax}
-                                    onChange={(val) => updateInput('annualPropertyTax', val)}
-                                    prefix="$"
+                                    onChange={(e) => updateInput('annualPropertyTax', Number(e.target.value))}
+                                    symbol="$"
                                     step={100}
-                                    icon={<FileText size={18} />}
                                 />
 
                                 <InputNumber
                                     label="Annual Insurance"
                                     value={input.annualInsurance}
-                                    onChange={(val) => updateInput('annualInsurance', val)}
-                                    prefix="$"
+                                    onChange={(e) => updateInput('annualInsurance', Number(e.target.value))}
+                                    symbol="$"
                                     step={50}
-                                    icon={<FileText size={18} />}
                                 />
 
                                 <InputNumber
                                     label="Monthly HOA Fees"
                                     value={input.monthlyHOA}
-                                    onChange={(val) => updateInput('monthlyHOA', val)}
-                                    prefix="$"
+                                    onChange={(e) => updateInput('monthlyHOA', Number(e.target.value))}
+                                    symbol="$"
                                     step={10}
-                                    icon={<Building2 size={18} />}
                                 />
 
                                 <InputNumber
-                                    label="Property Management"
+                                    label="Property Management (% of rent)"
                                     value={input.propertyManagementPercent}
-                                    onChange={(val) => updateInput('propertyManagementPercent', val)}
-                                    suffix="% of rent"
+                                    onChange={(e) => updateInput('propertyManagementPercent', Number(e.target.value))}
                                     step={1}
-                                    icon={<Percent size={18} />}
-                                    tooltip="Typical: 8-12% of monthly rent"
+                                    helperText="Typical: 8-12% of monthly rent"
                                 />
 
                                 <InputNumber
-                                    label="Maintenance & Repairs"
+                                    label="Maintenance & Repairs (% of rent)"
                                     value={input.maintenancePercent}
-                                    onChange={(val) => updateInput('maintenancePercent', val)}
-                                    suffix="% of rent"
+                                    onChange={(e) => updateInput('maintenancePercent', Number(e.target.value))}
                                     step={1}
-                                    icon={<Percent size={18} />}
-                                    tooltip="Typical: 10-15% of monthly rent"
+                                    helperText="Typical: 10-15% of monthly rent"
                                 />
 
                                 <InputNumber
-                                    label="Vacancy Rate"
+                                    label="Vacancy Rate (%)"
                                     value={input.vacancyRatePercent}
-                                    onChange={(val) => updateInput('vacancyRatePercent', val)}
-                                    suffix="%"
+                                    onChange={(e) => updateInput('vacancyRatePercent', Number(e.target.value))}
                                     step={1}
-                                    icon={<Percent size={18} />}
-                                    tooltip="Typical: 5-10% depending on market"
+                                    helperText="Typical: 5-10% depending on market"
                                 />
 
                                 <InputNumber
                                     label="Monthly Utilities (if paid)"
                                     value={input.monthlyUtilities}
-                                    onChange={(val) => updateInput('monthlyUtilities', val)}
-                                    prefix="$"
+                                    onChange={(e) => updateInput('monthlyUtilities', Number(e.target.value))}
+                                    symbol="$"
                                     step={10}
-                                    icon={<DollarSign size={18} />}
                                 />
 
                                 <InputNumber
-                                    label="CapEx Reserves"
+                                    label="CapEx Reserves (% of rent)"
                                     value={input.capexReservePercent}
-                                    onChange={(val) => updateInput('capexReservePercent', val)}
-                                    suffix="% of rent"
+                                    onChange={(e) => updateInput('capexReservePercent', Number(e.target.value))}
                                     step={1}
-                                    icon={<Percent size={18} />}
-                                    tooltip="Capital expenditures: roof, HVAC, etc. Typical: 5-10%"
+                                    helperText="Capital expenditures: roof, HVAC, etc. Typical: 5-10%"
                                 />
 
                                 <InputNumber
-                                    label="Marginal Tax Rate"
+                                    label="Marginal Tax Rate (%)"
                                     value={input.marginalTaxRate}
-                                    onChange={(val) => updateInput('marginalTaxRate', val)}
-                                    suffix="%"
+                                    onChange={(e) => updateInput('marginalTaxRate', Number(e.target.value))}
                                     step={1}
-                                    icon={<Percent size={18} />}
                                 />
 
                                 <InputNumber
-                                    label="Building Value (vs Land)"
+                                    label="Building Value (vs Land) (%)"
                                     value={input.buildingValuePercent}
-                                    onChange={(val) => updateInput('buildingValuePercent', val)}
-                                    suffix="%"
+                                    onChange={(e) => updateInput('buildingValuePercent', Number(e.target.value))}
                                     step={5}
-                                    icon={<Percent size={18} />}
-                                    tooltip="For depreciation. Typical: 75-85%"
+                                    helperText="For depreciation. Typical: 75-85%"
                                 />
 
                                 <InputNumber
-                                    label="Annual Appreciation"
+                                    label="Annual Appreciation (%)"
                                     value={input.annualAppreciation}
-                                    onChange={(val) => updateInput('annualAppreciation', val)}
-                                    suffix="%"
+                                    onChange={(e) => updateInput('annualAppreciation', Number(e.target.value))}
                                     step={0.5}
-                                    icon={<TrendingUp size={18} />}
-                                    tooltip="Historical average: 3-4% per year"
+                                    helperText="Historical average: 3-4% per year"
                                 />
                             </div>
                         )}
