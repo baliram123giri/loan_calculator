@@ -285,57 +285,55 @@ export default function FinanceCalculator() {
 
     // Export to PDF function
     const exportToPDF = () => {
-        const doc = new jsPDF();
+        try {
+            const doc = new jsPDF();
 
-        // Add title
-        doc.setFontSize(18);
-        doc.text('Cash Flow Schedule', 14, 22);
+            // Add title
+            doc.setFontSize(20);
+            doc.text('Cash Flow Schedule', 14, 22);
 
-        // Add calculator details
-        doc.setFontSize(11);
-        doc.text(`Mode: ${MODES.find(m => m.id === activeMode)?.label}`, 14, 32);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 38);
+            // Add calculator details
+            doc.setFontSize(12);
+            doc.text(`Mode: ${MODES.find(m => m.id === activeMode)?.label}`, 14, 32);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 38);
 
-        // Add input parameters
-        let yPos = 44;
-        doc.setFontSize(10);
-        doc.text('Parameters:', 14, yPos);
-        yPos += 6;
-        if (activeMode !== 'PV') doc.text(`Present Value: ${formatCurrency(presentValue)}`, 14, yPos), yPos += 5;
-        if (activeMode !== 'FV') doc.text(`Future Value: ${formatCurrency(futureValue)}`, 14, yPos), yPos += 5;
-        if (activeMode !== 'PMT') doc.text(`Payment: ${formatCurrency(payment)}`, 14, yPos), yPos += 5;
-        if (activeMode !== 'IY') doc.text(`Annual Rate: ${annualRate}%`, 14, yPos), yPos += 5;
-        if (activeMode !== 'N') doc.text(`Years: ${formatNumber(getYearsFromPeriods(), 1)}`, 14, yPos), yPos += 5;
-        doc.text(`Compounding: ${COMPOUNDING_FREQUENCIES.find(f => f.value === compoundingFrequency)?.label}`, 14, yPos);
-        yPos += 5;
-        doc.text(`Payment Timing: ${paymentTiming === 'end' ? 'End of Period' : 'Beginning of Period'}`, 14, yPos);
+            // Add key input parameters only
+            let yPos = 48;
+            doc.setFontSize(11);
+            if (activeMode !== 'PV') doc.text(`Present Value: ${formatCurrency(presentValue)}`, 14, yPos), yPos += 6;
+            if (activeMode !== 'FV') doc.text(`Future Value: ${formatCurrency(futureValue)}`, 14, yPos), yPos += 6;
+            if (activeMode !== 'PMT') doc.text(`Payment: ${formatCurrency(payment)}`, 14, yPos), yPos += 6;
+            if (activeMode !== 'IY') doc.text(`Annual Rate: ${annualRate}%`, 14, yPos), yPos += 6;
+            if (activeMode !== 'N') doc.text(`Years: ${formatNumber(getYearsFromPeriods(), 1)}`, 14, yPos), yPos += 6;
 
-        // Add table
-        autoTable(doc, {
-            startY: yPos + 10,
-            head: [['Period', 'Payment', 'Interest', 'Principal', 'Balance']],
-            body: cashFlowSchedule.map(row => [
+            // Prepare table data - simplified to match working examples
+            const tableColumn = ["Period", "Payment", "Interest", "Principal", "Balance"];
+            const tableRows = cashFlowSchedule.map(row => [
                 row.period.toString(),
                 formatCurrency(row.payment),
                 formatCurrency(row.interest),
                 formatCurrency(row.principal),
                 formatCurrency(row.balance)
-            ]),
-            theme: 'striped',
-            headStyles: { fillColor: [59, 130, 246] },
-            styles: { fontSize: 8 },
-            columnStyles: {
-                0: { halign: 'left' },
-                1: { halign: 'right' },
-                2: { halign: 'right' },
-                3: { halign: 'right' },
-                4: { halign: 'right' }
-            }
-        });
+            ]);
 
-        // Save the PDF
-        doc.save(`cash-flow-schedule-${activeMode}-${new Date().getTime()}.pdf`);
+            // Add table using autoTable - simplified configuration
+            autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: yPos + 5,
+            });
+
+            // Save the PDF
+            doc.save(`cash-flow-schedule-${activeMode}-${new Date().getTime()}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please try again.');
+        }
     };
+
+
+
+
 
 
     return (
