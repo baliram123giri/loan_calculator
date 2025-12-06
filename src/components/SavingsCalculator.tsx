@@ -16,7 +16,8 @@ import {
 import { Doughnut, Line } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
-import { ChevronDown, ChevronUp, RotateCcw, Lightbulb, TrendingUp, DollarSign } from 'lucide-react';
+import SavingsTable from './SavingsTable';
+import { ChevronDown, ChevronUp, RotateCcw, TrendingUp } from 'lucide-react';
 
 ChartJS.register(
     CategoryScale,
@@ -43,198 +44,133 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     const [compoundingFrequency, setCompoundingFrequency] = useState<string>('monthly');
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
+    // New Advanced Inputs
+    const [inflationRate, setInflationRate] = useState<number>(2.5);
+    const [taxRate, setTaxRate] = useState<number>(0); // e.g. 15% on gains
+    const [contributeIncreaseRate, setContributeIncreaseRate] = useState<number>(0); // Yearly step-up %
+
     // Results
     const [totalSavings, setTotalSavings] = useState<number>(0);
     const [totalInterest, setTotalInterest] = useState<number>(0);
     const [totalPrincipal, setTotalPrincipal] = useState<number>(0);
     const [chartData, setChartData] = useState<any>(null);
     const [aiSuggestion, setAiSuggestion] = useState<string>('');
+    const [schedule, setSchedule] = useState<any[]>([]);
 
     useEffect(() => {
         calculateSavings();
-    }, [initialDeposit, monthlyContribution, interestRate, years, compoundingFrequency]);
+    }, [initialDeposit, monthlyContribution, interestRate, years, compoundingFrequency, inflationRate, taxRate, contributeIncreaseRate]);
 
     const calculateSavings = () => {
-        let principal = initialDeposit;
-        let total = initialDeposit;
-        let tInterest = 0;
-        const dataPoints = [];
-        const labels = [];
-
         const frequencyMap: { [key: string]: number } = {
             'daily': 365,
             'monthly': 12,
             'quarterly': 4,
             'annually': 1
         };
-
         const n = frequencyMap[compoundingFrequency];
         const r = interestRate / 100;
 
-        // Generate monthly data points for the graph
-        const totalMonths = years * 12;
-
-        for (let i = 0; i <= totalMonths; i++) {
-            // Logic for monthly contribution and compounding
-            // To simplify graph generation, we calculate balance at each month
-            const currentYear = i / 12;
-
-            // Compound Interest Formula: A = P(1 + r/n)^(nt)
-            // Future Value of a Series: PMT * (((1 + r/n)^(nt) - 1) / (r/n))
-
-            // However, mixing initial deposit + monthly contributions with specific compounding requires careful step-by-step or combined formula
-
-            // Let's do step-by-step for accurate monthly tracking for the graph
-            // Actually, usually compounding happens at 'n' times per year.
-            // If n=12 (monthly), it aligns with contributions.
-            // If n=1 (annually), interest is added only at end of year.
-
-            // For a smooth graph, we'll approximate/calculate value at month 'i'
-
-            // Precise calculation at year 't' (can be fractional)
-            const t = i / 12;
-
-            const amountFromPrincipal = initialDeposit * Math.pow(1 + r / n, n * t);
-            const amountFromContributions = monthlyContribution * ((Math.pow(1 + r / n, n * t) - 1) / (r / n));
-
-            // Note: The contribution formula above assumes contributions are made at the END of each compounding period if frequencies match.
-            // If frequencies differ, it gets complex. For a general calculator:
-            // We can simulate month-by-month.
-        }
-
-        // Re-implementing with a robust month-by-month simulation for the graph
+        // Step-by-step month simulation
         let balance = initialDeposit;
         let totalContributed = initialDeposit;
+        let currentMonthlyContribution = monthlyContribution;
+
         const history = [];
+        const tableSchedule = [];
 
-        // We'll record data points every year to keep graph clean, or every month if short term
-        const recordFrequency = years > 5 ? 12 : 1; // Record every 12 months (1 year) if long term, else every month
-
-        history.push({
-            month: 0,
-            balance: balance,
-            principal: totalContributed,
-            interest: 0
-        });
+        // Initial Row
+        history.push({ month: 0, balance: balance, principal: totalContributed });
 
         for (let m = 1; m <= years * 12; m++) {
-            // Add monthly contribution
-            balance += monthlyContribution;
-            totalContributed += monthlyContribution;
+            // Apply Inflation adjustments? (Real Value vs Nominal) -> Usually charts show Nominal. We'll stick to Nominal here and maybe show Real as advanced metric.
 
-            // Add interest if applicable this month
-            // If compounding is monthly (n=12), add interest each month.
-            // Rate per month = r/12.
-            // If daily, we approximate monthly addition.
-
-            // Simpler approach that is standard for these calculators:
-            // Assume monthly compounding for the "monthly step" simulation or adjust rate
-
-            // Accurate approximation for simulation loop:
-            // Effective monthly rate based on compounding frequency
-            // (1 + r_eff)^12 = (1 + r/n)^n
-            // 1 + r_eff = (1 + r/n)^(n/12)
-            // r_eff = (1 + r/n)^(n/12) - 1
-
+            // Effective Monthly Rate based on Compounding
             const effectiveMonthlyRate = Math.pow(1 + r / n, n / 12) - 1;
-            const interestForMonth = balance * effectiveMonthlyRate; // Interest on balance BEFORE contribution or AFTER? Usually standard is check balance at start of month.
 
-            // Let's stick to: Interest calc on balance, then add contribution (end of month)
-            // Or Interest calc on (balance + contribution) ?
-            // Let's assume contribution happens at start of month for interest? Or end?
-            // "Deposits made at the beginning of each period" vs "End".
-            // Let's assume End of month for contribution, so interest is calculated on opening balance.
+            // 1. Calculate Interest
+            let interestEarned = balance * effectiveMonthlyRate;
 
-            // Correct flow:
-            // 1. Calculate Interest on current Balance
-            const interest = (balance - monthlyContribution) * effectiveMonthlyRate; // Wait, balance already includes this month's contribution? No.
+            // 2. Apply Tax on Interest (Simulated monthly deduction)
+            if (taxRate > 0) {
+                const tax = interestEarned * (taxRate / 100);
+                interestEarned -= tax;
+            }
 
-            // Let's restart loop mental model
-            // Month 0: Balance = Initial
-            // Month 1 Loop:
-            //   Interest = Balance * rate
-            //   Balance += Interest
-            //   Balance += Contribution
-
-            // Refined Loop:
-            const interestEarned = balance * effectiveMonthlyRate;
             balance += interestEarned;
-            balance += monthlyContribution;
-            totalContributed += monthlyContribution; // This keeps adding up
 
-            if (m % recordFrequency === 0) {
-                history.push({
-                    month: m,
-                    balance: balance,
-                    principal: totalContributed, // Note: Initial + (Monthly * m)
-                    interest: balance - totalContributed
-                });
+            // 3. Add Contribution
+            balance += currentMonthlyContribution;
+            totalContributed += currentMonthlyContribution;
+
+            // 4. Annual Step-up check
+            if (m % 12 === 0 && contributeIncreaseRate > 0) {
+                currentMonthlyContribution *= (1 + contributeIncreaseRate / 100);
+            }
+
+            // Record data
+            // For Table: Show every month
+            tableSchedule.push({
+                year: Math.ceil(m / 12),
+                month: m,
+                totalContributed: totalContributed,
+                interestEarned: interestEarned,
+                totalInterest: balance - totalContributed,
+                balance: balance
+            });
+
+            // For Chart: Record every year to keep points sane, or every few months
+            if (years > 20) {
+                if (m % 12 === 0) history.push({ month: m, balance: balance, principal: totalContributed });
+            } else {
+                if (m % 6 === 0) history.push({ month: m, balance: balance, principal: totalContributed }); // Semi-annual
             }
         }
 
-        // Final values
+        // Final Sync
+        // Add last month if not added
+        if (history[history.length - 1].month !== years * 12) {
+            history.push({ month: years * 12, balance: balance, principal: totalContributed });
+        }
+
         const finalBalance = balance;
-        const finalPrincipal = initialDeposit + (monthlyContribution * years * 12);
-        const finalInterest = finalBalance - finalPrincipal; // Recalculate based on pure math to avoid loop drift? Loop is fine.
+        const finalPrincipal = totalContributed;
+        const finalInterest = finalBalance - finalPrincipal;
 
         setTotalSavings(finalBalance);
         setTotalPrincipal(finalPrincipal);
         setTotalInterest(finalInterest);
+        setSchedule(tableSchedule);
 
         // Chart Data
-        const labelsArr = history.map(h => `Year ${(h.month / 12).toFixed(1)}`);
-
         setChartData({
-            labels: labelsArr,
-            datasets: [
-                {
-                    label: 'Total Principal',
-                    data: history.map(h => h.principal),
-                    borderColor: '#3B82F6', // Blue
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                },
-                {
-                    label: 'Total Interest',
-                    data: history.map(h => h.balance), // Stacked? No, this is line chart usually showing total. 
-                    // To show interest as a layer on top of principal in an Area chart:
-                    // 'Total Savings' (Balance) is the top line. 
-                    // Property 'fill: "-1"' fills to the dataset below?
-                    // Let's just do two lines or stacked area.
-                    // Dataset 1: Principal
-                    // Dataset 2: Interest (Value = Balance - Principal) ?? 
-                    // Easier: Stacked Area.
-                    // Dataset 1: Principal
-                    // Dataset 2: Interest (Just the interest component)
-                    // If stacked: true on y-axis.
-
-                }
-            ]
-        });
-
-        // Let's use a simpler configuration for the Area Chart:
-        // 1. Balance (Top line, filled usually?)
-        // 2. Principal (Bottom line, filled)
-
-        setChartData({
-            labels: history.map(h => `Year ${Math.round(h.month / 12)}`),
+            labels: history.map(h => `Year ${(h.month / 12).toFixed(1)}`),
             datasets: [
                 {
                     label: 'Total Balance',
                     data: history.map(h => h.balance),
                     borderColor: '#10B981', // Emerald
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    fill: false, // Let's simplify to lines for cleaner look or fill?
-                    tension: 0.4
+                    backgroundColor: (context: any) => {
+                        const ctx = context.chart.ctx;
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+                        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+                        return gradient;
+                    },
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 6
                 },
                 {
                     label: 'Principal',
                     data: history.map(h => h.principal),
                     borderColor: '#3B82F6', // Blue
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    fill: true,
-                    tension: 0.4
+                    fill: false,
+                    tension: 0.4,
+                    borderDash: [5, 5],
+                    pointRadius: 0
                 }
             ]
         });
@@ -243,39 +179,41 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     };
 
     const generateAiSuggestion = (balance: number, principal: number, yrs: number, monthly: number) => {
-        // Rule-based suggestions
-        const interestRatio = (balance - principal) / principal;
-        const gain = balance - principal;
-
         let suggestions = [];
+        const interestRatio = (balance - principal) / principal;
 
-        if (interestRatio < 0.1 && yrs >= 5) {
-            suggestions.push(`With a ${yrs}-year term, you're only earning ${(interestRatio * 100).toFixed(1)}% in total interest. Consider increasing your monthly contribution or seeking a higher interest rate (e.g., High-Yield Components).`);
+        // Inflation Check
+        if (inflationRate > 0) {
+            const realValue = balance / Math.pow(1 + inflationRate / 100, yrs);
+            // const loss = balance - realValue;
+            suggestions.push(`Factoring in ${inflationRate}% inflation, your "Real" purchasing power in today's dollars is approximately **$${realValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}**.`);
         }
 
-        if (compoundingFrequency === 'annually') {
-            suggestions.push("Switching to monthly or daily compounding could slightly increase your returns due to faster interest accumulation.");
+        // Tax Check
+        if (taxRate > 0) {
+            suggestions.push(`With a ${taxRate}% tax rate on gains, you are effectively reducing your APY. Consider tax-advantaged accounts like IRAs or 401(k)s.`);
         }
 
-        // The "What if" suggestion
-        const extraFifty = calculateFutureValue(initialDeposit, monthly + 50, interestRate, yrs, compoundingFrequency);
+        // Standard
+        if (interestRatio > 0.5) {
+            suggestions.push(`Great job! Your money is working hard. Over ${yrs} years, ${(interestRatio * 100).toFixed(0)}% of your total balance comes purely from interest.`);
+        }
+
+        const extraFifty = calculateFutureValue(initialDeposit, monthly + 50, interestRate, yrs);
         const diff = extraFifty - balance;
+        suggestions.push(`💡 **AI Tip**: Increasing your monthly contribution by just $50 could add an extra **$${diff.toLocaleString(undefined, { maximumFractionDigits: 0 })}** to your final balance!`);
 
-        suggestions.push(`💡 AI Insight: If you increase your monthly contribution by just $50, you could have an extra **$${diff.toLocaleString(undefined, { maximumFractionDigits: 0 })}** after ${yrs} years!`);
-
-        setAiSuggestion(suggestions[suggestions.length - 1]); // Show the most impactful one
+        setAiSuggestion(suggestions[suggestions.length - 1]);
     };
 
-    // Helper calculate for suggestion
-    const calculateFutureValue = (p: number, pmt: number, rPct: number, tYrs: number, freq: string) => {
-        const frequencyMap: { [key: string]: number } = { 'daily': 365, 'monthly': 12, 'quarterly': 4, 'annually': 1 };
-        const n = frequencyMap[freq];
-        const r = rPct / 100;
-        // Approximation for quick calc
+    const calculateFutureValue = (p: number, pmt: number, rPct: number, tYrs: number) => {
+        // Quick approx for suggestion
+        const r = rPct / 100; // Simplified
+        const n = 12;
         let b = p;
-        const effRate = Math.pow(1 + r / n, n / 12) - 1;
+        const eff = r / 12;
         for (let i = 0; i < tYrs * 12; i++) {
-            b += b * effRate;
+            b += b * eff;
             b += pmt;
         }
         return b;
@@ -287,17 +225,10 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         setInterestRate(4.5);
         setYears(10);
         setCompoundingFrequency('monthly');
+        setInflationRate(2.5);
+        setTaxRate(0);
+        setContributeIncreaseRate(0);
         setShowAdvanced(false);
-    };
-
-    const doughnutData = {
-        labels: ['Principal', 'Interest'],
-        datasets: [{
-            data: [totalPrincipal, totalInterest],
-            backgroundColor: ['#3B82F6', '#10B981'],
-            borderColor: ['#2563EB', '#059669'],
-            borderWidth: 1,
-        }],
     };
 
     return (
@@ -316,6 +247,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Inputs Side */}
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Initial Deposit</label>
@@ -347,14 +279,14 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                             </button>
 
                             {showAdvanced && (
-                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-in fade-in slide-in-from-top-2">
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-in fade-in slide-in-from-top-2 space-y-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Compounding Frequency</label>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-2 gap-2 mb-4">
                                         {['daily', 'monthly', 'quarterly', 'annually'].map((freq) => (
                                             <button
                                                 key={freq}
                                                 onClick={() => setCompoundingFrequency(freq)}
-                                                className={`py-2 px-3 text-sm rounded-md capitalize transition-colors ${compoundingFrequency === freq
+                                                className={`py-2 px-3 text-sm rounded-md capitalize transition-colors cursor-pointer ${compoundingFrequency === freq
                                                         ? 'bg-blue-600 text-white shadow-sm'
                                                         : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                                                     }`}
@@ -363,18 +295,34 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                             </button>
                                         ))}
                                     </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Inflation Rate (%)</label>
+                                            <NumberInput value={inflationRate} onChange={setInflationRate} suffix="%" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Tax on Interest (%)</label>
+                                            <NumberInput value={taxRate} onChange={setTaxRate} suffix="%" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Annual Contribution Increase (%)</label>
+                                        <NumberInput value={contributeIncreaseRate} onChange={setContributeIncreaseRate} suffix="%" />
+                                        <p className="text-xs text-gray-500 mt-1">Simulate salary bumps or stepping up savings each year.</p>
+                                    </div>
                                 </div>
                             )}
 
                             {/* AI Suggestion Box */}
-                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex gap-3 items-start">
-                                <div className="bg-white p-2 rounded-full shadow-sm shrink-0">
-                                    <TrendingUp className="w-5 h-5 text-indigo-600" />
+                            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-4 flex gap-3 items-start shadow-sm">
+                                <div className="bg-white p-2 rounded-full shadow-sm shrink-0 text-indigo-600">
+                                    <TrendingUp className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-semibold text-indigo-900 mb-1 flex items-center">
+                                    <h4 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
                                         AI Growth Insight
-                                        <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded-full uppercase tracking-wider font-bold">Beta</span>
+                                        <span className="ml-2 px-2 py-0.5 bg-white text-indigo-600 border border-indigo-100 text-[10px] rounded-full uppercase tracking-wider font-bold shadow-sm">Beta</span>
                                     </h4>
                                     <div className="text-sm text-indigo-800 leading-relaxed"
                                         dangerouslySetInnerHTML={{
@@ -383,16 +331,20 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                     />
                                 </div>
                             </div>
-
                         </div>
 
-                        {/* Results Column */}
+                        {/* Results Side */}
                         <div className="flex flex-col space-y-6">
                             <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                 <h3 className="text-gray-500 text-sm font-medium mb-1">Total Savings Balance</h3>
                                 <div className="text-4xl font-bold text-gray-900 mb-2">
                                     ${totalSavings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                 </div>
+                                {inflationRate > 0 && (
+                                    <div className="text-xs text-gray-400 mb-2">
+                                        *Nominal Value (ignoring inflation)
+                                    </div>
+                                )}
                                 <div className="text-sm text-green-600 flex items-center font-medium">
                                     <TrendingUp className="w-4 h-4 mr-1" />
                                     Total Interest Earned: ${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
@@ -400,13 +352,13 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="text-xs text-gray-500 mb-1">Total Principal</div>
                                     <div className="text-lg font-bold text-gray-900">
-                                        ${totalPrincipal.toLocaleString()}
+                                        ${totalPrincipal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                     </div>
                                 </div>
-                                <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="text-xs text-gray-500 mb-1">Total Interest</div>
                                     <div className="text-lg font-bold text-green-600">
                                         ${totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -414,15 +366,21 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                 </div>
                             </div>
 
-                            <div className="h-64 relative bg-white rounded-xl border border-gray-100 p-4">
+                            <div className="h-72 relative bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
                                 {chartData && <Line data={chartData} options={{
                                     responsive: true,
                                     maintainAspectRatio: false,
                                     plugins: {
-                                        legend: { position: 'bottom' },
+                                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6 } },
                                         tooltip: {
                                             mode: 'index',
                                             intersect: false,
+                                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                            titleColor: '#111827',
+                                            bodyColor: '#374151',
+                                            borderColor: '#E5E7EB',
+                                            borderWidth: 1,
+                                            padding: 10,
                                             callbacks: {
                                                 label: function (context: any) {
                                                     let label = context.dataset.label || '';
@@ -440,17 +398,31 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                     scales: {
                                         y: {
                                             beginAtZero: true,
+                                            grid: { color: '#F3F4F6' },
                                             ticks: {
                                                 callback: function (value: any) {
-                                                    return '$' + value.toLocaleString();
-                                                }
-                                            }
+                                                    if (value >= 1000000) return '$' + (value / 1000000).toFixed(1) + 'M';
+                                                    if (value >= 1000) return '$' + (value / 1000).toFixed(0) + 'k';
+                                                    return '$' + value;
+                                                },
+                                                font: { size: 11 }
+                                            },
+                                            border: { display: false }
+                                        },
+                                        x: {
+                                            grid: { display: false },
+                                            ticks: { font: { size: 11 } },
+                                            border: { display: false }
                                         }
                                     },
                                     interaction: {
                                         mode: 'nearest',
                                         axis: 'x',
                                         intersect: false
+                                    },
+                                    elements: {
+                                        line: { borderWidth: 2 },
+                                        point: { radius: 0, hitRadius: 10 }
                                     }
                                 }} />}
                             </div>
@@ -458,6 +430,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                     </div>
                 </div>
             </div>
+
+            <SavingsTable schedule={schedule} />
         </div>
     );
 };
