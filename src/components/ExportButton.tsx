@@ -108,21 +108,26 @@ export default function ExportButton({
             doc.text(title.replace(/_/g, ' '), 14, 22);
 
             doc.setFontSize(10);
-            doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
+            const dateStr = `Generated on ${new Date().toLocaleDateString()}`;
+            doc.text(dateStr, 14, 30);
 
-            // Print Inputs Summary if available
             let startY = 40;
             if (inputs) {
+                // Style inputs like the legacy "Loan Details" section
                 doc.setFontSize(12);
-                doc.text("Input Details:", 14, 40);
-                doc.setFontSize(10);
+                let y = 40;
 
-                let y = 48;
                 Object.entries(inputs).forEach(([key, value]) => {
+                    // Check if y exceeds page height (formatting safety)
+                    if (y > 280) {
+                        doc.addPage();
+                        y = 20;
+                    }
                     doc.text(`${key}: ${value}`, 14, y);
-                    y += 6;
+                    y += 7; // Slightly more breathing room
                 });
-                startY = y + 10;
+
+                startY = y + 5;
             }
 
             autoTable(doc, {
@@ -130,7 +135,8 @@ export default function ExportButton({
                 body: data,
                 startY: startY,
                 theme: 'grid',
-                headStyles: { fillColor: [59, 130, 246] } // Blue header
+                headStyles: { fillColor: [59, 130, 246] }, // Blue header
+                styles: { fontSize: 10, cellPadding: 3 },
             });
 
             doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
@@ -178,14 +184,14 @@ export default function ExportButton({
         <div className="flex gap-2">
             <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm cursor-pointer"
             >
                 <Download size={16} />
                 Export CSV
             </button>
             <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer"
             >
                 <FileText size={16} />
                 Export PDF
