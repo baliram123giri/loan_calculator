@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -523,8 +523,8 @@ export default function CDCalculator() {
                         <button
                             onClick={() => setLiked(!liked)}
                             className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-200 ${liked
-                                    ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
                             <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
