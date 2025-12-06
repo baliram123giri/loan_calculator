@@ -209,10 +209,10 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
         }
 
         // --- Table ---
-        const tableColumn = ["Date", "Total Contributed", "Interest Earned", "Total Interest", "Balance"];
+        const tableColumn = ["Month/Year", "Total Contributed", "Interest Earned", "Total Interest", "Balance"];
 
         let pdfRows = schedule.map(row => [
-            formatPdfDate(row.date),
+            formatDate(row.date), // Use "Dec 2025" format for table columns
             formatCurrency(row.totalContributed),
             formatCurrency(row.interestEarned),
             formatCurrency(row.totalInterest),
