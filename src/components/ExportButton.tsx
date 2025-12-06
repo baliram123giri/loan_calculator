@@ -15,6 +15,7 @@ interface ExportButtonProps {
     columns?: string[];
     data?: (string | number)[][];
     title?: string;
+    inputs?: Record<string, string | number>;
 
     // Common
     currencySymbol?: string;
@@ -27,6 +28,7 @@ export default function ExportButton({
     tenureMonths,
     columns,
     data,
+    inputs,
     title = "Schedule",
     currencySymbol = "$"
 }: ExportButtonProps) {
@@ -108,10 +110,25 @@ export default function ExportButton({
             doc.setFontSize(10);
             doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
 
+            // Print Inputs Summary if available
+            let startY = 40;
+            if (inputs) {
+                doc.setFontSize(12);
+                doc.text("Input Details:", 14, 40);
+                doc.setFontSize(10);
+
+                let y = 48;
+                Object.entries(inputs).forEach(([key, value]) => {
+                    doc.text(`${key}: ${value}`, 14, y);
+                    y += 6;
+                });
+                startY = y + 10;
+            }
+
             autoTable(doc, {
                 head: [columns],
                 body: data,
-                startY: 40,
+                startY: startY,
                 theme: 'grid',
                 headStyles: { fillColor: [59, 130, 246] } // Blue header
             });

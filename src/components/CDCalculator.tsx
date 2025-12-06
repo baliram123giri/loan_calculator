@@ -249,7 +249,7 @@ export default function CDCalculator() {
                                 </h3>
                                 <button
                                     onClick={resetCalculator}
-                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-colors"
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-colors cursor-pointer"
                                 >
                                     <RefreshCw className="w-4 h-4 mr-1" />
                                     Reset
@@ -479,6 +479,15 @@ export default function CDCalculator() {
                                     formatCurrency(row.balance)
                                 ])}
                                 title="CD_Calculator_Schedule"
+                                inputs={{
+                                    "Deposit Amount": formatCurrency(depositAmount),
+                                    "Interest Rate": `${rate}%`,
+                                    "Term": `${termYears} Years ${termMonths > 0 ? `${termMonths} Months` : ''}`,
+                                    "Compounding": compoundingFrequency === 12 ? 'Monthly' : compoundingFrequency === 365 ? 'Daily' : 'Annually',
+                                    "Total Balance": formatCurrency(result.totalBalance),
+                                    "Total Interest": formatCurrency(result.totalInterest),
+                                    "APY": `${result.apy.toFixed(2)}%`
+                                }}
                             />
                         </div>
                         <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
@@ -525,7 +534,7 @@ export default function CDCalculator() {
                     <div className="mt-8 flex justify-center">
                         <button
                             onClick={() => setLiked(!liked)}
-                            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-200 ${liked
+                            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-200 cursor-pointer ${liked
                                 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
                                 : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
