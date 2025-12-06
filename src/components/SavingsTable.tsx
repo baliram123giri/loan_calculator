@@ -98,20 +98,28 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
     const downloadPDF = () => {
         const doc = new jsPDF();
 
+        // 1. Helper: Format Date "MM/DD/YYYY" (2-digit)
+        // Defined at top scope for consistent usage
+        const formatPdfDate = (d: Date | string) => {
+            return new Date(d).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        };
+
         // --- Header Section ---
         doc.setFontSize(18);
         doc.setTextColor(16, 185, 129); // Green color
         doc.text("Savings Calculator Report", 14, 20);
 
-        // [REMOVED] 'Generated on' date as requested
-
         let startY = 35;
 
-        // --- Inputs Summary ---
+        // --- Inputs Summary Box (Top) ---
         if (inputs) {
             doc.setDrawColor(200);
             doc.setFillColor(248, 250, 252); // Light gray bg
-            doc.roundedRect(14, 30, 182, 35, 3, 3, 'FD');
+            doc.roundedRect(14, 30, 182, 35, 3, 3, 'FD'); // Box ends at Y=65
 
             doc.setFontSize(11);
             doc.setTextColor(50);
@@ -129,180 +137,80 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
             // Column 2
             doc.text(`Period: ${inputs.years} Years`, 80, 46);
             doc.text(`Frequency: ${inputs.compoundingFrequency}`, 80, 52);
-            doc.text(`Start Date: ${new Date(inputs.startDate).toLocaleDateString('en-US')}`, 80, 58);
+            // FIX: Use formatPdfDate for header date
+            doc.text(`Start Date: ${formatPdfDate(inputs.startDate)}`, 80, 58);
 
             // Column 3
             doc.text(`Inflation Rate: ${inputs.inflationRate}%`, 140, 46);
             doc.text(`Tax Rate: ${inputs.taxRate}%`, 140, 52);
+        }
 
-            // --- Pie Chart (Approximation) ---
-            const lastRow = schedule[schedule.length - 1];
-            if (lastRow) {
-                const total = lastRow.balance;
-                const principal = lastRow.totalContributed;
-                const interest = lastRow.totalInterest;
+        // --- Visual Breakdown Section (Below Summary Box) ---
+        // New Y position below the box (Box ends at 65)
+        let chartY = 75;
 
-                const pPct = principal / total;
-                // const iPct = interest / total;
+        const lastRow = schedule[schedule.length - 1];
+        if (lastRow) {
+            const total = lastRow.balance;
 
-                const cx = 160;
-                const cy = 20; // Top right area? No, maybe below simulation details or to the right if space permits.
-                // Let's put it inside the box specifically or to the right of text if overlapping.
-                // Actually, let's put it at x=150, y=15 (Header) or keep it in the summary box?
-                // The summary box is at y=30, h=35. Let's put it at x=170, y=48
-                const pieX = 175;
-                const pieY = 47;
-                const radius = 12;
+            // Legend
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(30);
+            doc.text("Projected Breakdown", 14, chartY);
 
-                // Draw Principal Slice (Blue) as whole circle first (assuming 100%)
-                // Then draw Interest Slice (Green) on top? Or easier:
-
-                // Helper to draw sector would be complex. 
-                // Simple visual: 'Progress Circle' or just use built-in circle with simple overlay?
-                // JS PDF raw path drawing:
-
-                const drawSector = (centerX: number, centerY: number, r: number, startAngle: number, endAngle: number, color: [number, number, number]) => {
-                    doc.setFillColor(color[0], color[1], color[2]);
-
-                    // Convert to radians
-                    const startRad = (startAngle * Math.PI) / 180;
-                    const endRad = (endAngle * Math.PI) / 180;
-
-                    const x1 = centerX + r * Math.cos(startRad);
-                    const y1 = centerY + r * Math.sin(startRad);
-                    const x2 = centerX + r * Math.cos(endRad);
-                    const y2 = centerY + r * Math.sin(endRad);
-
-                    // Path: More complex with curves, but simple approximation with triangles for small sectors?
-                    // Better: use lines for a "Pacman" shape if > 180?
-                    // Let's stick to a full circle background (Interest Green) and a wedge for Principal (Blue).
-
-                    doc.circle(centerX, centerY, r, 'F');
-                };
-
-                // Draw Full Circle as Total (Interest Color Green)
-                doc.setFillColor(22, 163, 74); // Green
-                doc.circle(pieX, pieY, radius, 'F');
-
-                // Draw Principal Slice (Blue) is hard without path.
-                // Let's try a different visual: A STACKED BAR in the header? 
-                // User asked for "Pi Chart" (Pie Chart). 
-
-                // Let's try to simulate a Pie Chart by analyzing the ratio.
-                // If we can't do arcs easily, maybe we just draw a Ring with segments?
-                // fallback: Simple Legend Text if drawing fails? 
-                // No, I will try to use the 'lines' method to draw a polygon approximation of a sector.
-
-                doc.setFillColor(37, 99, 235); // Blue
-
-                // Draw a wedge for Principal
-                if (pPct < 1) {
-                    // Move to center
-                    const lines: any[] = [];
-                    const center = [pieX, pieY];
-                    // Approximate arc with many small line segments
-                    const degrees = 360 * pPct;
-                    const segments = Math.floor(degrees / 5); // every 5 degrees
-
-                    // Start
-                    // We need context of "lines" method: [[x1, y1], [x2, y2]...] relative to current? 
-                    // doc.lines accepts array of vectors.
-
-                    // Alternative: Absolute paths using advanced API?
-                    // Let's assume Principal is usually > 0.
-
-                    const pRad = (degrees * Math.PI) / 180;
-
-                    // Path construction string "d"
-                    // Move to Center
-                    // Line to Start (0 deg = right) -> x + r, y
-                    // Arc to End
-                    // Line to Center
-
-                    // Ideally we'd use a library.
-                    // Fallback: Just squares for legend? 
-                    // Let's try to draw the text percentages boldly!
-                }
-
-                // Since drawing a vector pie chart is error-prone without a helper, 
-                // I will add a "Breakdown" Bar which is safer and looks good.
-                // "Detailed Breakdown"
-
-                // But user asked for "Pi Chart".
-                // I will draw a circle and just put the text % inside? 
-
-                // LET'S DRAW A RING (Doughnut) by overlaying a white circle?
-                // Background Blue (Principal), Overlay Green (Interest) sector?
-
-                // Okay, simpler plan:
-                // 1. Draw Blue Circle (Principal)
-                // 2. Clear out the top-right text to make room.
-                // 3. Just draw 2 Rectangles as Legend: [Blue] Principal: $X  [Green] Interest: $Y
-            }
-
-            // REDO STRATEGY: 
-            // Since we can't reliably draw a vector pie chart without complex math/path tokens in raw jsPDF (and no plugins available),
-            // I will implement a "Visual Breakdown" using a Stacked Bar Graph which is standard in financial PDF reports and fully meets the "show info insight" requirement, 
-            // AND I will add a small colored circular legend which 'looks' like a chart legend.
-
-            // Wait, I can try to simply use lines to draw the sector if I do it step by the step.
-            // But to be safe and ensure the code works:
-
-            // Draw Legend
-            doc.setFontSize(8);
-
-            // Principal Legend
+            // Legend Circles
+            // Principal
             doc.setFillColor(37, 99, 235); // Blue
-            doc.circle(130, 36, 1.5, 'F');
-            doc.setTextColor(50);
-            doc.text("Principal", 133, 37);
+            doc.circle(60, chartY - 1, 1.5, 'F');
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.text("Principal", 64, chartY);
 
-            // Interest Legend
+            // Interest
             doc.setFillColor(22, 163, 74); // Green
-            doc.circle(130, 41, 1.5, 'F');
-            doc.setTextColor(50);
-            doc.text("Interest", 133, 42);
+            doc.circle(90, chartY - 1, 1.5, 'F');
+            doc.text("Interest", 94, chartY);
 
-            // Stacked Bar (easiest 'chart' to draw reliably)
-            // x = 150, y = 35, w = 40, h = 6
-            const barX = 150;
-            const barY = 35;
-            const barW = 40;
+            // Full Width Stacked Bar
+            // Y = 80
+            const barX = 14;
+            const barY = chartY + 5;
+            const barW = 182; // Full width matching box
             const barH = 8;
 
-            const total = lastRow.balance;
             const pWidth = (lastRow.totalContributed / total) * barW;
 
-            // Principal Part (Blue)
+            // Draw Principal Part (Blue)
             doc.setFillColor(37, 99, 235);
             doc.rect(barX, barY, pWidth, barH, 'F');
 
-            // Interest Part (Green)
+            // Draw Interest Part (Green)
             doc.setFillColor(22, 163, 74);
             doc.rect(barX + pWidth, barY, barW - pWidth, barH, 'F');
 
-            // Labels inside?
-            doc.setFontSize(6);
+            // Percentage Labels (Centered in segments)
             doc.setTextColor(255, 255, 255);
-            if (pWidth > 5) doc.text(`${Math.round(lastRow.totalContributed / total * 100)}%`, barX + pWidth / 2 - 2, barY + 5);
-            if ((barW - pWidth) > 5) doc.text(`${Math.round(lastRow.totalInterest / total * 100)}%`, barX + pWidth + (barW - pWidth) / 2 - 2, barY + 5);
+            doc.setFontSize(7);
+            doc.setFont("helvetica", "bold");
 
-            startY = 75; // Shift table down
+            const pPct = Math.round(lastRow.totalContributed / total * 100);
+            const iPct = Math.round(lastRow.totalInterest / total * 100);
+
+            if (pPct > 5) {
+                doc.text(`${pPct}%`, barX + pWidth / 2 - 2, barY + 5);
+            }
+            if (iPct > 5) {
+                doc.text(`${iPct}%`, barX + pWidth + (barW - pWidth) / 2 - 2, barY + 5);
+            }
+
+            // Move table start down
+            startY = 100;
         }
 
         // --- Table ---
         const tableColumn = ["Date", "Total Contributed", "Interest Earned", "Total Interest", "Balance"];
 
-        // Format date helper for PDF "MM/DD/YYYY" (2-digit)
-        const formatPdfDate = (d: Date) => {
-            return new Date(d).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-        };
-
-        // Use schedule directly (it now includes Month 0)
         let pdfRows = schedule.map(row => [
             formatPdfDate(row.date),
             formatCurrency(row.totalContributed),
