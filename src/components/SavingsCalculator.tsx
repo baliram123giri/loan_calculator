@@ -86,6 +86,17 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         // Initial Row
         history.push({ month: 0, balance: balance, principal: totalContributed });
 
+        // [NEW] Add Initial Month 0 to Table Schedule
+        tableSchedule.push({
+            year: start.getFullYear(),
+            month: 0,
+            date: new Date(start),
+            totalContributed: totalContributed,
+            interestEarned: 0,
+            totalInterest: 0,
+            balance: balance
+        });
+
         for (let m = 1; m <= years * 12; m++) {
             // Calculate current date for this month
             const currentDate = new Date(start);
