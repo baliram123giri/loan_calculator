@@ -28,7 +28,11 @@ import {
     Sparkles,
     Heart,
     ArrowRightLeft,
-    Briefcase
+    Briefcase,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight
 } from 'lucide-react';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
@@ -88,8 +92,13 @@ export default function BondCalculator() {
     const [taxRate, setTaxRate] = useState(0);
 
     // AI Suggestions
+    // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [liked, setLiked] = useState(false);
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Calculation Logic
     const { result, schedule } = useMemo(() => {
@@ -318,6 +327,23 @@ export default function BondCalculator() {
 
         setSuggestions(newSuggestions);
     }, [result, faceValue, couponRate, calculationMode]);
+
+    // Handle Pagination
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [schedule.length]);
+
+    const totalPages = Math.ceil(schedule.length / itemsPerPage);
+    const paginatedSchedule = schedule.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
 
 
     const formatCurrency = (val: number) => {
@@ -587,6 +613,31 @@ export default function BondCalculator() {
                                 </div>
                             </div>
 
+                            {/* AI Suggestions - Filling White Space */}
+                            {suggestions.length > 0 && (
+                                <div className="mt-6">
+                                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-800">
+                                        <div className="flex items-center mb-4">
+                                            <div className="bg-indigo-100 dark:bg-indigo-900/50 p-1.5 rounded-lg mr-2">
+                                                <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                            </div>
+                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">AI-Powered Insights</h3>
+                                        </div>
+                                        <div className="grid gap-3">
+                                            {suggestions.map((suggestion, index) => (
+                                                <div key={index} className="bg-white/80 dark:bg-gray-900/80 p-4 rounded-xl border border-white dark:border-gray-700 shadow-sm">
+                                                    <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: suggestion.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                                        }}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Chart Section */}
                         </div>
                     </div>
@@ -678,30 +729,30 @@ export default function BondCalculator() {
                                 <table className="w-full text-sm text-left">
                                     <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium sticky top-0 z-10">
                                         <tr>
-                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800">Period</th>
-                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800">Year</th>
-                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800">Type</th>
-                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800 text-right">Cash Flow</th>
-                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800 text-right">PV</th>
+                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Period</th>
+                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Year</th>
+                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-xs">Type</th>
+                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-right text-xs">Cash Flow</th>
+                                            <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-right text-xs">PV</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                                        {schedule.map((row, index) => (
+                                        {paginatedSchedule.map((row, index) => (
                                             <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                                <td className="px-6 py-3 font-medium text-gray-900 dark:text-white">{row.period}</td>
-                                                <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{row.year}</td>
-                                                <td className="px-6 py-3">
-                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${row.type === 'Total'
+                                                <td className="px-4 py-2.5 font-medium text-gray-900 dark:text-white text-xs">{row.period}</td>
+                                                <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">{row.year}</td>
+                                                <td className="px-4 py-2.5">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${row.type === 'Total'
                                                         ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
                                                         : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                                         }`}>
                                                         {row.type}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-3 text-right font-medium text-gray-900 dark:text-white">
+                                                <td className="px-4 py-2.5 text-right font-medium text-gray-900 dark:text-white text-xs">
                                                     {formatCurrency(row.cashFlow)}
                                                 </td>
-                                                <td className="px-6 py-3 text-right text-gray-500 dark:text-gray-400">
+                                                <td className="px-4 py-2.5 text-right text-gray-500 dark:text-gray-400 text-xs">
                                                     {formatCurrency(row.pv)}
                                                 </td>
                                             </tr>
@@ -709,34 +760,54 @@ export default function BondCalculator() {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                        Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <button
+                                            onClick={() => handlePageChange(1)}
+                                            disabled={currentPage === 1}
+                                            className="p-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-500 dark:text-gray-400 border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                                            title="First Page"
+                                        >
+                                            <ChevronsLeft className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="p-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-500 dark:text-gray-400 border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                                            title="Previous Page"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="p-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-500 dark:text-gray-400 border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                                            title="Next Page"
+                                        >
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handlePageChange(totalPages)}
+                                            disabled={currentPage === totalPages}
+                                            className="p-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-500 dark:text-gray-400 border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                                            title="Last Page"
+                                        >
+                                            <ChevronsRight className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                     </div>
 
-                    {/* AI Suggestions - Placed below charts/table */}
-                    {suggestions.length > 0 && (
-                        <div className="mt-12">
-                            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-800">
-                                <div className="flex items-center mb-6">
-                                    <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                                        <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI-Powered Insights</h3>
-                                </div>
-                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-                                    {suggestions.map((suggestion, index) => (
-                                        <div key={index} className="bg-white/80 dark:bg-gray-900/80 p-5 rounded-xl border border-white dark:border-gray-700 shadow-sm">
-                                            <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: suggestion.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
 
                     {/* Bottom Actions */}
                     <div className="mt-8 flex justify-center">
@@ -753,6 +824,6 @@ export default function BondCalculator() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
