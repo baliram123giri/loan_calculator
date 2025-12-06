@@ -43,7 +43,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     const [interestRate, setInterestRate] = useState<number>(4.5);
     const [years, setYears] = useState<number>(10);
     const [compoundingFrequency, setCompoundingFrequency] = useState<string>('monthly');
-    const [showAdvanced, setShowAdvanced] = useState<boolean>(true);
+    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
     // New Advanced Inputs
     const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -336,6 +336,16 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                 </div>
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Savings Start Date</label>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
                             <button
                                 onClick={() => setShowAdvanced(!showAdvanced)}
                                 className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm cursor-pointer"
@@ -346,15 +356,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
                             {showAdvanced && (
                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-in fade-in slide-in-from-top-2 space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Savings Start Date</label>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
+
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Additional Contribution (Add-on)</label>
