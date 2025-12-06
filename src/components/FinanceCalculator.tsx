@@ -97,6 +97,17 @@ export default function FinanceCalculator() {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
+    // Adjust default values when switching to N mode to ensure table displays
+    React.useEffect(() => {
+        if (activeMode === 'N') {
+            // For N mode, we need FV or PMT to calculate periods
+            // If both are 0, set a reasonable FV
+            if (futureValue === 0 && payment === 0) {
+                setFutureValue(20000);
+            }
+        }
+    }, [activeMode, futureValue, payment]);
+
     // Calculate result based on active mode
     const result = useMemo(() => {
         try {

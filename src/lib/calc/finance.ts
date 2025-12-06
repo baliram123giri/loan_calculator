@@ -510,6 +510,17 @@ export function generateCashFlowSchedule(input: TVMInput, mode: CalculationMode)
     } else if (mode === 'N') {
         const result = calculatePeriods(input);
         periods = Math.ceil(result.value);
+        // If payment is 0 or very small, calculate it for display purposes
+        if (Math.abs(payment) < 0.01 && periods > 0) {
+            const pmtResult = calculatePayment({ ...input, periods });
+            payment = pmtResult.value;
+        }
+    } else if (mode === 'PV' || mode === 'IY') {
+        // For PV and IY modes, if payment is 0, calculate it for schedule display
+        if (Math.abs(payment) < 0.01 && periods > 0) {
+            const pmtResult = calculatePayment(input);
+            payment = pmtResult.value;
+        }
     }
 
     const periodicRate = calculatePeriodicRate(annualRate, compoundingFrequency);
