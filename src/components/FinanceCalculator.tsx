@@ -24,8 +24,6 @@ import {
     Sparkles,
     RotateCcw,
     Heart,
-    Info,
-    ChevronDown,
     ChevronLeft,
     ChevronRight,
     Download
@@ -279,7 +277,7 @@ export default function FinanceCalculator() {
     );
 
     // Reset to page 1 when mode changes
-    useMemo(() => {
+    React.useEffect(() => {
         setCurrentPage(1);
     }, [activeMode]);
 
@@ -300,11 +298,11 @@ export default function FinanceCalculator() {
             // Add key input parameters only
             let yPos = 48;
             doc.setFontSize(11);
-            if (activeMode !== 'PV') doc.text(`Present Value: ${formatCurrency(presentValue)}`, 14, yPos), yPos += 6;
-            if (activeMode !== 'FV') doc.text(`Future Value: ${formatCurrency(futureValue)}`, 14, yPos), yPos += 6;
-            if (activeMode !== 'PMT') doc.text(`Payment: ${formatCurrency(payment)}`, 14, yPos), yPos += 6;
-            if (activeMode !== 'IY') doc.text(`Annual Rate: ${annualRate}%`, 14, yPos), yPos += 6;
-            if (activeMode !== 'N') doc.text(`Years: ${formatNumber(getYearsFromPeriods(), 1)}`, 14, yPos), yPos += 6;
+            if (activeMode !== 'PV') { doc.text(`Present Value: ${formatCurrency(presentValue)}`, 14, yPos); yPos += 6; }
+            if (activeMode !== 'FV') { doc.text(`Future Value: ${formatCurrency(futureValue)}`, 14, yPos); yPos += 6; }
+            if (activeMode !== 'PMT') { doc.text(`Payment: ${formatCurrency(payment)}`, 14, yPos); yPos += 6; }
+            if (activeMode !== 'IY') { doc.text(`Annual Rate: ${annualRate}%`, 14, yPos); yPos += 6; }
+            if (activeMode !== 'N') { doc.text(`Years: ${formatNumber(getYearsFromPeriods(), 1)}`, 14, yPos); yPos += 6; }
 
             // Prepare table data - simplified to match working examples
             const tableColumn = ["Period", "Payment", "Interest", "Principal", "Balance"];

@@ -227,7 +227,7 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                     </div>
                                 )}
                             </div>
-                                )}
+
                         </div>
                     </div>
                     <div className="flex-1 bg-gray-50 rounded-xl p-6 border border-gray-200">
@@ -263,7 +263,6 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                     </div>
                 </div>
             </div>
-        </div >
             <div className="mt-12">
                 <AmortizationTable schedule={amortizationSchedule} />
             </div>
