@@ -102,32 +102,57 @@ export default function ExportButton({
     const handleExportPDF = () => {
         const doc = new jsPDF();
 
-        // method 1: Generic PDF
+        // Method 1: Generic PDF (New Design)
         if (columns && data) {
-            doc.setFontSize(20);
-            doc.text(title.replace(/_/g, ' '), 14, 22);
+            // Title
+            doc.setFontSize(22);
+            doc.setTextColor(16, 185, 129); // Green-500 (#10B981)
+            doc.text(title.replace(/_/g, ' '), 14, 20);
 
             doc.setFontSize(10);
+            doc.setTextColor(107, 114, 128); // Gray-500
             const dateStr = `Generated on ${new Date().toLocaleDateString()}`;
-            doc.text(dateStr, 14, 30);
+            doc.text(dateStr, 14, 28);
 
             let startY = 40;
             if (inputs) {
-                // Style inputs like the legacy "Loan Details" section
-                doc.setFontSize(12);
-                let y = 40;
+                // Background Card
+                doc.setFillColor(249, 250, 251); // Gray-50 (#F9FAFB)
+                doc.setDrawColor(229, 231, 235); // Gray-200
+                doc.roundedRect(14, 35, 182, 60, 3, 3, 'FD');
+
+                // Card Header
+                doc.setFontSize(14);
+                doc.setTextColor(31, 41, 55); // Gray-800 (#1F2937)
+                doc.setFont("helvetica", "bold");
+                doc.text("Simulation Details", 20, 48);
+
+                // Grid Layout for Inputs
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(75, 85, 99); // Gray-600 (#4B5563)
+
+                let x = 20;
+                let y = 58;
+                let col = 0;
 
                 Object.entries(inputs).forEach(([key, value]) => {
-                    // Check if y exceeds page height (formatting safety)
-                    if (y > 280) {
-                        doc.addPage();
-                        y = 20;
+                    // Truncate key if too long to fit mostly
+                    const text = `${key}: ${value}`;
+                    doc.text(text, x, y);
+
+                    // Move to next column
+                    col++;
+                    if (col === 3) {
+                        col = 0;
+                        x = 20;
+                        y += 8;
+                    } else {
+                        x += 60; // Column width
                     }
-                    doc.text(`${key}: ${value}`, 14, y);
-                    y += 7; // Slightly more breathing room
                 });
 
-                startY = y + 5;
+                startY = 105; // Space below card
             }
 
             autoTable(doc, {
@@ -147,6 +172,7 @@ export default function ExportButton({
         if (result && principal !== undefined && rate !== undefined && tenureMonths !== undefined) {
             // Title
             doc.setFontSize(20);
+            doc.setTextColor(0, 0, 0); // Reset to black
             doc.text('Loan Amortization Schedule', 14, 22);
 
             // Loan Details
