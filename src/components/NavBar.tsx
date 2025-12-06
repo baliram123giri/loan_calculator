@@ -80,6 +80,7 @@ export default function NavBar() {
                 { href: '/calculators/savings-calculator', label: 'Savings Calculator', description: 'Plan your savings growth' },
                 { href: '/calculators/investment-calculator', label: 'Investment Calculator', description: 'SIP, lumpsum & goal planning' },
                 { href: '/calculators/cd-calculator', label: 'CD Calculator', description: 'CD returns with tax & inflation' },
+                { href: '/calculators/bond-calculator', label: 'Bond Calculator', description: 'Bond Price, YTM & Duration' },
             ]
         },
     ];
