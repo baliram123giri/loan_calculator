@@ -302,9 +302,9 @@ export default function InvestmentCalculator() {
                                         setActiveTab(tab.id);
                                         setCurrentPage(1);
                                     }}
-                                    className={`flex items-center px-6 py-4 font-medium transition-all whitespace-nowrap ${activeTab === tab.id
-                                            ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-white dark:bg-gray-900'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                    className={`flex items-center px-6 py-4 font-medium transition-all whitespace-nowrap cursor-pointer ${activeTab === tab.id
+                                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-white dark:bg-gray-900'
+                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                         }`}
                                 >
                                     <Icon className="w-4 h-4 mr-2" />
@@ -757,8 +757,8 @@ export default function InvestmentCalculator() {
                         <button
                             onClick={() => setLiked(!liked)}
                             className={`inline-flex items-center px-6 py-3 rounded-full transition-all ${liked
-                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
                             <Heart className={`w-5 h-5 mr-2 ${liked ? 'fill-current' : ''}`} />

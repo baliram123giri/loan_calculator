@@ -72,6 +72,7 @@ export default function NavBar() {
             label: 'Interest',
             icon: TrendingUp,
             items: [
+                { href: '/calculators/finance-calculator', label: 'Finance Calculator', description: 'TVM calculator (FV, PV, PMT, N, I/Y)' },
                 { href: '/calculators/simple-interest', label: 'Simple Interest', description: 'Simple interest calculator' },
                 { href: '/calculators/compound-interest', label: 'Compound Interest', description: 'Compound interest with APY' },
                 { href: '/calculators/interest-calculator', label: 'Interest Calculator', description: 'Advanced interest calculator with charts' },
