@@ -77,7 +77,12 @@ export default function BondCalculator() {
     const [yearsToMaturity, setYearsToMaturity] = useState(10);
     const [marketRate, setMarketRate] = useState(4.0); // YTM input
     const [targetPrice, setTargetPrice] = useState(950); // Price input for YTM calc
+
     const [frequency, setFrequency] = useState(2); // Semiannual default
+
+    // UI States
+    const [couponInputType, setCouponInputType] = useState<'percent' | 'amount'>('percent');
+    const [couponAmount, setCouponAmount] = useState(50); // Derived state for UI convenience
 
     // Advanced Inputs
     const [taxRate, setTaxRate] = useState(0);
@@ -296,7 +301,7 @@ export default function BondCalculator() {
         if (result.price < faceValue) {
             newSuggestions.push(`📉 **Discount Bond**: This bond is trading below par ($${faceValue}). This usually happens when market rates (${result.ytm.toFixed(2)}%) are higher than the coupon rate (${couponRate}%). You earn capital gains as it approaches maturity.`);
         } else if (result.price > faceValue) {
-            newSuggestions.push(`📈 **Premium Bond**: This bond is trading above par ($${faceValue}. This occurs when market rates (${result.ytm.toFixed(2)}%) are lower than the coupon rate (${couponRate}%). Expect a capital loss at maturity, but higher income now.`);
+            newSuggestions.push(`📈 **Premium Bond**: This bond is trading above par ($${faceValue}). This occurs when market rates (${result.ytm.toFixed(2)}%) are lower than the coupon rate (${couponRate}%). Expect a capital loss at maturity, but higher income now.`);
         }
 
         if (result.macaulayDuration > 7) {
@@ -328,7 +333,29 @@ export default function BondCalculator() {
         setFrequency(2);
         setTaxRate(0);
         setCalculationMode('price');
+        setCalculationMode('price');
+        setCouponInputType('percent');
     };
+
+    // Sync Coupon Amount/Rate
+    const handleCouponRateChange = (newRate: number) => {
+        setCouponRate(newRate);
+        setCouponAmount((faceValue * newRate) / 100);
+    };
+
+    const handleCouponAmountChange = (newAmount: number) => {
+        setCouponAmount(newAmount);
+        setCouponRate((newAmount / faceValue) * 100);
+    };
+
+    // Update derived values when Face Value changes
+    useEffect(() => {
+        if (couponInputType === 'percent') {
+            setCouponAmount((faceValue * couponRate) / 100);
+        } else {
+            setCouponRate((couponAmount / faceValue) * 100);
+        }
+    }, [faceValue]);
 
     return (
         <div className="max-w-7xl mx-auto space-y-8">
@@ -339,7 +366,7 @@ export default function BondCalculator() {
                         <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl inline-flex">
                             <button
                                 onClick={() => setCalculationMode('price')}
-                                className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center ${calculationMode === 'price'
+                                className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center cursor-pointer ${calculationMode === 'price'
                                     ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                     }`}
@@ -349,7 +376,7 @@ export default function BondCalculator() {
                             </button>
                             <button
                                 onClick={() => setCalculationMode('yield')}
-                                className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center ${calculationMode === 'yield'
+                                className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center cursor-pointer ${calculationMode === 'yield'
                                     ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                     }`}
@@ -386,15 +413,51 @@ export default function BondCalculator() {
                                     max={10000000}
                                 />
 
-                                <NumberInput
-                                    label="Annual Coupon Rate"
-                                    value={couponRate}
-                                    onChange={setCouponRate}
-                                    min={0}
-                                    max={50}
-                                    step={0.1}
-                                    suffix="%"
-                                />
+
+                                <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Annual Coupon
+                                        </label>
+                                        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+                                            <button
+                                                onClick={() => setCouponInputType('percent')}
+                                                className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all cursor-pointer ${couponInputType === 'percent'
+                                                    ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                                                    }`}
+                                            >
+                                                %
+                                            </button>
+                                            <button
+                                                onClick={() => setCouponInputType('amount')}
+                                                className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all cursor-pointer ${couponInputType === 'amount'
+                                                    ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                                                    }`}
+                                            >
+                                                $
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {couponInputType === 'percent' ? (
+                                        <NumberInput
+                                            value={couponRate}
+                                            onChange={handleCouponRateChange}
+                                            min={0}
+                                            max={50}
+                                            step={0.1}
+                                            suffix="%"
+                                        />
+                                    ) : (
+                                        <CurrencyInput
+                                            value={couponAmount}
+                                            onChange={handleCouponAmountChange}
+                                            min={0}
+                                            max={1000000}
+                                        />
+                                    )}
+                                </div>
 
                                 <NumberInput
                                     label="Years to Maturity"
@@ -525,67 +588,132 @@ export default function BondCalculator() {
                             </div>
 
                             {/* Chart Section */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 lg:col-span-2">
-                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Price Trajectory (Pull to Par)</h4>
-                                    <div className="h-64 md:h-80 w-full">
-                                        {/* @ts-ignore */}
-                                        <Line
-                                            data={pullToParData}
-                                            options={{
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                plugins: {
-                                                    legend: { position: 'top', labels: { color: '#6B7280' } },
-                                                    tooltip: {
-                                                        callbacks: {
-                                                            label: (ctx) => {
-                                                                if (ctx.parsed.y !== null) {
-                                                                    return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
-                                                                }
-                                                                return '';
+                        </div>
+                    </div>
+
+                    {/* Charts and Table Side-by-Side Section */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-12">
+                        {/* Left Column: Visuals */}
+                        <div className="space-y-8">
+                            {/* Line Chart */}
+                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Price Trajectory (Pull to Par)</h4>
+                                <div className="h-64 w-full">
+                                    {/* @ts-ignore */}
+                                    <Line
+                                        data={pullToParData}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: { position: 'top', labels: { color: '#6B7280' } },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: (ctx) => {
+                                                            if (ctx.parsed.y !== null) {
+                                                                return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
                                                             }
+                                                            return '';
                                                         }
                                                     }
-                                                },
-                                                scales: {
-                                                    y: {
-                                                        grid: { color: 'rgba(107, 114, 128, 0.1)' },
-                                                        ticks: { color: '#6B7280' }
-                                                    },
-                                                    x: { grid: { display: false }, ticks: { color: '#6B7280' } }
                                                 }
-                                            }}
-                                        />
-                                    </div>
+                                            },
+                                            scales: {
+                                                y: {
+                                                    grid: { color: 'rgba(107, 114, 128, 0.1)' },
+                                                    ticks: { color: '#6B7280' }
+                                                },
+                                                x: { grid: { display: false }, ticks: { color: '#6B7280' } }
+                                            }
+                                        }}
+                                    />
                                 </div>
+                            </div>
 
-                                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 lg:col-span-2">
-                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Bond Value Composition</h4>
-                                    <div className="flex flex-col md:flex-row items-center justify-around">
-                                        <div className="h-64 w-64">
-                                            <Pie data={pieData} options={{ responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#6B7280' } } } }} />
+                            {/* Pie Chart */}
+                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Bond Value Composition</h4>
+                                <div className="flex flex-col sm:flex-row items-center justify-around">
+                                    <div className="h-56 w-56">
+                                        <Pie data={pieData} options={{ responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#6B7280' } } } }} />
+                                    </div>
+                                    <div className="mt-6 sm:mt-0 space-y-4">
+                                        <div className="flex items-center">
+                                            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">PV of Coupons: <strong>{formatCurrency(result.pvCoupons)}</strong> ({((result.pvCoupons / result.price) * 100).toFixed(1)}%)</span>
                                         </div>
-                                        <div className="mt-8 md:mt-0 space-y-4">
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">PV of Coupons: <strong>{formatCurrency(result.pvCoupons)}</strong> ({((result.pvCoupons / result.price) * 100).toFixed(1)}%)</span>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">PV of Principal: <strong>{formatCurrency(result.pvPar)}</strong> ({((result.pvPar / result.price) * 100).toFixed(1)}%)</span>
-                                            </div>
-                                            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs text-gray-500 dark:text-gray-400 max-w-xs">
-                                                A higher portion of value from coupons (Green) lowers duration and interest rate risk.
-                                            </div>
+                                        <div className="flex items-center">
+                                            <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">PV of Principal: <strong>{formatCurrency(result.pvPar)}</strong> ({((result.pvPar / result.price) * 100).toFixed(1)}%)</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Right Column: Schedule Table */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-0 overflow-hidden flex flex-col h-full max-h-[800px]">
+                            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-white">Cash Flow Schedule</h4>
+                                <ExportButton
+                                    columns={['Period', 'Year', 'Type', 'Cash Flow', 'Present Value']}
+                                    data={schedule.map(row => [
+                                        row.period,
+                                        row.year,
+                                        row.type,
+                                        formatCurrency(row.cashFlow),
+                                        formatCurrency(row.pv)
+                                    ])}
+                                    title="Bond_Calculator_Schedule"
+                                    inputs={{
+                                        "Face Value": formatCurrency(faceValue),
+                                        "Coupon Rate": `${couponRate}%`,
+                                        "YTM": `${result.ytm.toFixed(2)}%`,
+                                        "Maturity": `${yearsToMaturity} Years`,
+                                        "Bond Price": formatCurrency(result.price)
+                                    }}
+                                />
+                            </div>
+                            <div className="overflow-auto flex-1 p-0">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium sticky top-0 z-10">
+                                        <tr>
+                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800">Period</th>
+                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800">Year</th>
+                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800">Type</th>
+                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800 text-right">Cash Flow</th>
+                                            <th className="px-6 py-4 bg-gray-50 dark:bg-gray-800 text-right">PV</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                                        {schedule.map((row, index) => (
+                                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                <td className="px-6 py-3 font-medium text-gray-900 dark:text-white">{row.period}</td>
+                                                <td className="px-6 py-3 text-gray-500 dark:text-gray-400">{row.year}</td>
+                                                <td className="px-6 py-3">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${row.type === 'Total'
+                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                                                        : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                        }`}>
+                                                        {row.type}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-3 text-right font-medium text-gray-900 dark:text-white">
+                                                    {formatCurrency(row.cashFlow)}
+                                                </td>
+                                                <td className="px-6 py-3 text-right text-gray-500 dark:text-gray-400">
+                                                    {formatCurrency(row.pv)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {/* AI Suggestions */}
+                    {/* AI Suggestions - Placed below charts/table */}
                     {suggestions.length > 0 && (
                         <div className="mt-12">
                             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-800">
@@ -609,74 +737,6 @@ export default function BondCalculator() {
                             </div>
                         </div>
                     )}
-
-                    {/* Schedule Table */}
-                    <div className="mt-12">
-                        <div className="flex items-center justify-between mb-6">
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-white">Cash Flow Schedule</h4>
-                            <ExportButton
-                                columns={['Period', 'Year', 'Type', 'Cash Flow', 'Present Value']}
-                                data={schedule.map(row => [
-                                    row.period,
-                                    row.year,
-                                    row.type,
-                                    formatCurrency(row.cashFlow),
-                                    formatCurrency(row.pv)
-                                ])}
-                                title="Bond_Calculator_Schedule"
-                                inputs={{
-                                    "Face Value": formatCurrency(faceValue),
-                                    "Coupon Rate": `${couponRate}%`,
-                                    "YTM": `${result.ytm.toFixed(2)}%`,
-                                    "Maturity": `${yearsToMaturity} Years`,
-                                    "Bond Price": formatCurrency(result.price)
-                                }}
-                            />
-                        </div>
-                        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium">
-                                    <tr>
-                                        <th className="px-6 py-4">Period</th>
-                                        <th className="px-6 py-4">Year</th>
-                                        <th className="px-6 py-4">Type</th>
-                                        <th className="px-6 py-4 text-right">Cash Flow</th>
-                                        <th className="px-6 py-4 text-right">Present Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                                    {schedule.map((row, index) => (
-                                        // Show first few, last few, and periodic
-                                        (index < 10 || index > schedule.length - 5 || index % 2 === 0) && (
-                                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{row.period}</td>
-                                                <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{row.year}</td>
-                                                <td className="px-6 py-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row.type === 'Total'
-                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                                                        : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                        }`}>
-                                                        {row.type}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
-                                                    {formatCurrency(row.cashFlow)}
-                                                </td>
-                                                <td className="px-6 py-4 text-right text-gray-500 dark:text-gray-400">
-                                                    {formatCurrency(row.pv)}
-                                                </td>
-                                            </tr>
-                                        )
-                                    ))}
-                                </tbody>
-                            </table>
-                            {schedule.length > 15 && (
-                                <div className="p-4 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                                    Showing condensed view (Initial, final, and periodic payments)
-                                </div>
-                            )}
-                        </div>
-                    </div>
 
                     {/* Bottom Actions */}
                     <div className="mt-8 flex justify-center">
