@@ -51,7 +51,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     const [additionalFrequency, setAdditionalFrequency] = useState<string>('annually');
     const [inflationRate, setInflationRate] = useState<number>(0);
     const [taxRate, setTaxRate] = useState<number>(0);
-    const [contributeIncreaseRate, setContributeIncreaseRate] = useState<number>(0);
+
 
     // Results
     const [totalSavings, setTotalSavings] = useState<number>(0);
@@ -63,7 +63,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
     useEffect(() => {
         calculateSavings();
-    }, [initialDeposit, periodicContribution, contributionFrequency, interestRate, years, compoundingFrequency, inflationRate, taxRate, contributeIncreaseRate, startDate, additionalContribution, additionalFrequency]);
+    }, [initialDeposit, periodicContribution, contributionFrequency, interestRate, years, compoundingFrequency, inflationRate, taxRate, startDate, additionalContribution, additionalFrequency]);
 
     const calculateSavings = () => {
         const frequencyMap: { [key: string]: number } = {
@@ -152,10 +152,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                 }
             }
 
-            // 5. Annual Step-up check (Regular Contribution)
-            if (m % 12 === 0 && contributeIncreaseRate > 0) {
-                currentContribution *= (1 + contributeIncreaseRate / 100);
-            }
+
 
             // Record data
             tableSchedule.push({
@@ -278,7 +275,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         setAdditionalFrequency('annually');
         setInflationRate(0);
         setTaxRate(0);
-        setContributeIncreaseRate(0);
+
         setShowAdvanced(false);
     };
 
@@ -406,11 +403,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                             <NumberInput value={taxRate} onChange={setTaxRate} suffix="%" />
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Annual Contribution Increase (%)</label>
-                                        <NumberInput value={contributeIncreaseRate} onChange={setContributeIncreaseRate} suffix="%" />
-                                        <p className="text-xs text-gray-500 mt-1">Simulate salary bumps or stepping up savings each year.</p>
-                                    </div>
+
                                 </div>
                             )}
 
