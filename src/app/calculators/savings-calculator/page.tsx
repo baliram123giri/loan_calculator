@@ -12,23 +12,20 @@ export const metadata: Metadata = {
 
 export default function SavingsCalculatorPage() {
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* Hero Section */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 py-16 text-white text-center rounded-b-3xl shadow-lg mb-8">
-                <div className="container mx-auto px-4 max-w-4xl">
-                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-                        Watch Your Savings Grow
-                    </h1>
-                    <p className="text-xl md:text-2xl text-blue-100 font-light opacity-90">
-                        Visualize compound interest, plan your goals, and secure your future.
-                    </p>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    Savings Calculator
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">
+                    Estimate how much your money will grow over time with compound interest. Plan for your future goals today.
+                </p>
             </div>
 
-            <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
+            <main>
                 {/* Calculator Section */}
                 <div className="mb-12">
-                    <SavingsCalculator title="Start Your Journey" />
+                    <SavingsCalculator />
                 </div>
 
                 {/* SEO Content */}

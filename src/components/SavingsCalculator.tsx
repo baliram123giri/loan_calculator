@@ -45,6 +45,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(true);
 
     // New Advanced Inputs
+    const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
     const [inflationRate, setInflationRate] = useState<number>(2.5);
     const [taxRate, setTaxRate] = useState<number>(0); // e.g. 15% on gains
     const [contributeIncreaseRate, setContributeIncreaseRate] = useState<number>(0); // Yearly step-up %
@@ -59,7 +60,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
     useEffect(() => {
         calculateSavings();
-    }, [initialDeposit, monthlyContribution, interestRate, years, compoundingFrequency, inflationRate, taxRate, contributeIncreaseRate]);
+    }, [initialDeposit, monthlyContribution, interestRate, years, compoundingFrequency, inflationRate, taxRate, contributeIncreaseRate, startDate]);
 
     const calculateSavings = () => {
         const frequencyMap: { [key: string]: number } = {
@@ -70,6 +71,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         };
         const n = frequencyMap[compoundingFrequency];
         const r = interestRate / 100;
+
+        // Start Date Parsing
+        const start = new Date(startDate);
 
         // Step-by-step month simulation
         let balance = initialDeposit;
@@ -83,7 +87,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         history.push({ month: 0, balance: balance, principal: totalContributed });
 
         for (let m = 1; m <= years * 12; m++) {
-            // Apply Inflation adjustments? (Real Value vs Nominal) -> Usually charts show Nominal. We'll stick to Nominal here and maybe show Real as advanced metric.
+            // Calculate current date for this month
+            const currentDate = new Date(start);
+            currentDate.setMonth(start.getMonth() + m);
 
             // Effective Monthly Rate based on Compounding
             const effectiveMonthlyRate = Math.pow(1 + r / n, n / 12) - 1;
@@ -111,8 +117,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
             // Record data
             // For Table: Show every month
             tableSchedule.push({
-                year: Math.ceil(m / 12),
+                year: currentDate.getFullYear(),
                 month: m,
+                date: currentDate,
                 totalContributed: totalContributed,
                 interestEarned: interestEarned,
                 totalInterest: balance - totalContributed,
@@ -144,7 +151,12 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
         // Chart Data
         setChartData({
-            labels: history.map(h => `Year ${(h.month / 12).toFixed(1)}`),
+            labels: history.map(h => {
+                // Approximate label year
+                const d = new Date(start);
+                d.setMonth(start.getMonth() + h.month);
+                return d.getFullYear();
+            }),
             datasets: [
                 {
                     label: 'Total Balance',
@@ -225,6 +237,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         setInterestRate(4.5);
         setYears(10);
         setCompoundingFrequency('monthly');
+        setStartDate(new Date().toISOString().split('T')[0]);
         setInflationRate(2.5);
         setTaxRate(0);
         setContributeIncreaseRate(0);
@@ -280,6 +293,16 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
                             {showAdvanced && (
                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-in fade-in slide-in-from-top-2 space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Savings Start Date</label>
+                                        <input
+                                            type="date"
+                                            value={startDate}
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Compounding Frequency</label>
                                     <div className="grid grid-cols-2 gap-2 mb-4">
                                         {['daily', 'monthly', 'quarterly', 'annually'].map((freq) => (
