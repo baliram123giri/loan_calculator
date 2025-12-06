@@ -47,6 +47,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
     // New Advanced Inputs
     const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
+    const [additionalContribution, setAdditionalContribution] = useState<number>(0);
+    const [additionalFrequency, setAdditionalFrequency] = useState<string>('annually');
     const [inflationRate, setInflationRate] = useState<number>(0);
     const [taxRate, setTaxRate] = useState<number>(0);
     const [contributeIncreaseRate, setContributeIncreaseRate] = useState<number>(0);
@@ -61,7 +63,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
     useEffect(() => {
         calculateSavings();
-    }, [initialDeposit, periodicContribution, contributionFrequency, interestRate, years, compoundingFrequency, inflationRate, taxRate, contributeIncreaseRate, startDate]);
+    }, [initialDeposit, periodicContribution, contributionFrequency, interestRate, years, compoundingFrequency, inflationRate, taxRate, contributeIncreaseRate, startDate, additionalContribution, additionalFrequency]);
 
     const calculateSavings = () => {
         const frequencyMap: { [key: string]: number } = {
@@ -120,12 +122,11 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
             balance += interestEarned;
 
-            // 3. Add Contribution based on frequency
+            // 3. Add Periodic Contribution
             let isContributionMonth = false;
             if (contributionFrequency === 'monthly') {
                 isContributionMonth = true;
             } else if (contributionFrequency === 'annually') {
-                // Add at the end of each year (month 12, 24...)
                 if (m % 12 === 0) isContributionMonth = true;
             }
 
@@ -134,7 +135,24 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                 totalContributed += currentContribution;
             }
 
-            // 4. Annual Step-up check (Increase the contribution amount itself)
+            // 4. Add Additional Contribution (from Advanced)
+            let isAdditionalMonth = false;
+            if (additionalContribution > 0) {
+                if (additionalFrequency === 'monthly') {
+                    isAdditionalMonth = true;
+                } else if (additionalFrequency === 'annually') {
+                    if (m % 12 === 0) isAdditionalMonth = true;
+                }
+
+                if (isAdditionalMonth) {
+                    balance += additionalContribution;
+                    totalContributed += additionalContribution;
+                    // Note: currentContribution logic usually affects the MAIN contribution step-up, 
+                    // additional is typically fixed or we could apply step-up there too, but let's keep it simple fixed for now.
+                }
+            }
+
+            // 5. Annual Step-up check (Regular Contribution)
             if (m % 12 === 0 && contributeIncreaseRate > 0) {
                 currentContribution *= (1 + contributeIncreaseRate / 100);
             }
@@ -256,6 +274,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         setYears(10);
         setCompoundingFrequency('monthly');
         setStartDate(new Date().toISOString().split('T')[0]);
+        setAdditionalContribution(0);
+        setAdditionalFrequency('annually');
         setInflationRate(0);
         setTaxRate(0);
         setContributeIncreaseRate(0);
@@ -337,6 +357,25 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                             onChange={(e) => setStartDate(e.target.value)}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                         />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Additional Contribution (Add-on)</label>
+                                        <div className="flex gap-2">
+                                            <div className="relative flex-1">
+                                                <CurrencyInput value={additionalContribution} onChange={setAdditionalContribution} />
+                                            </div>
+                                            <div className="w-1/3">
+                                                <select
+                                                    value={additionalFrequency}
+                                                    onChange={(e) => setAdditionalFrequency(e.target.value)}
+                                                    className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                                                >
+                                                    <option value="monthly">Monthly</option>
+                                                    <option value="annually">Annually</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div>
