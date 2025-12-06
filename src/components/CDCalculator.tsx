@@ -72,7 +72,6 @@ export default function CDCalculator() {
     // Advanced Inputs
     const [taxRate, setTaxRate] = useState(0);
     const [inflationRate, setInflationRate] = useState(0);
-    const [showAdvanced, setShowAdvanced] = useState(false);
 
     // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -316,36 +315,35 @@ export default function CDCalculator() {
                                 </div>
 
                                 {/* Advanced Options Toggle */}
-                                <div>
-                                    <button
-                                        onClick={() => setShowAdvanced(!showAdvanced)}
-                                        className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-                                    >
-                                        {showAdvanced ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
-                                        Advanced Options (Tax & Inflation)
-                                    </button>
-
-                                    {showAdvanced && (
-                                        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl space-y-4 animate-in fade-in slide-in-from-top-2">
-                                            <NumberInput
-                                                label="Tax Rate (Optional)"
-                                                value={taxRate}
-                                                onChange={setTaxRate}
-                                                min={0}
-                                                max={100}
-                                                suffix="%"
-                                            />
-                                            <NumberInput
-                                                label="Inflation Rate (Optional)"
-                                                value={inflationRate}
-                                                onChange={setInflationRate}
-                                                min={0}
-                                                max={20}
-                                                suffix="%"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                                <details className="group">
+                                    <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 list-none flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                                        <span className="flex items-center">
+                                            <Info className="w-4 h-4 mr-2" />
+                                            Advanced Options (Tax & Inflation)
+                                        </span>
+                                        <span className="transition group-open:rotate-180">
+                                            <ChevronDown className="w-4 h-4" />
+                                        </span>
+                                    </summary>
+                                    <div className="mt-4 space-y-4 p-4 border border-gray-100 dark:border-gray-800 rounded-xl animate-in fade-in slide-in-from-top-2">
+                                        <NumberInput
+                                            label="Tax Rate (Optional)"
+                                            value={taxRate}
+                                            onChange={setTaxRate}
+                                            min={0}
+                                            max={100}
+                                            suffix="%"
+                                        />
+                                        <NumberInput
+                                            label="Inflation Rate (Optional)"
+                                            value={inflationRate}
+                                            onChange={setInflationRate}
+                                            min={0}
+                                            max={20}
+                                            suffix="%"
+                                        />
+                                    </div>
+                                </details>
                             </div>
                         </div>
 
@@ -414,7 +412,12 @@ export default function CDCalculator() {
                                                 },
                                                 tooltip: {
                                                     callbacks: {
-                                                        label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
+                                                        label: (ctx) => {
+                                                            if (ctx.parsed.y !== null) {
+                                                                return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
+                                                            }
+                                                            return '';
+                                                        }
                                                     }
                                                 }
                                             },
