@@ -11,6 +11,7 @@ import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
 import { LoanTypeConfig } from '@/types/loanTypes';
 import { ChevronDown, ChevronUp, RefreshCw, Calendar, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
+import { CalculateButton } from '@/components/Shared/CalculateButton';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
@@ -29,7 +30,25 @@ const VA_CONFIG: LoanTypeConfig = {
 };
 
 export default function VAMortgageCalculator() {
-    const [result, setResult] = useState<VAResult | null>(null);
+    // Initialize with default calculation
+    const getDefaultResult = (): VAResult => {
+        const input: VAInput = {
+            homePrice: 300000,
+            downPayment: 0,
+            interestRate: 6.5,
+            loanTermYears: 30,
+            startDate: new Date(),
+            loanPurpose: 'purchase',
+            isFirstUse: true,
+            isDisabled: false,
+            propertyTax: 0,
+            homeInsurance: 0,
+            hoaFees: 0
+        };
+        return calculateVA(input);
+    };
+
+    const [result, setResult] = useState<VAResult>(getDefaultResult());
     const [showAdvanced, setShowAdvanced] = useState(false);
 
     // Default State
@@ -49,7 +68,7 @@ export default function VAMortgageCalculator() {
     const [homeInsurance, setHomeInsurance] = useState(0); // Monthly
     const [hoaFees, setHoaFees] = useState(0); // Monthly
 
-    const calculate = React.useCallback(() => {
+    const performCalculation = () => {
         const input: VAInput = {
             homePrice,
             downPayment,
@@ -65,24 +84,39 @@ export default function VAMortgageCalculator() {
         };
         const res = calculateVA(input);
         setResult(res);
-    }, [homePrice, downPayment, interestRate, loanTermYears, startDate, loanPurpose, isFirstUse, isDisabled, propertyTax, homeInsurance, hoaFees]);
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
+    };
 
     const handleReset = () => {
-        setHomePrice(300000);
-        setDownPayment(0);
-        setInterestRate(6.5);
-        setLoanTermYears(30);
-        setStartDate(new Date());
-        setLoanPurpose('purchase');
-        setIsFirstUse(true);
-        setIsDisabled(false);
-        setPropertyTax(0);
-        setHomeInsurance(0);
-        setHoaFees(0);
+        const defaults = {
+            homePrice: 300000,
+            downPayment: 0,
+            interestRate: 6.5,
+            loanTermYears: 30,
+            startDate: new Date(),
+            loanPurpose: 'purchase' as VALoanPurpose,
+            isFirstUse: true,
+            isDisabled: false,
+            propertyTax: 0,
+            homeInsurance: 0,
+            hoaFees: 0
+        };
+
+        setHomePrice(defaults.homePrice);
+        setDownPayment(defaults.downPayment);
+        setInterestRate(defaults.interestRate);
+        setLoanTermYears(defaults.loanTermYears);
+        setStartDate(defaults.startDate);
+        setLoanPurpose(defaults.loanPurpose);
+        setIsFirstUse(defaults.isFirstUse);
+        setIsDisabled(defaults.isDisabled);
+        setPropertyTax(defaults.propertyTax);
+        setHomeInsurance(defaults.homeInsurance);
+        setHoaFees(defaults.hoaFees);
+
+        // Immediately recalculate with default values
+        const input: VAInput = defaults;
+        const res = calculateVA(input);
+        setResult(res);
     };
 
     const shareData = {
@@ -280,13 +314,18 @@ export default function VAMortgageCalculator() {
                             </div>
                         </div>
                     )}
+
+                    {/* Calculate Button */}
+                    <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-6">
+                        <CalculateButton onClick={performCalculation} label="Calculate VA Loan" />
+                    </div>
                 </div>
             </div>
 
 
             {/* Right Column: Results */}
             <div className="lg:col-span-8 space-y-8">
-                {result && (
+                {result && result.emi > 0 && (
                     <>
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -373,23 +412,21 @@ export default function VAMortgageCalculator() {
 
                         {/* Amortization Table */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                <div className="flex flex-col gap-1 w-full lg:w-auto">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Amortization Schedule</h3>
-                                </div>
-                                <div className="flex-shrink-0 w-full lg:w-auto">
-                                    <ExportButton
-                                        result={result}
-                                        principal={result.totalLoanAmount}
-                                        rate={interestRate}
-                                        tenureMonths={loanTermYears * 12}
-                                        currencySymbol="$"
-                                    />
-                                </div>
-                            </div>
-                            <div className="max-h-96 overflow-y-auto">
-                                <AmortizationTable schedule={result.amortization} currencySymbol="$" />
-                            </div>
+                            <AmortizationTable
+                                schedule={result.amortization}
+                                currencySymbol="$"
+                                calculatorName="VA Mortgage Calculator"
+                                loanDetails={{
+                                    loanAmount: result.totalLoanAmount,
+                                    interestRate: interestRate,
+                                    loanTerm: loanTermYears * 12,
+                                    monthlyPayment: result.emi,
+                                    totalInterest: result.totalInterest,
+                                    totalCost: result.totalPayment,
+                                    fundingFee: result.fundingFeeAmount,
+                                    fundingFeeRate: result.fundingFeeRate
+                                }}
+                            />
                         </div>
                     </>
                 )}
