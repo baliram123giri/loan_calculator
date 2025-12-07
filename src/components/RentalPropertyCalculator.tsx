@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
     Building2,
     DollarSign,
@@ -22,6 +22,8 @@ import {
     RotateCcw
 } from 'lucide-react';
 import { InputNumber } from './Shared/InputNumber';
+import { CalculateButton } from './Shared/CalculateButton';
+import jsPDF from 'jspdf';
 import {
     BarChart,
     Bar,
@@ -64,32 +66,44 @@ export default function RentalPropertyCalculator() {
         // Income
         monthlyRent: 2000,
         otherMonthlyIncome: 0,
-        annualRentIncrease: 3,
+        annualRentIncrease: 0,
 
         // Operating Expenses
-        annualPropertyTax: 3000,
-        annualInsurance: 1200,
+        annualPropertyTax: 0,
+        annualInsurance: 0,
         monthlyHOA: 0,
-        propertyManagementPercent: 10,
-        maintenancePercent: 10,
-        vacancyRatePercent: 5,
+        propertyManagementPercent: 0,
+        maintenancePercent: 0,
+        vacancyRatePercent: 0,
         monthlyUtilities: 0,
-        capexReservePercent: 5,
+        capexReservePercent: 0,
 
         // Tax Information
-        marginalTaxRate: 24,
-        buildingValuePercent: 80,
+        marginalTaxRate: 0,
+        buildingValuePercent: 0,
 
         // Appreciation
-        annualAppreciation: 3
+        annualAppreciation: 0
     });
 
     const updateInput = (field: keyof RentalPropertyInput, value: number) => {
         setInput(prev => ({ ...prev, [field]: value }));
     };
 
+    // Initialize with default calculation
+    const getDefaultResult = (): RentalPropertyResults => {
+        return calculateRentalProperty(input);
+    };
+
+    const [results, setResults] = useState<RentalPropertyResults>(getDefaultResult());
+
+    const performCalculation = () => {
+        const newResults = calculateRentalProperty(input);
+        setResults(newResults);
+    };
+
     const resetToDefaults = () => {
-        setInput({
+        const defaults: RentalPropertyInput = {
             purchasePrice: 250000,
             downPaymentPercent: 20,
             closingCosts: 7500,
@@ -98,25 +112,27 @@ export default function RentalPropertyCalculator() {
             loanTerm: 30,
             monthlyRent: 2000,
             otherMonthlyIncome: 0,
-            annualRentIncrease: 3,
-            annualPropertyTax: 3000,
-            annualInsurance: 1200,
+            annualRentIncrease: 0,
+            annualPropertyTax: 0,
+            annualInsurance: 0,
             monthlyHOA: 0,
-            propertyManagementPercent: 10,
-            maintenancePercent: 10,
-            vacancyRatePercent: 5,
+            propertyManagementPercent: 0,
+            maintenancePercent: 0,
+            vacancyRatePercent: 0,
             monthlyUtilities: 0,
-            capexReservePercent: 5,
-            marginalTaxRate: 24,
-            buildingValuePercent: 80,
-            annualAppreciation: 3
-        });
-        setShowAdvanced(false);
-    };
+            capexReservePercent: 0,
+            marginalTaxRate: 0,
+            buildingValuePercent: 0,
+            annualAppreciation: 0
+        };
 
-    const results: RentalPropertyResults = useMemo(() => {
-        return calculateRentalProperty(input);
-    }, [input]);
+        setInput(defaults);
+        setShowAdvanced(false);
+
+        // Immediately recalculate with default values
+        const newResults = calculateRentalProperty(defaults);
+        setResults(newResults);
+    };
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -129,6 +145,129 @@ export default function RentalPropertyCalculator() {
 
     const formatPercent = (val: number) => {
         return `${val.toFixed(2)}%`;
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFillColor(139, 92, 246); // Purple-600
+        doc.rect(0, 0, 210, 35, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Rental Property Analysis', 14, 18);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        const today = new Date();
+        const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+        doc.text(`Generated on ${formattedDate}`, 14, 26);
+
+        // Property Details
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Property Details', 14, 45);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        let yPos = 53;
+        const details = [
+            `Purchase Price: ${formatCurrency(input.purchasePrice)}`,
+            `Down Payment: ${formatCurrency(input.purchasePrice * (input.downPaymentPercent / 100))} (${input.downPaymentPercent}%)`,
+            `Loan Amount: ${formatCurrency(results.loanAmount)}`,
+            `Interest Rate: ${input.interestRate}%`,
+            `Monthly Rent: ${formatCurrency(input.monthlyRent)}`
+        ];
+
+        details.forEach(detail => {
+            doc.text(detail, 14, yPos);
+            yPos += 6;
+        });
+
+        // Key Metrics
+        yPos += 5;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Key Investment Metrics', 14, yPos);
+
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        const metrics = [
+            `Monthly Cash Flow: ${formatCurrency(results.monthlyCashFlow)}`,
+            `Cash-on-Cash Return: ${formatPercent(results.cashOnCashReturn)}`,
+            `Cap Rate: ${formatPercent(results.capRate)}`,
+            `DSCR: ${results.dscr.toFixed(2)}`,
+            `IRR (10-Year): ${formatPercent(results.irr)}`
+        ];
+
+        metrics.forEach(metric => {
+            doc.text(metric, 14, yPos);
+            yPos += 6;
+        });
+
+        // Projections Table
+        yPos += 10;
+        if (yPos > 220) {
+            doc.addPage();
+            yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${input.loanTerm}-Year Projections`, 14, yPos);
+
+        yPos += 5;
+
+        const tableData = results.yearlyProjections.map(proj => [
+            proj.year.toString(),
+            formatCurrency(proj.cashFlow),
+            formatCurrency(proj.equity),
+            formatCurrency(proj.propertyValue),
+            formatPercent(proj.cashOnCashReturn)
+        ]);
+
+        const autoTable = require('jspdf-autotable').default;
+        autoTable(doc, {
+            startY: yPos,
+            head: [['Year', 'Cash Flow', 'Equity', 'Property Value', 'CoC Return']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [139, 92, 246],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 10
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 20 },
+                1: { halign: 'right', cellWidth: 35 },
+                2: { halign: 'right', cellWidth: 40 },
+                3: { halign: 'right', cellWidth: 45 },
+                4: { halign: 'right', cellWidth: 30 }
+            },
+            alternateRowStyles: {
+                fillColor: [249, 250, 251]
+            }
+        });
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        const pageCount = doc.internal.pages.length - 1;
+        doc.setPage(pageCount);
+        doc.text('This report is for informational purposes only. Consult with financial professionals before making investment decisions.', 14, 280);
+
+        const timestamp = Date.now();
+        doc.save(`Rental_Property_Analysis_${timestamp}.pdf`);
     };
 
     // Pagination for yearly projections
@@ -312,7 +451,7 @@ export default function RentalPropertyCalculator() {
                     <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <button
                             onClick={() => setShowAdvanced(!showAdvanced)}
-                            className="w-full flex items-center justify-between text-left font-semibold text-gray-900 dark:text-white mb-4"
+                            className="w-full flex items-center justify-between text-left font-semibold text-gray-900 dark:text-white p-4 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors cursor-pointer border border-orange-200 dark:border-orange-800"
                         >
                             <span className="flex items-center gap-2">
                                 <PiggyBank size={18} className="text-orange-600" />
@@ -322,7 +461,7 @@ export default function RentalPropertyCalculator() {
                         </button>
 
                         {showAdvanced && (
-                            <div className="grid md:grid-cols-2 gap-4">
+                            <div className="grid md:grid-cols-2 gap-4 mt-4 animate-in fade-in slide-in-from-top-2">
                                 <InputNumber
                                     label="Annual Property Tax"
                                     value={input.annualPropertyTax}
@@ -412,6 +551,11 @@ export default function RentalPropertyCalculator() {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Calculate Button */}
+                <div className="flex justify-center">
+                    <CalculateButton onClick={performCalculation} label="Calculate Investment" />
                 </div>
 
                 {/* Key Metrics Dashboard */}
@@ -736,7 +880,7 @@ export default function RentalPropertyCalculator() {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                 disabled={currentPage === 1}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
                             >
                                 <ChevronLeft size={18} />
                                 Previous
@@ -747,13 +891,24 @@ export default function RentalPropertyCalculator() {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                                 disabled={currentPage === totalPages}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
                             >
                                 Next
                                 <ChevronRight size={18} />
                             </button>
                         </div>
                     )}
+
+                    {/* Export PDF Button */}
+                    <div className="flex justify-center mt-8">
+                        <button
+                            onClick={handleExportPDF}
+                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                        >
+                            <FileText size={18} />
+                            Export PDF Report
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

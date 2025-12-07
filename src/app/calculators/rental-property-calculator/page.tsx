@@ -26,13 +26,19 @@ export default function RentalPropertyCalculatorPage() {
             ))}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Hero Section */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Rental Property Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Analyze rental property investments with precision. Calculate cash flow, ROI, cap rate, and 30-year projections to make data-driven investment decisions.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Build Wealth Through{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+                                Smart Investing
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Analyze rental property investments with precision. Calculate cash flow, ROI, cap rate, and 30-year projections.
+                        </p>
+                    </div>
                 </div>
 
                 <RentalPropertyCalculator />
@@ -42,7 +48,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            How to Analyze a Rental Property Investment
+                            🏠 How to Analyze a Rental Property Investment
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -62,7 +68,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* Key Metrics Explained */}
                     <section className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Rental Property Metrics
+                            📊 Understanding Rental Property Metrics
                         </h2>
 
                         <div className="space-y-6">
@@ -124,7 +130,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* Investment Strategies */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Rental Property Investment Strategies
+                            💡 Rental Property Investment Strategies
                         </h2>
 
                         <div className="grid md:grid-cols-3 gap-6 my-6">
@@ -157,7 +163,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* Operating Expenses Guide */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Estimating Rental Property Expenses
+                            💸 Estimating Rental Property Expenses
                         </h2>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -186,7 +192,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* Tax Benefits */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Tax Advantages of Rental Property Investing
+                            💵 Tax Advantages of Rental Property Investing
                         </h2>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -238,7 +244,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* Investment Rules */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Quick Screening Rules for Rental Properties
+                            🎯 Quick Screening Rules for Rental Properties
                         </h2>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -295,7 +301,7 @@ export default function RentalPropertyCalculatorPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Frequently Asked Questions
+                            ❓ Frequently Asked Questions
                         </h2>
 
                         <div className="space-y-8">

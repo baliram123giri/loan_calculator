@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
     DollarSign,
     Percent,
@@ -13,7 +13,8 @@ import {
     ChevronUp,
     ChevronLeft,
     ChevronRight,
-    RotateCcw
+    RotateCcw,
+    FileText
 } from 'lucide-react';
 import {
     calculateRefinanceMetrics,
@@ -21,6 +22,8 @@ import {
     type RefinanceResult
 } from '@/lib/calculations/refinance';
 import { InputNumber } from './Shared/InputNumber';
+import { CalculateButton } from './Shared/CalculateButton';
+import jsPDF from 'jspdf';
 import {
     AreaChart,
     Area,
@@ -57,17 +60,29 @@ export default function RefinanceCalculator() {
     const updateInput = (field: keyof RefinanceInput, value: number) => {
         setInput(prev => {
             const next = { ...prev, [field]: value };
-
-            // If not cash-out, new loan amount usually equals current balance + closing costs (if rolled in)
-            // For simplicity in this UI, we'll keep them independent but let user adjust.
-            // However, if we toggle cash-out, we might want to reset or adjust logic.
-
             return next;
         });
     };
 
+    const getCalculation = (currentInput: RefinanceInput, cashOut: boolean): RefinanceResult => {
+        const effectiveNewLoanAmount = cashOut
+            ? currentInput.newLoanAmount + currentInput.cashOutAmount
+            : currentInput.newLoanAmount;
+
+        return calculateRefinanceMetrics({
+            ...currentInput,
+            newLoanAmount: effectiveNewLoanAmount
+        });
+    };
+
+    const [result, setResult] = useState<RefinanceResult>(getCalculation(input, isCashOut));
+
+    const performCalculation = () => {
+        setResult(getCalculation(input, isCashOut));
+    };
+
     const resetToDefaults = () => {
-        setInput({
+        const defaultInput = {
             currentLoanBalance: 300000,
             currentInterestRate: 7.0,
             currentTermYears: 25,
@@ -76,23 +91,17 @@ export default function RefinanceCalculator() {
             newTermYears: 30,
             closingCosts: 5000,
             cashOutAmount: 0
-        });
-        setIsCashOut(false);
+        };
+        const defaultCashOut = false;
+
+        setInput(defaultInput);
+        setIsCashOut(defaultCashOut);
         setActiveTab('overview');
         setCurrentPage(1);
+
+        // Immediately recalculate
+        setResult(getCalculation(defaultInput, defaultCashOut));
     };
-
-    const result: RefinanceResult = useMemo(() => {
-        // Adjust new loan amount if cash out is selected
-        const effectiveNewLoanAmount = isCashOut
-            ? input.newLoanAmount + input.cashOutAmount
-            : input.newLoanAmount;
-
-        return calculateRefinanceMetrics({
-            ...input,
-            newLoanAmount: effectiveNewLoanAmount
-        });
-    }, [input, isCashOut]);
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -100,6 +109,140 @@ export default function RefinanceCalculator() {
             currency: 'USD',
             maximumFractionDigits: 0
         }).format(val);
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFillColor(59, 130, 246); // Blue-500
+        doc.rect(0, 0, 210, 35, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Refinance Analysis Report', 14, 18);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        const today = new Date();
+        const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+        doc.text(`Generated on ${formattedDate}`, 14, 26);
+
+        // Loan Comparison
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Loan Comparison', 14, 45);
+
+        const effectiveNewLoan = isCashOut ? input.newLoanAmount + input.cashOutAmount : input.newLoanAmount;
+
+        const comparisonData = [
+            ['Metric', 'Current Loan', 'New Loan'],
+            ['Loan Amount', formatCurrency(input.currentLoanBalance), formatCurrency(effectiveNewLoan)],
+            ['Interest Rate', `${input.currentInterestRate}%`, `${input.newInterestRate}%`],
+            ['Term', `${input.currentTermYears} Years`, `${input.newTermYears} Years`],
+            ['Monthly Payment', formatCurrency(result.monthly.currentPayment), formatCurrency(result.monthly.newPayment)],
+            ['Total Interest', formatCurrency(result.lifetime.currentTotalInterest), formatCurrency(result.lifetime.newTotalInterest)],
+            ['Total Cost', formatCurrency(result.lifetime.totalCostCurrent), formatCurrency(result.lifetime.totalCostNew)]
+        ];
+
+        const autoTable = require('jspdf-autotable').default;
+
+        autoTable(doc, {
+            startY: 50,
+            head: [comparisonData[0]],
+            body: comparisonData.slice(1),
+            theme: 'grid',
+            headStyles: {
+                fillColor: [59, 130, 246],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 3
+            },
+            alternateRowStyles: {
+                fillColor: [249, 250, 251]
+            }
+        });
+
+        let yPos = (doc as any).lastAutoTable.finalY + 15;
+
+        // Savings Analysis
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Savings Analysis', 14, yPos);
+
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        const savingsData = [
+            `Monthly Savings: ${formatCurrency(result.monthly.savings)}`,
+            `Lifetime Savings: ${formatCurrency(result.lifetime.netLifetimeSavings)}`,
+            `Interest Savings: ${formatCurrency(result.lifetime.interestSavings)}`,
+            `Break-Even Point: ${result.breakEvenMonths > 0 ? Math.ceil(result.breakEvenMonths) + ' Months' : 'N/A'}`
+        ];
+
+        savingsData.forEach(item => {
+            doc.text(item, 14, yPos);
+            yPos += 6;
+        });
+
+        // Projections Table
+        yPos += 10;
+
+        if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Amortization Schedule', 14, yPos);
+
+        const tableData = result.projections.map(row => [
+            row.year.toString(),
+            formatCurrency(row.currentBalance),
+            formatCurrency(row.newBalance),
+            formatCurrency(row.cumulativeSavings)
+        ]);
+
+        autoTable(doc, {
+            startY: yPos + 5,
+            head: [['Year', 'Current Balance', 'New Balance', 'Cumulative Savings']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [59, 130, 246],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            columnStyles: {
+                0: { halign: 'center' },
+                1: { halign: 'right' },
+                2: { halign: 'right' },
+                3: { halign: 'right' }
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            alternateRowStyles: {
+                fillColor: [249, 250, 251]
+            }
+        });
+
+        // Footer
+        const pageCount = doc.internal.pages.length - 1;
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.setPage(pageCount);
+        doc.text('This report is for informational purposes only.', 14, 280);
+
+        doc.save(`Refinance_Analysis_${Date.now()}.pdf`);
     };
 
     return (
@@ -204,6 +347,11 @@ export default function RefinanceCalculator() {
                             />
                         </div>
                     </div>
+
+                    {/* Calculate Button */}
+                    <div className="pt-2">
+                        <CalculateButton onClick={performCalculation} label="Calculate Refinance Benefits" />
+                    </div>
                 </div>
 
                 {/* Results Column */}
@@ -242,7 +390,7 @@ export default function RefinanceCalculator() {
                         <div className="flex border-b border-gray-200 dark:border-gray-700">
                             <button
                                 onClick={() => setActiveTab('overview')}
-                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'overview'
+                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors cursor-pointer ${activeTab === 'overview'
                                     ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
                                     : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
@@ -251,7 +399,7 @@ export default function RefinanceCalculator() {
                             </button>
                             <button
                                 onClick={() => setActiveTab('projections')}
-                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'projections'
+                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors cursor-pointer ${activeTab === 'projections'
                                     ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
                                     : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
@@ -354,6 +502,17 @@ export default function RefinanceCalculator() {
                                             </ResponsiveContainer>
                                         </div>
                                     </div>
+
+                                    {/* Export PDF Button */}
+                                    <div className="flex justify-center mt-8">
+                                        <button
+                                            onClick={handleExportPDF}
+                                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                                        >
+                                            <FileText size={18} />
+                                            Export PDF Report
+                                        </button>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
@@ -398,7 +557,7 @@ export default function RefinanceCalculator() {
                                                 <button
                                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                                     disabled={currentPage === 1}
-                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
                                                     aria-label="Previous Page"
                                                 >
                                                     <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" />
@@ -411,7 +570,7 @@ export default function RefinanceCalculator() {
                                                 <button
                                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(result.projections.length / rowsPerPage)))}
                                                     disabled={currentPage === Math.ceil(result.projections.length / rowsPerPage)}
-                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
                                                     aria-label="Next Page"
                                                 >
                                                     <ChevronRight size={20} className="text-gray-600 dark:text-gray-400" />
@@ -419,6 +578,17 @@ export default function RefinanceCalculator() {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Export PDF Button */}
+                                    <div className="flex justify-center mt-8">
+                                        <button
+                                            onClick={handleExportPDF}
+                                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                                        >
+                                            <FileText size={18} />
+                                            Export PDF Report
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

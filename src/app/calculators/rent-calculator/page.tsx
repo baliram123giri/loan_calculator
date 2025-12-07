@@ -34,7 +34,7 @@ export default function RentCalculatorPage() {
                 {/* Introduction Section */}
                 <section className="prose dark:prose-invert max-w-none">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                        Understanding Rent Affordability
+                        📚 Understanding Rent Affordability
                     </h2>
 
                     <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -53,7 +53,7 @@ export default function RentCalculatorPage() {
                 {/* The 30% Rule Section */}
                 <section className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        The 30% Rule: Your Starting Point
+                        💰 The 30% Rule: Your Starting Point
                     </h3>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -82,7 +82,7 @@ export default function RentCalculatorPage() {
                 {/* Budget Framework Section */}
                 <section className="prose dark:prose-invert max-w-none">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        The 50/30/20 Budget Framework
+                        📊 The 50/30/20 Budget Framework
                     </h3>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -125,7 +125,7 @@ export default function RentCalculatorPage() {
                 {/* Money-Saving Tips Section */}
                 <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Smart Ways to Save on Rent
+                        💡 Smart Ways to Save on Rent
                     </h3>
 
                     <div className="space-y-6">
@@ -166,7 +166,7 @@ export default function RentCalculatorPage() {
                 {/* FAQ Section */}
                 <section className="prose dark:prose-invert max-w-none">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                        Common Questions About Rent Affordability
+                        ❓ Common Questions About Rent Affordability
                     </h2>
 
                     <div className="space-y-8">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Building2,
     DollarSign,
@@ -14,7 +14,8 @@ import {
     Info,
     ChevronLeft,
     ChevronRight,
-    RotateCcw
+    RotateCcw,
+    FileText
 } from 'lucide-react';
 import {
     calculateRealEstateMetrics,
@@ -22,6 +23,8 @@ import {
     type RealEstateResult
 } from '@/lib/calculations/realEstate';
 import { InputNumber } from './Shared/InputNumber';
+import { CalculateButton } from './Shared/CalculateButton';
+import jsPDF from 'jspdf';
 import {
     BarChart,
     Bar,
@@ -58,26 +61,34 @@ export default function RealEstateCalculator() {
         propertyTax: 250,
         insurance: 100,
         hoaFees: 0,
-        maintenance: 5, // %
+        maintenance: 0, // %
         managementFee: 0, // %
         otherExpenses: 0,
-        appreciationRate: 3,
-        rentIncreaseRate: 2,
-        expenseIncreaseRate: 2,
+        appreciationRate: 0,
+        rentIncreaseRate: 0,
+        expenseIncreaseRate: 0,
         sellingCosts: 6,
         holdingPeriod: 30
     });
 
-    const result: RealEstateResult = useMemo(() => {
+    // Initialize with default calculation
+    const getDefaultResult = (): RealEstateResult => {
         return calculateRealEstateMetrics(input);
-    }, [input]);
+    };
+
+    const [result, setResult] = useState<RealEstateResult>(getDefaultResult());
 
     const updateInput = (field: keyof RealEstateInput, value: number) => {
         setInput(prev => ({ ...prev, [field]: value }));
     };
 
+    const performCalculation = () => {
+        const newResult = calculateRealEstateMetrics(input);
+        setResult(newResult);
+    };
+
     const resetToDefaults = () => {
-        setInput({
+        const defaults: RealEstateInput = {
             purchasePrice: 200000,
             downPayment: 40000,
             interestRate: 7.0,
@@ -90,16 +101,22 @@ export default function RealEstateCalculator() {
             propertyTax: 250,
             insurance: 100,
             hoaFees: 0,
-            maintenance: 5,
+            maintenance: 0,
             managementFee: 0,
             otherExpenses: 0,
-            appreciationRate: 3,
-            rentIncreaseRate: 2,
-            expenseIncreaseRate: 2,
+            appreciationRate: 0,
+            rentIncreaseRate: 0,
+            expenseIncreaseRate: 0,
             sellingCosts: 6,
             holdingPeriod: 30
-        });
+        };
+
+        setInput(defaults);
         setShowAdvanced(false);
+
+        // Immediately recalculate with default values
+        const newResult = calculateRealEstateMetrics(defaults);
+        setResult(newResult);
     };
 
     const formatCurrency = (val: number) => {
@@ -112,6 +129,186 @@ export default function RealEstateCalculator() {
 
     const formatPercent = (val: number) => {
         return `${val.toFixed(2)}%`;
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Header with gradient effect (simulated with color)
+        doc.setFillColor(16, 185, 129); // Emerald-600
+        doc.rect(0, 0, 210, 35, 'F');
+
+        // Title
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Real Estate Investment Report', 14, 18);
+
+        // Subtitle
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        const today = new Date();
+        const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+        doc.text(`Generated on ${formattedDate}`, 14, 26);
+
+        // Property Details Section
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Property Details', 14, 45);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        let yPos = 53;
+        const details = [
+            `Purchase Price: ${formatCurrency(input.purchasePrice)}`,
+            `Down Payment: ${formatCurrency(input.downPayment)} (${((input.downPayment / input.purchasePrice) * 100).toFixed(1)}%)`,
+            `Loan Amount: ${formatCurrency(input.purchasePrice - input.downPayment)}`,
+            `Interest Rate: ${input.interestRate}%`,
+            `Loan Term: ${input.loanTermYears} years`,
+            `Monthly Gross Rent: ${formatCurrency(input.grossRent)}`
+        ];
+
+        details.forEach(detail => {
+            doc.text(detail, 14, yPos);
+            yPos += 6;
+        });
+
+        // Key Metrics Section
+        yPos += 5;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Key Investment Metrics', 14, yPos);
+
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        const metrics = [
+            `Monthly Cash Flow: ${formatCurrency(result.monthly.cashFlow)}`,
+            `Cash on Cash Return: ${formatPercent(result.metrics.cashOnCash)}`,
+            `Cap Rate: ${formatPercent(result.metrics.capRate)}`,
+            `DSCR: ${result.metrics.debtServiceCoverageRatio.toFixed(2)}`,
+            `Break-even Occupancy: ${result.metrics.breakEvenOccupancy.toFixed(1)}%`
+        ];
+
+        metrics.forEach(metric => {
+            doc.text(metric, 14, yPos);
+            yPos += 6;
+        });
+
+        // Monthly Breakdown Section
+        yPos += 5;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Monthly Breakdown', 14, yPos);
+
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        const breakdown = [
+            `Effective Income: ${formatCurrency(result.monthly.income.effective)}`,
+            `Total Expenses: ${formatCurrency(result.monthly.expenses.total)}`,
+            `Mortgage Payment: ${formatCurrency(result.monthly.expenses.mortgage)}`,
+            `Net Operating Income (NOI): ${formatCurrency(result.monthly.noi)}`,
+            `Monthly Cash Flow: ${formatCurrency(result.monthly.cashFlow)}`
+        ];
+
+        breakdown.forEach(item => {
+            doc.text(item, 14, yPos);
+            yPos += 6;
+        });
+
+        // Investment Health
+        yPos += 5;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Investment Health', 14, yPos);
+
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        const totalCashInvested = input.downPayment + input.closingCosts + input.rehabCosts;
+        const health = [
+            `Total Cash Invested: ${formatCurrency(totalCashInvested)}`,
+            `Annual Cash Flow: ${formatCurrency(result.monthly.cashFlow * 12)}`,
+            `Annual Depreciation (Tax Benefit): ${formatCurrency(result.tax.annualDepreciation)}`
+        ];
+
+        health.forEach(item => {
+            doc.text(item, 14, yPos);
+            yPos += 6;
+        });
+
+        // 30-Year Projections Section (First 10 years)
+        yPos += 10;
+
+        // Check if we need a new page
+        if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${input.holdingPeriod}-Year Projections`, 14, yPos);
+
+        yPos += 8;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+
+        // Prepare table data - ALL years
+        const tableData = result.projections.map(projection => [
+            projection.year.toString(),
+            formatCurrency(projection.cashFlow),
+            formatCurrency(projection.equity),
+            formatCurrency(projection.propertyValue),
+            formatPercent(projection.roi)
+        ]);
+
+        // Use autoTable for professional table design
+        const autoTable = require('jspdf-autotable').default;
+        autoTable(doc, {
+            startY: yPos,
+            head: [['Year', 'Cash Flow', 'Equity', 'Property Value', 'ROI']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [16, 185, 129], // Emerald-600
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 10
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 20 },
+                1: { halign: 'right', cellWidth: 35 },
+                2: { halign: 'right', cellWidth: 40 },
+                3: { halign: 'right', cellWidth: 45 },
+                4: { halign: 'right', cellWidth: 30 }
+            },
+            alternateRowStyles: {
+                fillColor: [249, 250, 251] // Light gray for alternate rows
+            }
+        });
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+
+        // Position footer at bottom of last page
+        const pageCount = doc.internal.pages.length - 1;
+        doc.setPage(pageCount);
+        doc.text('This report is for informational purposes only. Consult with financial professionals before making investment decisions.', 14, 280);
+
+        // Save PDF
+        const timestamp = Date.now();
+        doc.save(`Real_Estate_Investment_Report_${timestamp}.pdf`);
     };
 
     return (
@@ -259,6 +456,11 @@ export default function RealEstateCalculator() {
                             )}
                         </div>
                     </div>
+
+                    {/* Calculate Button */}
+                    <div className="pt-4">
+                        <CalculateButton onClick={performCalculation} label="Calculate Investment" />
+                    </div>
                 </div>
 
                 {/* Results Column */}
@@ -293,7 +495,7 @@ export default function RealEstateCalculator() {
                         <div className="flex border-b border-gray-200 dark:border-gray-700">
                             <button
                                 onClick={() => setActiveTab('overview')}
-                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'overview'
+                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors cursor-pointer ${activeTab === 'overview'
                                     ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
                                     : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
@@ -302,12 +504,12 @@ export default function RealEstateCalculator() {
                             </button>
                             <button
                                 onClick={() => setActiveTab('projections')}
-                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'projections'
+                                className={`flex-1 py-4 text-sm font-medium text-center transition-colors cursor-pointer ${activeTab === 'projections'
                                     ? 'bg-gray-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
                                     : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
                             >
-                                30-Year Projections
+                                {input.holdingPeriod}-Year Projections
                             </button>
                         </div>
 
@@ -364,7 +566,7 @@ export default function RealEstateCalculator() {
 
                                     {/* Charts */}
                                     <div className="h-80 w-full">
-                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Equity vs Loan Balance (30 Years)</h4>
+                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Equity vs Loan Balance ({input.holdingPeriod} Years)</h4>
                                         <ResponsiveContainer width="100%" height="100%">
                                             <AreaChart data={result.projections} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                                 <defs>
@@ -385,6 +587,17 @@ export default function RealEstateCalculator() {
                                                 <Area type="monotone" dataKey="loanBalance" stackId="1" stroke="#EF4444" fill="#FEE2E2" name="Loan Balance" />
                                             </AreaChart>
                                         </ResponsiveContainer>
+                                    </div>
+
+                                    {/* Export PDF Button */}
+                                    <div className="flex justify-center mt-8">
+                                        <button
+                                            onClick={handleExportPDF}
+                                            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                                        >
+                                            <FileText size={18} />
+                                            Export PDF Report
+                                        </button>
                                     </div>
                                 </div>
                             ) : (
@@ -455,6 +668,17 @@ export default function RealEstateCalculator() {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Export Projections PDF Button */}
+                                    <div className="flex justify-center mt-8">
+                                        <button
+                                            onClick={handleExportPDF}
+                                            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                                        >
+                                            <FileText size={18} />
+                                            Export PDF Report
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

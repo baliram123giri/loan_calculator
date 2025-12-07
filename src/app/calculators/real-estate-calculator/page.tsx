@@ -26,13 +26,19 @@ export default function RealEstateCalculatorPage() {
             ))}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Hero Section */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Real Estate Investment Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Analyze rental properties with precision. Calculate Cash Flow, Cap Rate, Cash on Cash Return, and 30-year projections for the US market.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Analyze Properties with{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
+                                Precision
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate Cash Flow, Cap Rate, Cash on Cash Return, and 30-year projections for US rental properties.
+                        </p>
+                    </div>
                 </div>
 
                 <RealEstateCalculator />
@@ -42,7 +48,7 @@ export default function RealEstateCalculatorPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Why You Need a Real Estate Investment Calculator
+                            📊 Why You Need a Real Estate Investment Calculator
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -61,7 +67,7 @@ export default function RealEstateCalculatorPage() {
                     {/* Key Metrics Breakdown */}
                     <section className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Key Investment Metrics Explained
+                            💰 Key Investment Metrics Explained
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -106,7 +112,7 @@ export default function RealEstateCalculatorPage() {
                     {/* Tax Benefits */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Tax Benefits of Real Estate Investing (USA)
+                            💵 Tax Benefits of Real Estate Investing (USA)
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -124,7 +130,7 @@ export default function RealEstateCalculatorPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Common Questions
+                            ❓ Common Questions
                         </h2>
 
                         <div className="space-y-8">
