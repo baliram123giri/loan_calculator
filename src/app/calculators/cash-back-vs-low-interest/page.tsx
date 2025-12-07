@@ -14,12 +14,17 @@ export default function CashBackVsLowInterestPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    Cash Back vs. Low Interest Calculator
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                    Compare manufacturer rebates (cash back) against low-interest financing offers to determine which option saves you the most money.
-                </p>
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                        Make the Smart Choice:{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600">
+                            Cash Back or Low Interest?
+                        </span>
+                    </h1>
+                    <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Compare manufacturer rebates against low-interest financing offers to determine which option saves you the most money.
+                    </p>
+                </div>
             </div>
 
             <CashBackVsLowInterestCalculator />
