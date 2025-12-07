@@ -27,12 +27,17 @@ export default function LoanPage() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Loan Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate your monthly payments and total interest for any type of loan.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Calculate Your Loan with{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                                Confidence
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate your monthly payments and total interest for any type of loan.
+                        </p>
+                    </div>
                 </div>
 
                 <LoanCalculator />
@@ -42,7 +47,7 @@ export default function LoanPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Personal Loans and Monthly Payments
+                            📚 Understanding Personal Loans and Monthly Payments
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -61,7 +66,7 @@ export default function LoanPage() {
                     {/* How Loan Payments Work */}
                     <section className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            How Loan Payments Are Calculated
+                            🧮 How Loan Payments Are Calculated
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -92,8 +97,8 @@ export default function LoanPage() {
 
                     {/* Factors That Affect Your Rate */}
                     <section className="prose dark:prose-invert max-w-none">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            What Determines Your Interest Rate?
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                            💳 What Determines Your Interest Rate?
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -102,33 +107,45 @@ export default function LoanPage() {
                         </p>
 
                         <div className="grid md:grid-cols-2 gap-6 my-8">
-                            <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-6 border border-green-200 dark:border-green-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Credit Score</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10 rounded-xl p-6 border border-green-200 dark:border-green-800 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-start gap-3 mb-3">
+                                    <span className="text-2xl">📊</span>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">Credit Score</h4>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     The single biggest factor. Excellent credit (740+) can qualify you for rates as low as 5-7%,
                                     while fair credit (640-699) might mean rates of 15-20% or higher.
                                 </p>
                             </div>
 
-                            <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Income & Employment</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/10 rounded-xl p-6 border border-blue-200 dark:border-blue-800 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-start gap-3 mb-3">
+                                    <span className="text-2xl">💼</span>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">Income & Employment</h4>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Stable employment and sufficient income to cover the payment comfortably signal lower risk
                                     to lenders, potentially earning you better rates.
                                 </p>
                             </div>
 
-                            <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Debt-to-Income Ratio</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl p-6 border border-purple-200 dark:border-purple-800 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-start gap-3 mb-3">
+                                    <span className="text-2xl">⚖️</span>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">Debt-to-Income Ratio</h4>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Lenders prefer your total monthly debt payments (including the new loan) to be less than
                                     36-43% of your gross monthly income.
                                 </p>
                             </div>
 
-                            <div className="bg-orange-50 dark:bg-orange-900/10 rounded-xl p-6 border border-orange-200 dark:border-orange-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Loan Term</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-900/10 rounded-xl p-6 border border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-start gap-3 mb-3">
+                                    <span className="text-2xl">📅</span>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">Loan Term</h4>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Shorter terms often come with lower rates but higher monthly payments. Longer terms spread
                                     payments out but cost more in total interest.
                                 </p>
@@ -139,12 +156,15 @@ export default function LoanPage() {
                     {/* Money-Saving Tips */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            Smart Strategies to Save on Loan Costs
+                            💰 Smart Strategies to Save on Loan Costs
                         </h3>
 
                         <div className="space-y-6">
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">1. Improve Your Credit Score First</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">📈</span>
+                                    1. Improve Your Credit Score First
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Even a 20-point increase in your credit score can lower your interest rate by 0.5-1%. Pay down
                                     credit card balances, dispute errors on your credit report, and avoid new credit inquiries for
@@ -152,24 +172,33 @@ export default function LoanPage() {
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">2. Shop Around and Compare Offers</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">🔍</span>
+                                    2. Shop Around and Compare Offers
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Don't accept the first offer you receive. Get quotes from at least 3-5 lenders including banks,
                                     credit unions, and online lenders. Credit unions often offer rates 1-2% lower than traditional banks.
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">3. Choose the Shortest Term You Can Afford</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">⏱️</span>
+                                    3. Choose the Shortest Term You Can Afford
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     While a 5-year loan has lower monthly payments than a 3-year loan, you'll pay significantly more
                                     in interest. If you can handle slightly higher payments, opt for the shorter term to save money overall.
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">4. Make Extra Payments When Possible</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">💵</span>
+                                    4. Make Extra Payments When Possible
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Most personal loans don't have prepayment penalties. Even one extra payment per year can shave
                                     months off your loan term and save hundreds in interest. Apply windfalls like tax refunds or bonuses
@@ -177,8 +206,11 @@ export default function LoanPage() {
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">5. Consider a Co-Signer</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">🤝</span>
+                                    5. Consider a Co-Signer
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     If your credit isn't great, a co-signer with excellent credit can help you qualify for better rates.
                                     Just remember that they're equally responsible for the debt if you can't pay.
@@ -190,7 +222,7 @@ export default function LoanPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Common Questions About Personal Loans
+                            ❓ Common Questions About Personal Loans
                         </h2>
 
                         <div className="space-y-8">

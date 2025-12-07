@@ -125,7 +125,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             const boxX = 14;
             const boxY = 32;
             const boxWidth = 182;
-            const boxHeight = 40;
+            const boxHeight = 38;
 
             // Draw Box Background
             doc.setFillColor(248, 250, 252); // Slate-50
@@ -138,13 +138,13 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             doc.setFont('helvetica', 'bold');
             doc.text("Loan Overview", boxX + 6, boxY + 10);
 
-            // Details Grid
+            // Details Grid with tighter spacing
             doc.setFontSize(10);
             const col1X = boxX + 6;
-            const col2X = boxX + 100;
-            const row1Y = boxY + 20;
-            const row2Y = boxY + 28;
-            const row3Y = boxY + 36;
+            const col2X = boxX + 98;
+            const row1Y = boxY + 19;
+            const row2Y = boxY + 26;
+            const row3Y = boxY + 33;
 
             const drawDetail = (label: string, value: string, x: number, y: number) => {
                 // Label (Key) - Bold & Dark
@@ -152,10 +152,10 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
                 doc.setTextColor(15, 23, 42); // Slate-900
                 doc.text(label, x, y);
 
-                // Value - Normal & Lighter
+                // Value - Normal & Lighter - closer to label
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(71, 85, 105); // Slate-600
-                doc.text(value, x + 35, y);
+                doc.text(value, x + 38, y);
             };
 
             // Left Column
@@ -168,7 +168,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             drawDetail("Total Interest:", formatCurrency(loanDetails.totalInterest), col2X, row2Y);
             drawDetail("Total Cost:", formatCurrency(loanDetails.totalCost), col2X, row3Y);
 
-            startY = boxY + boxHeight + 10;
+            startY = boxY + boxHeight + 8;
         }
 
         const tableBody = schedule.map(row => [

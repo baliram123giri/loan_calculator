@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import CalculatorForm from '@/components/CalculatorForm';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
-import ExportButton from '@/components/ExportButton';
 import SaveScenario from '@/components/SaveScenario';
 import ShareButton from '@/components/ShareButton';
 import { EMIResult } from '@/lib/calc/emi';
@@ -34,7 +33,14 @@ export default function LoanCalculator() {
     const [resetKey, setResetKey] = useState(0);
 
     const resetToDefaults = () => {
+        // Clear any saved state in localStorage
+        localStorage.removeItem('personal_loan_calculator_state');
+
+        // Increment reset key to force form remount with defaults
         setResetKey(prev => prev + 1);
+
+        // Reset result to null to clear any displayed results
+        setResult(null);
     };
 
     const handleResultChange = React.useCallback((newResult: EMIResult, params: { principal: number; rate: number; tenureMonths: number }) => {
@@ -61,6 +67,8 @@ export default function LoanCalculator() {
                     onScenarioLoaded={() => setLoadScenario(null)}
                     persistenceKey="personal_loan_calculator_state"
                     onReset={resetToDefaults}
+                    manualCalculation={true}
+                    calculateButtonLabel="Calculate Loan"
                 />
             </div>
 
@@ -102,20 +110,20 @@ export default function LoanCalculator() {
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                                <h3 className="text-lg font-bold">Amortization Schedule</h3>
-                                <ExportButton
-                                    result={result}
-                                    principal={loanParams.principal}
-                                    rate={loanParams.rate}
-                                    tenureMonths={loanParams.tenureMonths}
-                                    currencySymbol="$"
-                                />
-                            </div>
-                            <div className="max-h-96 overflow-y-auto">
-                                <AmortizationTable schedule={result.amortization} currencySymbol="$" />
-                            </div>
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
+                            <AmortizationTable
+                                schedule={result.amortization}
+                                currencySymbol="$"
+                                calculatorName="Personal Loan"
+                                loanDetails={{
+                                    loanAmount: loanParams.principal,
+                                    interestRate: loanParams.rate,
+                                    loanTerm: loanParams.tenureMonths,
+                                    monthlyPayment: result.emi,
+                                    totalInterest: result.totalInterest,
+                                    totalCost: result.totalPayment
+                                }}
+                            />
                         </div>
                     </>
                 )}

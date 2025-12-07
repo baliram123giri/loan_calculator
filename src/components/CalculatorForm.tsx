@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
+import { CalculateButton } from './Shared/CalculateButton';
 import { RotateCcw } from 'lucide-react';
 import { calculateEMI, EMIResult, ExtraPayment, RateChange } from '@/lib/calc/emi';
 import { LoanTypeConfig } from '@/types/loanTypes';
@@ -33,6 +34,8 @@ interface CalculatorFormProps {
     onScenarioLoaded?: () => void;
     persistenceKey?: string;
     onReset?: () => void;
+    manualCalculation?: boolean;
+    calculateButtonLabel?: string;
 }
 
 export default function CalculatorForm({
@@ -43,7 +46,9 @@ export default function CalculatorForm({
     loadScenario = null,
     onScenarioLoaded,
     persistenceKey,
-    onReset
+    onReset,
+    manualCalculation = false,
+    calculateButtonLabel = "Calculate"
 }: CalculatorFormProps) {
     const searchParams = useSearchParams();
     const [principal, setPrincipal] = useState(loanTypeConfig.minAmount);
@@ -183,7 +188,7 @@ export default function CalculatorForm({
         }
     }, [loadScenario, onScenarioLoaded, persistenceKey]);
 
-    useEffect(() => {
+    const performCalculation = React.useCallback(() => {
         try {
             const tenureMonths = tenureYears * 12;
 
@@ -204,6 +209,20 @@ export default function CalculatorForm({
             console.error("Calculation error:", e);
         }
     }, [principal, rate, tenureYears, extraPayments, startDate, rateChanges, onResultChange]);
+
+    // Auto-calculate only if not in manual mode
+    useEffect(() => {
+        if (!manualCalculation) {
+            performCalculation();
+        }
+    }, [manualCalculation, performCalculation]);
+
+    // Calculate once on mount for manual mode
+    useEffect(() => {
+        if (manualCalculation) {
+            performCalculation();
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const addExtraPayment = () => {
         setExtraPayments([
@@ -475,6 +494,13 @@ export default function CalculatorForm({
                     )}
                 </div>
             </div>
+
+            {/* Calculate Button for Manual Mode */}
+            {manualCalculation && (
+                <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+                    <CalculateButton onClick={performCalculation} label={calculateButtonLabel} />
+                </div>
+            )}
         </div>
     );
 }
