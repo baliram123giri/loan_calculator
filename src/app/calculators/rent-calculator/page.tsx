@@ -13,6 +13,21 @@ export const metadata: Metadata = {
 export default function RentCalculatorPage() {
     return (
         <div className="container mx-auto py-12 px-4">
+            {/* Hero Section */}
+            <div className="mb-8">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                        Find Your Perfect Rental with{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600">
+                            Smart Budgeting
+                        </span>
+                    </h1>
+                    <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Calculate your affordable rent based on your annual income and debts. Use our 30% rule calculator to find your ideal rental budget.
+                    </p>
+                </div>
+            </div>
+
             <RentCalculator />
 
             <div className="max-w-4xl mx-auto mt-16 space-y-12">
