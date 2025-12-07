@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, TrendingUp, AlertCircle, CheckCircle, RotateCcw } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Plus, Trash2, TrendingUp, AlertCircle, CheckCircle, RotateCcw, Download } from 'lucide-react';
 import {
     calculateDTI,
     type IncomeSource,
@@ -10,6 +10,7 @@ import {
     type DTIResult,
 } from '@/lib/calculations/dti';
 import { InputNumber } from './Shared/InputNumber';
+import { CalculateButton } from './Shared/CalculateButton';
 
 export default function DTICalculator() {
     // Income state
@@ -35,10 +36,35 @@ export default function DTICalculator() {
         { id: '2', name: 'Student Loan', monthlyPayment: 250, balance: 25000, interestRate: 4.5, type: 'student' },
     ]);
 
-    // Calculate DTI
-    const dtiResult: DTIResult = useMemo(() => {
-        return calculateDTI(income, housing, debts);
+    // State for DTI result
+    const [dtiResult, setDtiResult] = useState<DTIResult>(() => {
+        return calculateDTI({
+            primary: 5000,
+            secondary: 0,
+            bonus: 0,
+            rental: 0,
+            other: 0,
+        }, {
+            mortgageOrRent: 1200,
+            propertyTax: 200,
+            homeInsurance: 100,
+            hoaFees: 0,
+        }, [
+            { id: '1', name: 'Car Loan', monthlyPayment: 350, balance: 15000, interestRate: 5.5, type: 'auto' },
+            { id: '2', name: 'Student Loan', monthlyPayment: 250, balance: 25000, interestRate: 4.5, type: 'student' },
+        ]);
+    });
+
+    // Calculate DTI - manual calculation function
+    const performCalculation = useCallback(() => {
+        const result = calculateDTI(income, housing, debts);
+        setDtiResult(result);
     }, [income, housing, debts]);
+
+    // Calculate once on mount
+    useEffect(() => {
+        performCalculation();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Add new debt
     const addDebt = () => {
@@ -86,23 +112,188 @@ export default function DTICalculator() {
     };
 
     const resetToDefaults = () => {
-        setIncome({
-            primary: 5000,
-            secondary: 0,
-            bonus: 0,
-            rental: 0,
-            other: 0,
-        });
-        setHousing({
-            mortgageOrRent: 1200,
-            propertyTax: 200,
-            homeInsurance: 100,
-            hoaFees: 0,
-        });
-        setDebts([
-            { id: '1', name: 'Car Loan', monthlyPayment: 350, balance: 15000, interestRate: 5.5, type: 'auto' },
-            { id: '2', name: 'Student Loan', monthlyPayment: 250, balance: 25000, interestRate: 4.5, type: 'student' },
-        ]);
+        const defaults = {
+            income: {
+                primary: 5000,
+                secondary: 0,
+                bonus: 0,
+                rental: 0,
+                other: 0,
+            },
+            housing: {
+                mortgageOrRent: 1200,
+                propertyTax: 200,
+                homeInsurance: 100,
+                hoaFees: 0,
+            },
+            debts: [
+                { id: '1', name: 'Car Loan', monthlyPayment: 350, balance: 15000, interestRate: 5.5, type: 'auto' as const },
+                { id: '2', name: 'Student Loan', monthlyPayment: 250, balance: 25000, interestRate: 4.5, type: 'student' as const },
+            ]
+        };
+
+        setIncome(defaults.income);
+        setHousing(defaults.housing);
+        setDebts(defaults.debts);
+
+        // Immediately recalculate with default values
+        const result = calculateDTI(defaults.income, defaults.housing, defaults.debts);
+        setDtiResult(result);
+    };
+
+    const exportToPDF = async () => {
+        const jsPDF = (await import('jspdf')).default;
+        const doc = new jsPDF();
+
+        // Header with gradient-like bar
+        doc.setFillColor(99, 102, 241); // Indigo-600
+        doc.rect(0, 0, 210, 24, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text('Debt-to-Income Ratio Report', 14, 16);
+
+        let yPos = 34;
+
+        // DTI Ratios Section
+        doc.setFillColor(239, 246, 255); // Blue-50
+        doc.setDrawColor(191, 219, 254); // Blue-200
+        doc.roundedRect(14, yPos, 182, 50, 3, 3, 'FD');
+
+        doc.setTextColor(30, 58, 138); // Blue-900
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('DTI Ratios', 20, yPos + 10);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(55, 65, 81); // Gray-700
+
+        // Front-End Ratio
+        doc.setFont('helvetica', 'bold');
+        doc.text('Front-End Ratio:', 20, yPos + 22);
+        doc.setFont('helvetica', 'normal');
+        const frontEndColor = dtiResult.frontEndRatio <= 28 ? [34, 197, 94] : dtiResult.frontEndRatio <= 31 ? [234, 179, 8] : [239, 68, 68];
+        doc.setTextColor(frontEndColor[0], frontEndColor[1], frontEndColor[2]);
+        doc.text(`${dtiResult.frontEndRatio.toFixed(1)}%`, 70, yPos + 22);
+        doc.setTextColor(107, 114, 128);
+        doc.text(`(Housing: $${dtiResult.totalHousingCosts.toLocaleString()} / Income: $${dtiResult.totalMonthlyIncome.toLocaleString()})`, 90, yPos + 22);
+
+        // Back-End Ratio
+        doc.setTextColor(55, 65, 81);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Back-End Ratio:', 20, yPos + 32);
+        doc.setFont('helvetica', 'normal');
+        const backEndColor = dtiResult.backEndRatio <= 36 ? [34, 197, 94] : dtiResult.backEndRatio <= 43 ? [234, 179, 8] : [239, 68, 68];
+        doc.setTextColor(backEndColor[0], backEndColor[1], backEndColor[2]);
+        doc.text(`${dtiResult.backEndRatio.toFixed(1)}%`, 70, yPos + 32);
+        doc.setTextColor(107, 114, 128);
+        doc.text(`(Total Debts: $${dtiResult.totalMonthlyDebts.toLocaleString()} / Income: $${dtiResult.totalMonthlyIncome.toLocaleString()})`, 90, yPos + 32);
+
+        // Health Status
+        doc.setTextColor(55, 65, 81);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Financial Health:', 20, yPos + 42);
+        doc.setFont('helvetica', 'normal');
+        const healthBadge = getHealthBadge(dtiResult.healthStatus);
+        const healthColor = dtiResult.healthStatus === 'excellent' || dtiResult.healthStatus === 'good' ? [34, 197, 94] :
+            dtiResult.healthStatus === 'moderate' ? [234, 179, 8] : [239, 68, 68];
+        doc.setTextColor(healthColor[0], healthColor[1], healthColor[2]);
+        doc.text(healthBadge.text, 70, yPos + 42);
+
+        yPos += 60;
+
+        // Income Breakdown
+        doc.setFillColor(240, 253, 244); // Green-50
+        doc.setDrawColor(187, 247, 208); // Green-200
+        doc.roundedRect(14, yPos, 88, 45, 3, 3, 'FD');
+
+        doc.setTextColor(6, 78, 59); // Green-900
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Monthly Income', 20, yPos + 10);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(55, 65, 81);
+        let incomeY = yPos + 18;
+        if (income.primary > 0) {
+            doc.text(`Primary: $${income.primary.toLocaleString()}`, 20, incomeY);
+            incomeY += 6;
+        }
+        if (income.secondary > 0) {
+            doc.text(`Secondary: $${income.secondary.toLocaleString()}`, 20, incomeY);
+            incomeY += 6;
+        }
+        if (income.bonus > 0) {
+            doc.text(`Bonus: $${income.bonus.toLocaleString()}`, 20, incomeY);
+            incomeY += 6;
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(22, 163, 74);
+        doc.text(`Total: $${dtiResult.totalMonthlyIncome.toLocaleString()}`, 20, yPos + 40);
+
+        // Housing Costs
+        doc.setFillColor(254, 249, 195); // Yellow-100
+        doc.setDrawColor(253, 224, 71); // Yellow-300
+        doc.roundedRect(108, yPos, 88, 45, 3, 3, 'FD');
+
+        doc.setTextColor(120, 53, 15); // Yellow-900
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Housing Costs', 114, yPos + 10);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(55, 65, 81);
+        let housingY = yPos + 18;
+        doc.text(`Mortgage/Rent: $${housing.mortgageOrRent.toLocaleString()}`, 114, housingY);
+        housingY += 6;
+        if (housing.propertyTax > 0) {
+            doc.text(`Property Tax: $${housing.propertyTax.toLocaleString()}`, 114, housingY);
+            housingY += 6;
+        }
+        if (housing.homeInsurance > 0) {
+            doc.text(`Insurance: $${housing.homeInsurance.toLocaleString()}`, 114, housingY);
+            housingY += 6;
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(202, 138, 4);
+        doc.text(`Total: $${dtiResult.totalHousingCosts.toLocaleString()}`, 114, yPos + 40);
+
+        yPos += 55;
+
+        // Loan Qualification
+        doc.setFillColor(243, 244, 246); // Gray-100
+        doc.setDrawColor(209, 213, 219); // Gray-300
+        doc.roundedRect(14, yPos, 182, 35, 3, 3, 'FD');
+
+        doc.setTextColor(17, 24, 39); // Gray-900
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Loan Qualification Status', 20, yPos + 10);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const qualY = yPos + 20;
+
+        doc.setTextColor(55, 65, 81);
+        doc.text('Conventional (28/36):', 20, qualY);
+        doc.setTextColor(dtiResult.qualification.conventional ? 34 : 239, dtiResult.qualification.conventional ? 197 : 68, dtiResult.qualification.conventional ? 94 : 68);
+        doc.text(dtiResult.qualification.conventional ? 'YES - Qualified' : 'NO - Not Qualified', 70, qualY);
+
+        doc.setTextColor(55, 65, 81);
+        doc.text('FHA (31/43):', 110, qualY);
+        doc.setTextColor(dtiResult.qualification.fha ? 34 : 239, dtiResult.qualification.fha ? 197 : 68, dtiResult.qualification.fha ? 94 : 68);
+        doc.text(dtiResult.qualification.fha ? 'YES - Qualified' : 'NO - Not Qualified', 145, qualY);
+
+        doc.setTextColor(55, 65, 81);
+        doc.text('VA (41):', 20, qualY + 8);
+        doc.setTextColor(dtiResult.qualification.va ? 34 : 239, dtiResult.qualification.va ? 197 : 68, dtiResult.qualification.va ? 94 : 68);
+        doc.text(dtiResult.qualification.va ? 'YES - Qualified' : 'NO - Not Qualified', 70, qualY + 8);
+
+        // Save PDF
+        const timestamp = Date.now();
+        doc.save(`DTI_Report_${timestamp}.pdf`);
     };
 
     return (
@@ -273,6 +464,11 @@ export default function DTICalculator() {
                             )}
                         </div>
                     </div>
+
+                    {/* Calculate Button */}
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <CalculateButton onClick={performCalculation} label="Calculate DTI" />
+                    </div>
                 </div>
 
                 {/* Right Column - Results */}
@@ -333,6 +529,17 @@ export default function DTICalculator() {
                             <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getHealthBadge(dtiResult.healthStatus).color}`}>
                                 {getHealthBadge(dtiResult.healthStatus).text}
                             </span>
+                        </div>
+
+                        {/* Export PDF Button */}
+                        <div className="mt-6">
+                            <button
+                                onClick={exportToPDF}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                            >
+                                <Download className="w-5 h-5" />
+                                Export PDF Report
+                            </button>
                         </div>
                     </div>
 

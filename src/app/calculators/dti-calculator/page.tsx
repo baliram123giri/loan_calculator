@@ -27,12 +27,17 @@ export default function DTICalculatorPage() {
 
             <div className="container mx-auto py-12 px-4">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Debt-to-Income (DTI) Ratio Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate your DTI ratio to understand your financial health and loan qualification status.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Calculate Your DTI with{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                                Clarity
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate your DTI ratio to understand your financial health and loan qualification status.
+                        </p>
+                    </div>
                 </div>
 
                 <DTICalculator />
@@ -42,7 +47,7 @@ export default function DTICalculatorPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Your Debt-to-Income Ratio
+                            📊 Understanding Your Debt-to-Income Ratio
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -63,7 +68,7 @@ export default function DTICalculatorPage() {
                     {/* Front-End vs Back-End DTI */}
                     <section className="bg-purple-50 dark:bg-purple-900/10 rounded-2xl p-8 border border-purple-100 dark:border-purple-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Front-End vs. Back-End DTI: What's the Difference?
+                            🏠 Front-End vs. Back-End DTI: What's the Difference?
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -132,7 +137,7 @@ export default function DTICalculatorPage() {
                     {/* DTI Requirements by Loan Type */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            DTI Requirements by Loan Type
+                            📋 DTI Requirements by Loan Type
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -213,7 +218,7 @@ export default function DTICalculatorPage() {
                     {/* How to Improve DTI */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            How to Improve Your DTI Ratio
+                            💡 How to Improve Your DTI Ratio
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -274,7 +279,7 @@ export default function DTICalculatorPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            DTI Ratio Questions
+                            ❓ DTI Ratio Questions
                         </h2>
 
                         <div className="space-y-8">
