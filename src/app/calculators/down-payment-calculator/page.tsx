@@ -19,10 +19,13 @@ export default function DownPaymentCalculatorPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    Down Payment Calculator
+                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                    Plan Your Down Payment with{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                        Precision
+                    </span>
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
                     Determine how much you should put down on a house and calculate your total cash to close, including closing costs.
                 </p>
             </div>
@@ -34,7 +37,7 @@ export default function DownPaymentCalculatorPage() {
                 {/* Introduction Section */}
                 <section className="prose dark:prose-invert max-w-none">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                        Understanding Your Down Payment
+                        💰 Understanding Your Down Payment
                     </h2>
 
                     <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -50,7 +53,7 @@ export default function DownPaymentCalculatorPage() {
                 {/* Closing Costs Section */}
                 <section className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Don't Forget Closing Costs!
+                        💵 Don't Forget Closing Costs!
                     </h3>
 
                     <p className="text-gray-700 dark:text-gray-300 mb-6">
@@ -92,7 +95,7 @@ export default function DownPaymentCalculatorPage() {
                 {/* PMI Section */}
                 <section className="prose dark:prose-invert max-w-none">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                        What is PMI?
+                        🏠 What is PMI?
                     </h3>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -116,7 +119,7 @@ export default function DownPaymentCalculatorPage() {
                 {/* FAQ Section */}
                 <section className="prose dark:prose-invert max-w-none">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                        Common Questions
+                        ❓ Common Questions
                     </h2>
 
                     <div className="space-y-8">

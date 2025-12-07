@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { calculateEMI, EMIResult } from '@/lib/calc/emi';
 import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
 import { ChevronDown, ChevronUp, Calendar, DollarSign, Percent, Info, RotateCcw } from 'lucide-react';
-import ExportButton from '@/components/ExportButton';
 import AmortizationTable from '@/components/AmortizationTable';
+import { CalculateButton } from '@/components/Shared/CalculateButton';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
@@ -78,52 +78,54 @@ export default function DownPaymentCalculator() {
 
 
     // --- Calculation ---
-    const result: DownPaymentResult = useMemo(() => {
+    const [result, setResult] = useState<DownPaymentResult>(() => {
+        // Initial calculation with default values
+        const loanPrincipal = 300000 - 60000;
+        const emiRes = calculateEMI(loanPrincipal, 6.5, 360, [], new Date());
+        const monthlyTax = (300000 * (1.2 / 100)) / 12;
+        const monthlyPMI = 0;
+        const totalMonthlyPayment = emiRes.emi + monthlyTax + 100 + 0 + monthlyPMI;
+
+        return {
+            ...emiRes,
+            monthlyTax,
+            monthlyInsurance: 100,
+            monthlyHOA: 0,
+            monthlyPMI,
+            totalMonthlyPayment,
+            closingCostsAmount: 9000,
+            cashToClose: 60000,
+            loanAmount: loanPrincipal
+        };
+    });
+
+    const performCalculation = useCallback(() => {
         let loanPrincipal = homePrice - downPayment;
 
         if (financeClosingCosts) {
             loanPrincipal += closingCostsAmount;
         }
 
-        // Prevent negative loan
         if (loanPrincipal < 0) loanPrincipal = 0;
 
         let emiRes: EMIResult;
 
         if (loanPrincipal > 0) {
-            emiRes = calculateEMI(
-                loanPrincipal,
-                interestRate,
-                loanTermYears * 12,
-                [],
-                startDate
-            );
+            emiRes = calculateEMI(loanPrincipal, interestRate, loanTermYears * 12, [], startDate);
         } else {
-            // Handle 100% down payment or negative loan scenarios
-            emiRes = {
-                emi: 0,
-                totalInterest: 0,
-                totalPayment: 0,
-                amortization: []
-            };
+            emiRes = { emi: 0, totalInterest: 0, totalPayment: 0, amortization: [] };
         }
 
-        // Monthly Extras
         const monthlyTax = (homePrice * (propertyTaxRate / 100)) / 12;
-
-        // PMI Calculation
-        // Usually PMI applies if LTV > 80% (Down Payment < 20%)
-        // PMI is calculated on the Loan Amount
         let monthlyPMI = 0;
         if (downPaymentPercent < 20) {
             monthlyPMI = (loanPrincipal * (pmiRate / 100)) / 12;
         }
 
         const totalMonthlyPayment = emiRes.emi + monthlyTax + homeInsurance + hoaFees + monthlyPMI;
-
         const cashToClose = financeClosingCosts ? downPayment : downPayment + closingCostsAmount;
 
-        return {
+        setResult({
             ...emiRes,
             monthlyTax,
             monthlyInsurance: homeInsurance,
@@ -133,11 +135,13 @@ export default function DownPaymentCalculator() {
             closingCostsAmount,
             cashToClose,
             loanAmount: loanPrincipal
-        };
-    }, [
-        homePrice, downPayment, downPaymentPercent, interestRate, loanTermYears, startDate,
-        closingCostsAmount, financeClosingCosts, propertyTaxRate, homeInsurance, hoaFees, pmiRate
-    ]);
+        });
+    }, [homePrice, downPayment, downPaymentPercent, interestRate, loanTermYears, startDate,
+        closingCostsAmount, financeClosingCosts, propertyTaxRate, homeInsurance, hoaFees, pmiRate]);
+
+    useEffect(() => {
+        performCalculation();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // --- Comparison Logic ---
     const comparisonScenarios = useMemo(() => {
@@ -174,19 +178,53 @@ export default function DownPaymentCalculator() {
 
 
     const handleReset = () => {
-        setHomePrice(300000);
-        setDownPaymentPercent(20);
-        setDownPayment(60000);
-        setInterestRate(6.5);
-        setLoanTermYears(30);
+        const defaults = {
+            homePrice: 300000,
+            downPaymentPercent: 20,
+            downPayment: 60000,
+            interestRate: 6.5,
+            loanTermYears: 30,
+            closingCostsPercent: 3,
+            closingCostsAmount: 9000,
+            financeClosingCosts: false,
+            propertyTaxRate: 1.2,
+            homeInsurance: 100,
+            hoaFees: 0,
+            pmiRate: 0.5
+        };
+
+        setHomePrice(defaults.homePrice);
+        setDownPaymentPercent(defaults.downPaymentPercent);
+        setDownPayment(defaults.downPayment);
+        setInterestRate(defaults.interestRate);
+        setLoanTermYears(defaults.loanTermYears);
         setStartDate(new Date());
-        setClosingCostsPercent(3);
-        setClosingCostsAmount(9000);
-        setFinanceClosingCosts(false);
-        setPropertyTaxRate(1.2);
-        setHomeInsurance(100);
-        setHoaFees(0);
-        setPmiRate(0.5);
+        setClosingCostsPercent(defaults.closingCostsPercent);
+        setClosingCostsAmount(defaults.closingCostsAmount);
+        setFinanceClosingCosts(defaults.financeClosingCosts);
+        setPropertyTaxRate(defaults.propertyTaxRate);
+        setHomeInsurance(defaults.homeInsurance);
+        setHoaFees(defaults.hoaFees);
+        setPmiRate(defaults.pmiRate);
+
+        // Immediately recalculate with default values
+        const loanPrincipal = defaults.homePrice - defaults.downPayment;
+        const emiRes = calculateEMI(loanPrincipal, defaults.interestRate, defaults.loanTermYears * 12, [], new Date());
+        const monthlyTax = (defaults.homePrice * (defaults.propertyTaxRate / 100)) / 12;
+        const monthlyPMI = 0; // 20% down, no PMI
+        const totalMonthlyPayment = emiRes.emi + monthlyTax + defaults.homeInsurance + defaults.hoaFees + monthlyPMI;
+
+        setResult({
+            ...emiRes,
+            monthlyTax,
+            monthlyInsurance: defaults.homeInsurance,
+            monthlyHOA: defaults.hoaFees,
+            monthlyPMI,
+            totalMonthlyPayment,
+            closingCostsAmount: defaults.closingCostsAmount,
+            cashToClose: defaults.downPayment,
+            loanAmount: loanPrincipal
+        });
     };
 
     return (
@@ -379,6 +417,11 @@ export default function DownPaymentCalculator() {
                             </div>
                         </div>
                     )}
+
+                    {/* Calculate Button */}
+                    <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-6">
+                        <CalculateButton onClick={performCalculation} label="Calculate Down Payment" />
+                    </div>
                 </div>
             </div>
 
@@ -515,24 +558,20 @@ export default function DownPaymentCalculator() {
                 </div>
 
                 {/* Amortization Table */}
-                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                        <div className="flex flex-col gap-1 w-full lg:w-auto">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Amortization Schedule</h3>
-                        </div>
-                        <div className="flex-shrink-0 w-full lg:w-auto">
-                            <ExportButton
-                                result={result}
-                                principal={result.loanAmount}
-                                rate={interestRate}
-                                tenureMonths={loanTermYears * 12}
-                                currencySymbol="$"
-                            />
-                        </div>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
-                        <AmortizationTable schedule={result.amortization} currencySymbol="$" />
-                    </div>
+                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
+                    <AmortizationTable
+                        schedule={result.amortization}
+                        currencySymbol="$"
+                        calculatorName="Down Payment Calculator"
+                        loanDetails={{
+                            loanAmount: result.loanAmount,
+                            interestRate: interestRate,
+                            loanTerm: loanTermYears * 12,
+                            monthlyPayment: result.emi,
+                            totalInterest: result.totalInterest,
+                            totalCost: result.totalPayment
+                        }}
+                    />
                 </div>
             </div>
         </div>
