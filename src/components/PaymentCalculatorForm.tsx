@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
+import { CalculateButton } from './Shared/CalculateButton';
 import { RotateCcw } from 'lucide-react';
 
 import { AdvancedOptions } from './AdvancedOptions';
@@ -89,8 +90,8 @@ export default function PaymentCalculatorForm({
         setRateChanges(newRateChanges);
     };
 
-    // Calculate results
-    useEffect(() => {
+    // Calculate results - manual calculation function
+    const performCalculation = React.useCallback(() => {
         try {
             let result: PaymentResult;
             let calculatedPayment = monthlyPayment;
@@ -104,14 +105,22 @@ export default function PaymentCalculatorForm({
             } else {
                 // Fixed Payment mode
                 try {
+                    // Check if payment is sufficient before calculating
+                    const monthlyRate = rate / 100 / 12;
+                    const monthlyInterest = principal * monthlyRate;
+
+                    if (monthlyPayment <= monthlyInterest) {
+                        // Payment is too low, don't calculate
+                        console.warn("Monthly payment is too low to cover interest");
+                        return;
+                    }
+
                     calculatedTenure = calculateLoanTerm(principal, rate, monthlyPayment);
                     result = generatePaymentAmortization(principal, rate, calculatedTenure, monthlyPayment, startDate, prepayments, rateChanges);
                     result.calculatedTermMonths = calculatedTenure;
                 } catch (e) {
                     // Handle case where payment is too low
-                    console.error("Payment too low:", e);
-                    // Create a dummy result or handle error gracefully
-                    // For now, we'll just not update if calculation fails
+                    console.warn("Payment calculation error:", e);
                     return;
                 }
             }
@@ -127,6 +136,13 @@ export default function PaymentCalculatorForm({
             console.error("Calculation error:", e);
         }
     }, [mode, principal, rate, tenureYears, monthlyPayment, startDate, prepayments, rateChanges, onResultChange]);
+
+    // Calculate once on mount (only in fixed-term mode to avoid errors)
+    useEffect(() => {
+        if (mode === 'fixed-term') {
+            performCalculation();
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <div className="space-y-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800">
@@ -270,6 +286,11 @@ export default function PaymentCalculatorForm({
                 onRateChangesChange={handleRateChangesChange}
                 startDate={startDate}
             />
+
+            {/* Calculate Button */}
+            <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+                <CalculateButton onClick={performCalculation} label="Calculate Payment" />
+            </div>
         </div>
     );
 }

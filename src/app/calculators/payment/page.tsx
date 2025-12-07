@@ -15,12 +15,17 @@ export default function PaymentPage() {
         <>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Payment Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate monthly payments or determine loan term with advanced features like prepayments and rate changes.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Calculate Your Payment with{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                                Confidence
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate monthly payments or determine loan term with advanced features like prepayments and rate changes.
+                        </p>
+                    </div>
                 </div>
 
                 <PaymentCalculator />
@@ -30,7 +35,7 @@ export default function PaymentPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Loan Payments and Payoff Terms
+                            📚 Understanding Loan Payments and Payoff Terms
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -50,7 +55,7 @@ export default function PaymentPage() {
                     {/* Two Calculation Modes */}
                     <section className="bg-purple-50 dark:bg-purple-900/10 rounded-2xl p-8 border border-purple-100 dark:border-purple-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Two Ways to Calculate: Payment or Term
+                            💳 Two Ways to Calculate: Payment or Term
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -106,7 +111,7 @@ export default function PaymentPage() {
                     {/* Impact of Extra Payments */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            The Power of Extra Payments
+                            💰 The Power of Extra Payments
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -147,12 +152,15 @@ export default function PaymentPage() {
                     {/* Smart Payment Strategies */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            Smart Strategies to Pay Off Loans Faster
+                            💡 Smart Strategies to Pay Off Loans Faster
                         </h3>
 
                         <div className="space-y-6">
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">1. Round Up Your Payments</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">🔼</span>
+                                    1. Round Up Your Payments
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     If your payment is $387, round up to $400. This simple trick adds $13 extra per month ($156/year)
                                     without feeling like a sacrifice. Over a 5-year loan, that's $780 in extra principal payments,
@@ -160,8 +168,11 @@ export default function PaymentPage() {
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">2. Make Bi-Weekly Payments</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">📅</span>
+                                    2. Make Bi-Weekly Payments
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Instead of one monthly payment, pay half every two weeks. You'll make 26 half-payments per year
                                     (equivalent to 13 full payments instead of 12). This extra payment goes entirely to principal,
@@ -169,8 +180,11 @@ export default function PaymentPage() {
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">3. Apply Windfalls to Principal</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">🎁</span>
+                                    3. Apply Windfalls to Principal
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Tax refunds, bonuses, birthday money, or side gig earnings can make a huge dent in your loan.
                                     A single $1,000 extra payment on a $20,000 loan at 8% could save you $200-300 in interest and
@@ -178,8 +192,11 @@ export default function PaymentPage() {
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">4. Refinance to a Lower Rate</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">🔄</span>
+                                    4. Refinance to a Lower Rate
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     If interest rates have dropped or your credit has improved, refinancing could lower your rate by
                                     1-3%. Keep the same payment amount but apply the savings to principal, or keep the same term and
@@ -187,8 +204,11 @@ export default function PaymentPage() {
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">5. Prioritize High-Interest Debt</h4>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="text-xl">🎯</span>
+                                    5. Prioritize High-Interest Debt
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     If you have multiple loans, focus extra payments on the highest interest rate first (avalanche method)
                                     to minimize total interest. Or pay off the smallest balance first (snowball method) for psychological
@@ -201,7 +221,7 @@ export default function PaymentPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Payment Calculator Questions
+                            ❓ Payment Calculator Questions
                         </h2>
 
                         <div className="space-y-8">

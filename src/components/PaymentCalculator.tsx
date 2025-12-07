@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import PaymentCalculatorForm from './PaymentCalculatorForm';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
-import ExportButton from '@/components/ExportButton';
 import ShareButton from '@/components/ShareButton';
 import { PaymentResult } from '@/lib/calc/paymentCalc';
 import { LoanTypeConfig } from '@/types/loanTypes';
@@ -44,7 +43,14 @@ export default function PaymentCalculator() {
     }, []);
 
     const resetToDefaults = () => {
+        // Clear any saved state in localStorage
+        localStorage.removeItem('payment_calculator_state');
+
+        // Increment reset key to force form remount with defaults
         setResetKey(prev => prev + 1);
+
+        // Reset result to null to clear any displayed results
+        setResult(null);
     };
 
     const shareData = {
@@ -110,18 +116,19 @@ export default function PaymentCalculator() {
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                                <h3 className="text-lg font-bold">Amortization Schedule</h3>
-                                {/* @ts-ignore */}
-                                <ExportButton
-                                    result={result}
-                                    currencySymbol="$"
-                                />
-                            </div>
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
                             <AmortizationTable
                                 schedule={result.amortization}
                                 currencySymbol="$"
+                                calculatorName="Payment Calculator"
+                                loanDetails={{
+                                    loanAmount: calcParams.principal,
+                                    interestRate: calcParams.rate,
+                                    loanTerm: calcParams.mode === 'fixed-term' ? calcParams.tenureMonths : result.calculatedTermMonths!,
+                                    monthlyPayment: calcParams.mode === 'fixed-term' ? result.emi : calcParams.monthlyPayment,
+                                    totalInterest: result.totalInterest,
+                                    totalCost: result.totalPayment
+                                }}
                             />
                         </div>
                     </>
