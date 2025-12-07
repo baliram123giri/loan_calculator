@@ -27,12 +27,17 @@ export default function MortgagePage() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        US Mortgage Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate your monthly mortgage payments including principal, interest, taxes, and insurance (PITI).
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Calculate Your Mortgage with{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                                Confidence
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate your monthly mortgage payments including principal, interest, taxes, and insurance (PITI).
+                        </p>
+                    </div>
                 </div>
 
                 <MortgageCalculator />
@@ -42,7 +47,7 @@ export default function MortgagePage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Your Mortgage Payment
+                            🏠 Understanding Your Mortgage Payment
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -61,7 +66,7 @@ export default function MortgagePage() {
                     {/* PITI Breakdown */}
                     <section className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            What's Included in Your Monthly Payment (PITI)
+                            📊 What's Included in Your Monthly Payment (PITI)
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -123,7 +128,7 @@ export default function MortgagePage() {
                     {/* Down Payment Impact */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            How Your Down Payment Affects Everything
+                            💰 How Your Down Payment Affects Everything
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -164,7 +169,7 @@ export default function MortgagePage() {
                     {/* Money-Saving Tips */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            Smart Strategies to Lower Your Mortgage Costs
+                            💡 Smart Strategies to Lower Your Mortgage Costs
                         </h3>
 
                         <div className="space-y-6">
@@ -218,7 +223,7 @@ export default function MortgagePage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Common Mortgage Questions
+                            ❓ Common Mortgage Questions
                         </h2>
 
                         <div className="space-y-8">
