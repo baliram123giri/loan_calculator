@@ -26,13 +26,23 @@ export default function PropertyTaxPage() {
             ))}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Property Tax Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Estimate your annual property taxes based on home value and local tax rates.
-                    </p>
+                {/* Hero Section */}
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 sm:p-12 mb-10 text-white shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                        <Home size={400} />
+                    </div>
+                    <div className="relative z-10 max-w-3xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-blue-100 text-sm font-medium mb-6">
+                            <DollarSign size={16} />
+                            <span>Financial Planning</span>
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                            Property Tax Calculator
+                        </h1>
+                        <p className="text-xl text-blue-100 mb-8 leading-relaxed max-w-2xl">
+                            Estimate your annual property taxes instantly based on home value and local tax rates to avoid surprises at tax time.
+                        </p>
+                    </div>
                 </div>
 
                 <PropertyTaxCalculator />
@@ -42,7 +52,7 @@ export default function PropertyTaxPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Property Taxes in the United States
+                            🏠 Understanding Property Taxes in the United States
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -62,7 +72,7 @@ export default function PropertyTaxPage() {
                     {/* How Property Taxes Work */}
                     <section className="bg-orange-50 dark:bg-orange-900/10 rounded-2xl p-8 border border-orange-100 dark:border-orange-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            How Property Taxes Are Calculated
+                            📊 How Property Taxes Are Calculated
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -116,7 +126,7 @@ export default function PropertyTaxPage() {
                     {/* State-by-State Variations */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Property Tax Rates Across America
+                            🗺️ Property Tax Rates Across America
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -161,7 +171,7 @@ export default function PropertyTaxPage() {
                     {/* Ways to Reduce Property Taxes */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            Strategies to Lower Your Property Tax Bill
+                            💡 Strategies to Lower Your Property Tax Bill
                         </h3>
 
                         <div className="space-y-6">
@@ -215,7 +225,7 @@ export default function PropertyTaxPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Property Tax Questions
+                            ❓ Property Tax Questions
                         </h2>
 
                         <div className="space-y-8">

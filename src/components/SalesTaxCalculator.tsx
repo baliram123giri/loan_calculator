@@ -6,7 +6,9 @@ import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { calculateSalesTax, TaxResult } from '@/lib/calc/tax';
 import ShareButton from '@/components/ShareButton';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, FileText } from 'lucide-react';
+import { CalculateButton } from './Shared/CalculateButton';
+import jsPDF from 'jspdf';
 
 export default function SalesTaxCalculator() {
     const searchParams = useSearchParams();
@@ -20,19 +22,64 @@ export default function SalesTaxCalculator() {
 
         if (p) setAmount(Number(p));
         if (r) setRate(Number(r));
+
+        // Initial calculation if params exist or load
+        setResult(calculateSalesTax(p ? Number(p) : 100, r ? Number(r) : 7.25));
     }, [searchParams]);
 
-    useEffect(() => {
-        const res = calculateSalesTax(amount, rate);
-        setResult(res);
-    }, [amount, rate]);
+    const performCalculation = () => {
+        setResult(calculateSalesTax(amount, rate));
+    };
 
     const resetToDefaults = () => {
         setAmount(100);
         setRate(7.25);
+        setResult(calculateSalesTax(100, 7.25));
     };
 
     const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+
+    const handleExportPDF = () => {
+        if (!result) return;
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFillColor(37, 99, 235); // Blue-600
+        doc.rect(0, 0, 210, 30, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Sales Tax Calculation', 14, 18);
+
+        const today = new Date();
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Generated on ${today.toLocaleDateString()}`, 14, 25);
+
+        // Input Details
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Transaction Details', 14, 45);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Price Before Tax: ${formatCurrency(amount)}`, 14, 55);
+        doc.text(`Sales Tax Rate: ${rate}%`, 14, 62);
+
+        // Results
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Total Cost Breakdown', 14, 80);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Sales Tax Amount: ${formatCurrency(result.taxAmount)}`, 14, 90);
+        doc.text(`Total Price (After Tax): ${formatCurrency(result.totalAmount)}`, 14, 97);
+
+        doc.save(`Sales_Tax_Calculation_${Date.now()}.pdf`);
+    };
 
     const shareData = {
         p: amount,
@@ -86,6 +133,8 @@ export default function SalesTaxCalculator() {
                         </p>
                     </div>
                 </div>
+
+                <CalculateButton onClick={performCalculation} label="Calculate Tax" />
             </div>
 
             <div className="lg:col-span-8 space-y-8">
@@ -101,8 +150,15 @@ export default function SalesTaxCalculator() {
                                 <h3 className="text-3xl font-bold">{formatCurrency(result.totalAmount)}</h3>
                             </div>
                         </div>
-                        <div className="flex justify-end">
+                        <div className="flex justify-end gap-2">
                             <ShareButton data={shareData} />
+                            <button
+                                onClick={handleExportPDF}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                            >
+                                <FileText size={16} />
+                                Export PDF
+                            </button>
                         </div>
                     </div>
                 )}

@@ -26,13 +26,23 @@ export default function SalesTaxPage() {
             ))}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Sales Tax Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate the total cost of your purchase including state and local sales tax.
-                    </p>
+                {/* Hero Section */}
+                <div className="bg-gradient-to-r from-pink-600 to-rose-700 rounded-3xl p-8 sm:p-12 mb-10 text-white shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                        <Building size={400} />
+                    </div>
+                    <div className="relative z-10 max-w-3xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-pink-100 text-sm font-medium mb-6">
+                            <Calculator size={16} />
+                            <span>Consumer Finance</span>
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                            Sales Tax Calculator
+                        </h1>
+                        <p className="text-xl text-pink-100 mb-8 leading-relaxed max-w-2xl">
+                            Calculate the total cost of any purchase including state and local sales tax to budget accurately.
+                        </p>
+                    </div>
                 </div>
 
                 <SalesTaxCalculator />
@@ -42,7 +52,7 @@ export default function SalesTaxPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            Understanding Sales Tax in the United States
+                            🏠 Understanding Sales Tax in the United States
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -62,7 +72,7 @@ export default function SalesTaxPage() {
                     {/* How Sales Tax Works */}
                     <section className="bg-pink-50 dark:bg-pink-900/10 rounded-2xl p-8 border border-pink-100 dark:border-pink-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            How Sales Tax Is Calculated
+                            📊 How Sales Tax Is Calculated
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -120,7 +130,7 @@ export default function SalesTaxPage() {
                     {/* State-by-State Rates */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Sales Tax Rates Across America
+                            🗺️ Sales Tax Rates Across America
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -162,7 +172,7 @@ export default function SalesTaxPage() {
                     {/* Tax-Saving Strategies */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            Smart Ways to Save on Sales Tax
+                            💡 Smart Ways to Save on Sales Tax
                         </h3>
 
                         <div className="space-y-6">
@@ -220,7 +230,7 @@ export default function SalesTaxPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Sales Tax Questions
+                            ❓ Sales Tax Questions
                         </h2>
 
                         <div className="space-y-8">
