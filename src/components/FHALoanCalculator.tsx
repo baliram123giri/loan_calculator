@@ -11,6 +11,7 @@ import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
 import { LoanTypeConfig } from '@/types/loanTypes';
 import { ChevronDown, ChevronUp, Calendar, RotateCcw } from 'lucide-react';
+import { CalculateButton } from '@/components/Shared/CalculateButton';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
@@ -29,7 +30,24 @@ const FHA_CONFIG: LoanTypeConfig = {
 };
 
 export default function FHALoanCalculator() {
-    const [result, setResult] = useState<FHAResult | null>(null);
+    // Initialize with default calculation
+    const getDefaultResult = (): FHAResult => {
+        const input: FHAInput = {
+            homePrice: 300000,
+            downPayment: 10500,
+            interestRate: 6.5,
+            loanTermYears: 30,
+            startDate: new Date(),
+            upfrontMIPRate: 1.75,
+            annualMIPRate: 0.55,
+            propertyTax: 300,
+            homeInsurance: 100,
+            hoaFees: 0
+        };
+        return calculateFHA(input);
+    };
+
+    const [result, setResult] = useState<FHAResult>(getDefaultResult());
     const [showAdvanced, setShowAdvanced] = useState(false);
 
     // Default State
@@ -46,7 +64,7 @@ export default function FHALoanCalculator() {
     const [homeInsurance, setHomeInsurance] = useState(100); // Monthly
     const [hoaFees, setHoaFees] = useState(0); // Monthly
 
-    const calculate = React.useCallback(() => {
+    const performCalculation = () => {
         const input: FHAInput = {
             homePrice,
             downPayment,
@@ -61,23 +79,37 @@ export default function FHALoanCalculator() {
         };
         const res = calculateFHA(input);
         setResult(res);
-    }, [homePrice, downPayment, interestRate, loanTermYears, startDate, upfrontMIPRate, annualMIPRate, propertyTax, homeInsurance, hoaFees]);
-
-    useEffect(() => {
-        calculate();
-    }, [calculate]);
+    };
 
     const handleReset = () => {
-        setHomePrice(300000);
-        setDownPayment(10500);
-        setInterestRate(6.5);
-        setLoanTermYears(30);
-        setStartDate(new Date());
-        setUpfrontMIPRate(1.75);
-        setAnnualMIPRate(0.55);
-        setPropertyTax(300);
-        setHomeInsurance(100);
-        setHoaFees(0);
+        const defaults = {
+            homePrice: 300000,
+            downPayment: 10500,
+            interestRate: 6.5,
+            loanTermYears: 30,
+            startDate: new Date(),
+            upfrontMIPRate: 1.75,
+            annualMIPRate: 0.55,
+            propertyTax: 300,
+            homeInsurance: 100,
+            hoaFees: 0
+        };
+
+        setHomePrice(defaults.homePrice);
+        setDownPayment(defaults.downPayment);
+        setInterestRate(defaults.interestRate);
+        setLoanTermYears(defaults.loanTermYears);
+        setStartDate(defaults.startDate);
+        setUpfrontMIPRate(defaults.upfrontMIPRate);
+        setAnnualMIPRate(defaults.annualMIPRate);
+        setPropertyTax(defaults.propertyTax);
+        setHomeInsurance(defaults.homeInsurance);
+        setHoaFees(defaults.hoaFees);
+
+        // Immediately recalculate with default values
+        const input: FHAInput = defaults;
+        const res = calculateFHA(input);
+        setResult(res);
     };
 
     const shareData = {
@@ -234,13 +266,18 @@ export default function FHALoanCalculator() {
                                 </div>
                             </div>
                         )}
+
+                        {/* Calculate Button */}
+                        <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-6">
+                            <CalculateButton onClick={performCalculation} label="Calculate FHA Loan" />
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Right Column: Results */}
             <div className="lg:col-span-8 space-y-8">
-                {result && (
+                {result && result.monthlyPrincipalAndInterest > 0 && (
                     <>
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -327,25 +364,25 @@ export default function FHALoanCalculator() {
                         </div>
 
                         {/* Amortization Table */}
-                        < div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden" >
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                                <div className="flex flex-col gap-1 w-full lg:w-auto">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Amortization Schedule</h3>
-                                </div>
-                                <div className="flex-shrink-0 w-full lg:w-auto">
-                                    <ExportButton
-                                        result={result}
-                                        principal={result.totalLoanAmount}
-                                        rate={interestRate}
-                                        tenureMonths={loanTermYears * 12}
-                                        currencySymbol="$"
-                                    />
-                                </div>
-                            </div>
-                            <div className="max-h-96 overflow-y-auto">
-                                <AmortizationTable schedule={result.amortization} currencySymbol="$" />
-                            </div>
-                        </div >
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+                            <AmortizationTable
+                                schedule={result.amortization}
+                                currencySymbol="$"
+                                calculatorName="FHA Loan Calculator"
+                                loanDetails={{
+                                    loanAmount: result.totalLoanAmount,
+                                    interestRate: interestRate,
+                                    loanTerm: loanTermYears * 12,
+                                    monthlyPayment: result.monthlyPrincipalAndInterest,
+                                    totalInterest: result.totalInterest,
+                                    totalCost: result.totalPayment,
+                                    upfrontMIP: result.financedUpfrontMIP,
+                                    annualMIPRate: annualMIPRate,
+                                    totalMIPPaid: result.totalMIPPaid
+                                }}
+                                pdfHeaderColor="from-green-600 to-emerald-600"
+                            />
+                        </div>
                     </>
                 )
                 }

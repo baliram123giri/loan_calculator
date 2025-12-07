@@ -16,14 +16,19 @@ export const metadata: Metadata = {
 
 export default function FHALoanCalculatorPage() {
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    FHA Loan Calculator
-                </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-                    Estimate your monthly payments for an FHA loan, including Upfront and Annual Mortgage Insurance Premiums (MIP).
-                </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                        Calculate Your FHA Loan with{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
+                            Confidence
+                        </span>
+                    </h1>
+                    <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Estimate your monthly payments for an FHA loan, including Upfront and Annual Mortgage Insurance Premiums (MIP).
+                    </p>
+                </div>
             </div>
 
             <FHALoanCalculator />

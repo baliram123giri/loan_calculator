@@ -15,10 +15,18 @@ interface AmortizationTableProps {
         monthlyPayment: number;
         totalInterest: number;
         totalCost: number;
+        // VA-specific fields
+        fundingFee?: number;
+        fundingFeeRate?: number;
+        // FHA-specific fields
+        upfrontMIP?: number;
+        annualMIPRate?: number;
+        totalMIPPaid?: number;
     };
+    pdfHeaderColor?: string; // Tailwind gradient classes like "from-green-600 to-emerald-600"
 }
 
-export default function AmortizationTable({ schedule, currencySymbol = "$", calculatorName, loanDetails }: AmortizationTableProps) {
+export default function AmortizationTable({ schedule, currencySymbol = "$", calculatorName, loanDetails, pdfHeaderColor }: AmortizationTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [yearView, setYearView] = useState<'CY' | 'FY' | 'none'>('none');
     const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set());
@@ -110,8 +118,23 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
     const handleExportPDF = () => {
         const doc = new jsPDF();
 
+        // Parse gradient color or use default blue
+        let headerColor: [number, number, number] = [37, 99, 235]; // Default blue-600
+        if (pdfHeaderColor) {
+            // Extract color from Tailwind gradient class
+            if (pdfHeaderColor.includes('green')) {
+                headerColor = [22, 163, 74]; // green-600
+            } else if (pdfHeaderColor.includes('purple')) {
+                headerColor = [147, 51, 234]; // purple-600
+            } else if (pdfHeaderColor.includes('orange')) {
+                headerColor = [234, 88, 12]; // orange-600
+            } else if (pdfHeaderColor.includes('emerald')) {
+                headerColor = [16, 185, 129]; // emerald-600
+            }
+        }
+
         // 1. Header Section with Gradient-like Bar
-        doc.setFillColor(37, 99, 235); // Blue-600
+        doc.setFillColor(headerColor[0], headerColor[1], headerColor[2]);
         doc.rect(0, 0, 210, 24, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
@@ -168,7 +191,38 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             drawDetail("Total Interest:", formatCurrency(loanDetails.totalInterest), col2X, row2Y);
             drawDetail("Total Cost:", formatCurrency(loanDetails.totalCost), col2X, row3Y);
 
-            startY = boxY + boxHeight + 8;
+            // Add FHA/VA specific details if present
+            let additionalY = boxY + boxHeight;
+            if (loanDetails.fundingFee !== undefined && loanDetails.fundingFee > 0) {
+                additionalY += 8;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(30, 41, 59);
+                doc.text("VA Funding Fee:", col1X, additionalY);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(71, 85, 105);
+                doc.text(`${formatCurrency(loanDetails.fundingFee)} (${loanDetails.fundingFeeRate}%)`, col1X + 38, additionalY);
+                startY = additionalY + 6;
+            } else if (loanDetails.upfrontMIP !== undefined && loanDetails.upfrontMIP > 0) {
+                additionalY += 8;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(30, 41, 59);
+                doc.text("Upfront MIP:", col1X, additionalY);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(71, 85, 105);
+                doc.text(formatCurrency(loanDetails.upfrontMIP), col1X + 38, additionalY);
+
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(30, 41, 59);
+                doc.text("Total MIP Paid:", col2X, additionalY);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(71, 85, 105);
+                doc.text(formatCurrency(loanDetails.totalMIPPaid || 0), col2X + 38, additionalY);
+                startY = additionalY + 6;
+            } else {
+                startY = boxY + boxHeight + 8;
+            }
         }
 
         const tableBody = schedule.map(row => [
@@ -187,7 +241,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             body: tableBody,
             theme: 'grid',
             headStyles: {
-                fillColor: [37, 99, 235], // Blue-600
+                fillColor: headerColor, // Use custom color
                 textColor: 255,
                 fontStyle: 'bold',
                 halign: 'center', // Center headers for symmetry
