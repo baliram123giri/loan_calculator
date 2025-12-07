@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -16,6 +17,7 @@ import { Doughnut, Line } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
 import { CalculateButton } from './Shared/CalculateButton';
+import { ResetButton } from './Shared/ResetButton';
 import AmortizationTable from './AmortizationTable';
 import { AmortizationRow } from '@/lib/calc/emi';
 import { Info, RotateCcw, ChevronDown, ChevronUp, Sparkles, TrendingUp, AlertTriangle } from 'lucide-react';
@@ -45,9 +47,6 @@ const AutoLeaseCalculator = () => {
 
     // Changed: Residual Value is now in Dollars
     const [residualValue, setResidualValue] = useState<number>(20300); // Default ~58% of 35k
-
-    const [annualMileage, setAnnualMileage] = useState<number>(12000);
-    const [mileagePenalty, setMileagePenalty] = useState<number>(0.25);
     const [fees, setFees] = useState<number>(500);
 
     // New Options
@@ -71,12 +70,45 @@ const AutoLeaseCalculator = () => {
     useEffect(() => {
         calculateLease();
         generateSuggestions();
-    }, [msrp, negotiatedPrice, downPayment, tradeInValue, salesTaxRate, leaseTerm, moneyFactor, useApr, apr, residualValue, annualMileage, fees, isTaxMonthly, areFeesUpfront, startDate]);
+    }, []); // Only run on mount
 
-    const calculateLease = () => {
+
+
+    const calculateLease = (overrides?: {
+        msrp?: number,
+        negotiatedPrice?: number,
+        downPayment?: number,
+        tradeInValue?: number,
+        salesTaxRate?: number,
+        leaseTerm?: number,
+        moneyFactor?: number,
+        useApr?: boolean,
+        apr?: number,
+        residualValue?: number,
+        fees?: number,
+        isTaxMonthly?: boolean,
+        areFeesUpfront?: boolean,
+        startDate?: string
+    }) => {
+        // Use overrides if provided, otherwise use current state
+        const currentMsrp = overrides?.msrp ?? msrp;
+        const currentNegotiatedPrice = overrides?.negotiatedPrice ?? negotiatedPrice;
+        const currentDownPayment = overrides?.downPayment ?? downPayment;
+        const currentTradeInValue = overrides?.tradeInValue ?? tradeInValue;
+        const currentSalesTaxRate = overrides?.salesTaxRate ?? salesTaxRate;
+        const currentLeaseTerm = overrides?.leaseTerm ?? leaseTerm;
+        const currentMoneyFactor = overrides?.moneyFactor ?? moneyFactor;
+        const currentUseApr = overrides?.useApr ?? useApr;
+        const currentApr = overrides?.apr ?? apr;
+        const currentResidualValue = overrides?.residualValue ?? residualValue;
+        const currentFees = overrides?.fees ?? fees;
+        const currentIsTaxMonthly = overrides?.isTaxMonthly ?? isTaxMonthly;
+        const currentAreFeesUpfront = overrides?.areFeesUpfront ?? areFeesUpfront;
+        const currentStartDate = overrides?.startDate ?? startDate;
+
         // 1. Capitalized Cost
         // If fees are NOT upfront, they are added to the cap cost
-        const grossCapCost = negotiatedPrice + (areFeesUpfront ? 0 : fees);
+        const grossCapCost = currentNegotiatedPrice + (currentAreFeesUpfront ? 0 : currentFees);
 
         // If taxes are NOT monthly (i.e., upfront), they might be added to cap cost or paid upfront.
         // Usually, "Upfront Tax" is paid at drive-off. If rolled in, it's added to cap cost.
@@ -84,7 +116,7 @@ const AutoLeaseCalculator = () => {
         // If user wants to roll it in, that's a "Zero Drive-off" scenario which is more complex.
         // Let's stick to: Upfront = Paid at signing. Monthly = Added to payment.
 
-        const capCostReduction = downPayment + tradeInValue;
+        const capCostReduction = currentDownPayment + currentTradeInValue;
         const adjustedCapCost = grossCapCost - capCostReduction;
 
         // 2. Residual Value (Now directly from input)
@@ -92,12 +124,12 @@ const AutoLeaseCalculator = () => {
         // setResidualValue(residual); 
 
         // 3. Depreciation Fee
-        const depreciation = (adjustedCapCost - residualValue) / leaseTerm;
+        const depreciation = (adjustedCapCost - currentResidualValue) / currentLeaseTerm;
         setDepreciationFee(depreciation);
 
         // 4. Rent Charge (Finance Fee)
-        const mf = useApr ? apr / 2400 : moneyFactor;
-        const rent = (adjustedCapCost + residualValue) * mf;
+        const mf = currentUseApr ? currentApr / 2400 : currentMoneyFactor;
+        const rent = (adjustedCapCost + currentResidualValue) * mf;
         setRentCharge(rent);
 
         // 5. Monthly Payment (Pre-Tax)
@@ -107,15 +139,15 @@ const AutoLeaseCalculator = () => {
         let monthlyTaxAmount = 0;
         let upfrontTaxAmount = 0;
 
-        if (isTaxMonthly) {
+        if (currentIsTaxMonthly) {
             // Most common: Tax on monthly payment
-            monthlyTaxAmount = baseMonthlyPayment * (salesTaxRate / 100);
+            monthlyTaxAmount = baseMonthlyPayment * (currentSalesTaxRate / 100);
         } else {
             // Upfront Tax: Usually on the Total Lease Payments OR Total Vehicle Price depending on state.
             // Let's use "Tax on Total Lease Payments" (Depreciation + Rent + Down) as a middle ground, 
             // or "Tax on Selling Price" (Texas style).
             // Let's go with Tax on Selling Price as it's the distinct "Upfront" alternative.
-            upfrontTaxAmount = negotiatedPrice * (salesTaxRate / 100);
+            upfrontTaxAmount = currentNegotiatedPrice * (currentSalesTaxRate / 100);
         }
 
         setMonthlyTax(monthlyTaxAmount);
@@ -127,17 +159,17 @@ const AutoLeaseCalculator = () => {
 
         // 8. Total Lease Cost
         // (Monthly * Term) + Down + Trade + Fees (if upfront) + Upfront Tax
-        const totalCost = (totalMonthly * leaseTerm) + downPayment + tradeInValue + (areFeesUpfront ? fees : 0) + upfrontTaxAmount;
+        const totalCost = (totalMonthly * currentLeaseTerm) + currentDownPayment + currentTradeInValue + (currentAreFeesUpfront ? currentFees : 0) + upfrontTaxAmount;
         setTotalLeaseCost(totalCost);
 
         // 9. Generate Schedule
         const schedule: AmortizationRow[] = [];
         let balance = adjustedCapCost;
         let totalInt = 0;
-        const start = new Date(startDate);
+        const start = new Date(currentStartDate);
 
         // Ensure we don't exceed extreme limits
-        const safeTerm = Math.min(leaseTerm, 600);
+        const safeTerm = Math.min(currentLeaseTerm, 600);
 
         for (let i = 1; i <= safeTerm; i++) {
             // For a lease:
@@ -145,7 +177,7 @@ const AutoLeaseCalculator = () => {
             // "Interest" part is the Rent Charge
             // Balance reduces by the Depreciation amount
 
-            const interest = rentCharge;
+            const interest = rent;
             const principal = depreciation;
             const payment = baseMonthlyPayment + monthlyTaxAmount;
 
@@ -172,7 +204,7 @@ const AutoLeaseCalculator = () => {
         }
 
         setAmortizationSchedule(schedule);
-        setFinanceCharge(rent * leaseTerm);
+        setFinanceCharge(rent * currentLeaseTerm);
     };
 
     const generateSuggestions = () => {
@@ -205,20 +237,46 @@ const AutoLeaseCalculator = () => {
     };
 
     const resetToDefaults = () => {
-        setMsrp(35000);
-        setNegotiatedPrice(33500);
-        setDownPayment(3000);
-        setTradeInValue(0);
-        setSalesTaxRate(7.5);
-        setLeaseTerm(36);
-        setMoneyFactor(0.0025);
-        setUseApr(false);
-        setApr(6.0);
-        setResidualValue(20300);
-        setAnnualMileage(12000);
-        setFees(500);
-        setIsTaxMonthly(true);
-        setAreFeesUpfront(true);
+        const defaults = {
+            msrp: 35000,
+            negotiatedPrice: 33500,
+            downPayment: 3000,
+            tradeInValue: 0,
+            salesTaxRate: 7.5,
+            leaseTerm: 36,
+            moneyFactor: 0.0025,
+            useApr: false,
+            apr: 6.0,
+            residualValue: 20300,
+            fees: 500,
+            isTaxMonthly: true,
+            areFeesUpfront: true,
+            startDate: new Date().toISOString().split('T')[0]
+        };
+
+        // Use flushSync to ensure all state updates happen synchronously
+        flushSync(() => {
+            setMsrp(defaults.msrp);
+            setNegotiatedPrice(defaults.negotiatedPrice);
+            setDownPayment(defaults.downPayment);
+            setTradeInValue(defaults.tradeInValue);
+            setSalesTaxRate(defaults.salesTaxRate);
+            setLeaseTerm(defaults.leaseTerm);
+            setMoneyFactor(defaults.moneyFactor);
+            setUseApr(defaults.useApr);
+            setApr(defaults.apr);
+            setResidualValue(defaults.residualValue);
+            setFees(defaults.fees);
+            setIsTaxMonthly(defaults.isTaxMonthly);
+            setAreFeesUpfront(defaults.areFeesUpfront);
+            setStartDate(defaults.startDate);
+        });
+
+        // Use requestAnimationFrame to ensure calculation happens after DOM updates
+        requestAnimationFrame(() => {
+            calculateLease(defaults);
+            generateSuggestions();
+        });
     };
 
     // Chart Data
@@ -261,13 +319,7 @@ const AutoLeaseCalculator = () => {
                                     <Info className="w-5 h-5 mr-2 text-blue-600" />
                                     Lease Details
                                 </h3>
-                                <button
-                                    onClick={resetToDefaults}
-                                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
-                                >
-                                    <RotateCcw className="w-4 h-4 mr-1" />
-                                    Reset
-                                </button>
+                                <ResetButton onClick={resetToDefaults} />
                             </div>
 
                             <div className="space-y-4">
@@ -393,6 +445,16 @@ const AutoLeaseCalculator = () => {
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <CalculateButton
+                                    onClick={() => {
+                                        calculateLease();
+                                        generateSuggestions();
+                                    }}
+                                    label="Calculate Lease"
+                                />
                             </div>
                         </div>
 

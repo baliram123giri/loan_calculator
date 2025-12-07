@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -48,6 +49,8 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
     useEffect(() => {
         calculateLoan();
     }, []); // Only run on mount
+
+
 
     const calculateLoan = (overrides?: {
         mode?: 'price' | 'monthly',
@@ -159,22 +162,27 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
             startDate: new Date().toISOString().split('T')[0]
         };
 
-        setMode(defaults.mode);
-        setVehiclePrice(defaults.vehiclePrice);
-        setMonthlyBudget(defaults.monthlyBudget);
-        setDownPayment(defaults.downPayment);
-        setTradeInValue(defaults.tradeInValue);
-        setAmountOwedOnTrade(defaults.amountOwedOnTrade);
-        setInterestRate(defaults.interestRate);
-        setLoanTerm(defaults.loanTerm);
-        setSalesTaxRate(defaults.salesTaxRate);
-        setFees(defaults.fees);
-        setIncludeTaxInLoan(defaults.includeTaxInLoan);
-        setStartDate(defaults.startDate);
-        setShowAdvanced(false);
+        // Use flushSync to ensure all state updates happen synchronously
+        flushSync(() => {
+            setMode(defaults.mode);
+            setVehiclePrice(defaults.vehiclePrice);
+            setMonthlyBudget(defaults.monthlyBudget);
+            setDownPayment(defaults.downPayment);
+            setTradeInValue(defaults.tradeInValue);
+            setAmountOwedOnTrade(defaults.amountOwedOnTrade);
+            setInterestRate(defaults.interestRate);
+            setLoanTerm(defaults.loanTerm);
+            setSalesTaxRate(defaults.salesTaxRate);
+            setFees(defaults.fees);
+            setIncludeTaxInLoan(defaults.includeTaxInLoan);
+            setStartDate(defaults.startDate);
+            setShowAdvanced(false);
+        });
 
-        // trigger immediate calculation with default values
-        calculateLoan(defaults);
+        // Use requestAnimationFrame to ensure calculation happens after DOM updates
+        requestAnimationFrame(() => {
+            calculateLoan(defaults);
+        });
     };
 
     const donutData = {

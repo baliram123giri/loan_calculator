@@ -14,12 +14,17 @@ export default function AutoLeaseCalculatorPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    Auto Lease Calculator
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                    Estimate your monthly lease payments, analyze total costs, and get smart tips to negotiate a better deal.
-                </p>
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                        Lease Your Dream Car with{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                            Confidence
+                        </span>
+                    </h1>
+                    <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Estimate your monthly lease payments, analyze total costs, and get smart tips to negotiate a better deal.
+                    </p>
+                </div>
             </div>
 
             <AutoLeaseCalculator />
