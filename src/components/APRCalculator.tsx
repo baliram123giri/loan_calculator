@@ -9,8 +9,8 @@ import ShareButton from './ShareButton';
 import AmortizationTable from './AmortizationTable';
 import ChartBalance from './ChartBalance';
 import ChartPaymentComposition from './ChartPaymentComposition';
-import ExportButton from './ExportButton';
 import NumberInput from './NumberInput';
+import { CalculateButton } from './Shared/CalculateButton';
 import { ChevronDown, ChevronUp, Info, RotateCcw } from 'lucide-react';
 
 export default function APRCalculator() {
@@ -41,8 +41,8 @@ export default function APRCalculator() {
     const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
     const [viewMode, setViewMode] = useState<'schedule' | 'analysis'>('schedule');
 
-    // Calculate on change
-    useEffect(() => {
+    // Calculate results - manual calculation function
+    const performCalculation = React.useCallback(() => {
         const totalFees = fees.origination + fees.documentation + fees.other;
         const termMonths = termType === 'years' ? termValue * 12 : termValue;
 
@@ -75,8 +75,12 @@ export default function APRCalculator() {
             summary.monthlyPayment
         );
         setAmortizationSchedule(schedule.amortization);
-
     }, [principal, interestRate, termValue, termType, fees]);
+
+    // Calculate once on mount
+    useEffect(() => {
+        performCalculation();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const chartData = [
         { name: 'Principal', value: principal, color: '#3b82f6' }, // Blue
@@ -89,18 +93,48 @@ export default function APRCalculator() {
     };
 
     const resetToDefaults = () => {
-        setPrincipal(200000);
-        setInterestRate(5.0);
-        setTermValue(30);
-        setTermType('years');
-        setFees({
-            origination: 1000,
-            documentation: 500,
-            other: 0
-        });
+        const defaults = {
+            principal: 200000,
+            interestRate: 5.0,
+            termValue: 30,
+            termType: 'years' as const,
+            fees: {
+                origination: 1000,
+                documentation: 500,
+                other: 0
+            }
+        };
+
+        // Reset all states
+        setPrincipal(defaults.principal);
+        setInterestRate(defaults.interestRate);
+        setTermValue(defaults.termValue);
+        setTermType(defaults.termType);
+        setFees(defaults.fees);
         setShowFees(true);
         setViewMode('schedule');
         setActiveChart('balance');
+
+        // Immediately recalculate with default values
+        const totalFees = defaults.fees.origination + defaults.fees.documentation + defaults.fees.other;
+        const termMonths = defaults.termValue * 12;
+
+        const summary = calculateLoanSummary(
+            defaults.principal,
+            defaults.interestRate,
+            termMonths,
+            totalFees
+        );
+
+        setResult(summary);
+
+        const schedule = generatePaymentAmortization(
+            defaults.principal,
+            defaults.interestRate,
+            termMonths,
+            summary.monthlyPayment
+        );
+        setAmortizationSchedule(schedule.amortization);
     };
 
     return (
@@ -213,6 +247,11 @@ export default function APRCalculator() {
                                     </div>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Calculate Button */}
+                        <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+                            <CalculateButton onClick={performCalculation} label="Calculate APR" />
                         </div>
                     </div>
                 </div>
@@ -340,26 +379,22 @@ export default function APRCalculator() {
                                 Loan Analysis
                             </button>
                         </div>
-
-                        {viewMode === 'schedule' && (
-                            /* @ts-ignore */
-                            <ExportButton
-                                result={{
-                                    emi: result.monthlyPayment,
-                                    totalInterest: result.totalInterest,
-                                    totalPayment: result.totalCost,
-                                    amortization: amortizationSchedule
-                                }}
-                                principal={principal}
-                                rate={interestRate}
-                                tenureMonths={termType === 'years' ? termValue * 12 : termValue}
-                            />
-                        )}
                     </div>
 
                     <div className="p-6">
                         {viewMode === 'schedule' ? (
-                            <AmortizationTable schedule={amortizationSchedule} />
+                            <AmortizationTable
+                                schedule={amortizationSchedule}
+                                calculatorName="APR Calculator"
+                                loanDetails={{
+                                    loanAmount: principal,
+                                    interestRate: interestRate,
+                                    loanTerm: termType === 'years' ? termValue * 12 : termValue,
+                                    monthlyPayment: result.monthlyPayment,
+                                    totalInterest: result.totalInterest,
+                                    totalCost: result.totalCost
+                                }}
+                            />
                         ) : (
                             <div className="animate-in slide-in-from-top-2 duration-200">
                                 <div className="flex justify-end mb-6">
