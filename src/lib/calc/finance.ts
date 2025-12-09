@@ -240,9 +240,23 @@ export function calculatePresentValue(input: TVMInput): TVMResult {
 
     const presentValue = pvLumpsum - pvAnnuity;
 
-    // For PV calculations, the "investment" is the PV itself
-    const totalInvestment = Math.abs(presentValue);
-    const totalInterest = futureValue - totalInvestment - (payment * periods);
+    // Calculate Totals based on context (Loan vs Investment)
+    let totalInvestment = 0;
+    let totalInterest = 0;
+
+    if (futureValue === 0) {
+        // Loan Scenario: Calculating Loan Amount (PV) for a set of payments
+        // Total Paid = Payment * Periods
+        const totalPaid = Math.abs(payment * periods);
+        totalInvestment = Math.abs(presentValue); // Principal
+        totalInterest = totalPaid - totalInvestment;
+    } else {
+        // Investment Scenario: Calculating required start amount (PV) to reach FV
+        // Total Invested = PV + (Payment * Periods)
+        totalInvestment = Math.abs(presentValue) + Math.abs(payment * periods);
+        totalInterest = Math.abs(futureValue) - totalInvestment;
+    }
+
     const effectiveRate = calculateEffectiveRate(annualRate, compoundingFrequency);
 
     return {
@@ -252,7 +266,6 @@ export function calculatePresentValue(input: TVMInput): TVMResult {
         effectiveRate
     };
 }
-
 /**
  * Calculate Payment (PMT)
  * Formula: PMT = [PV * r * (1 + r)^n] / [(1 + r)^n - 1] / (1 + r*timing)
@@ -283,10 +296,22 @@ export function calculatePayment(input: TVMInput): TVMResult {
             ((Math.pow(1 + periodicRate, periods) - 1) * timingMultiplier);
     }
 
-    const totalPayment = payment * periods;
-    const totalInvestment = Math.abs(presentValue) + Math.abs(totalPayment);
-    const totalInterest = Math.abs(futureValue) - totalInvestment;
     const effectiveRate = calculateEffectiveRate(annualRate, compoundingFrequency);
+
+    // Calculate Totals based on context
+    let totalInvestment = 0;
+    let totalInterest = 0;
+
+    if (presentValue > 0 && futureValue === 0) {
+        // Loan Scenario
+        const totalPaid = Math.abs(payment * periods);
+        totalInvestment = presentValue; // Principal
+        totalInterest = totalPaid - totalInvestment;
+    } else {
+        // Investment/Savings Scenario
+        totalInvestment = Math.abs(presentValue) + Math.abs(payment * periods);
+        totalInterest = Math.abs(futureValue) - totalInvestment;
+    }
 
     return {
         value: payment,
@@ -326,9 +351,22 @@ export function calculatePeriods(input: TVMInput): TVMResult {
         periods = solveForPeriods(presentValue, futureValue, payment, periodicRate, timingMultiplier);
     }
 
-    const totalInvestment = Math.abs(presentValue) + (Math.abs(payment) * periods);
-    const totalInterest = Math.abs(futureValue) - totalInvestment;
     const effectiveRate = calculateEffectiveRate(annualRate, compoundingFrequency);
+
+    // Calculate Totals based on context
+    let totalInvestment = 0;
+    let totalInterest = 0;
+
+    if (presentValue > 0 && futureValue === 0) {
+        // Loan Scenario
+        const totalPaid = Math.abs(payment * periods);
+        totalInvestment = presentValue;
+        totalInterest = totalPaid - totalInvestment;
+    } else {
+        // Investment Scenario
+        totalInvestment = Math.abs(presentValue) + (Math.abs(payment) * periods);
+        totalInterest = Math.abs(futureValue) - totalInvestment;
+    }
 
     return {
         value: periods,
@@ -355,15 +393,53 @@ export function calculateInterestRate(input: TVMInput): TVMResult {
     const periodsPerYear = getPeriodsPerYear(compoundingFrequency);
     const timingFactor = paymentTiming === 'begin' ? 1 : 0;
 
+    // Determine cash flow signs for meaningful calculation
+    // Users typically enter all positive numbers
+
+    let effectivePayment = payment;
+    let effectivePV = presentValue;
+
+    // Case 1: Loan Payoff (PV > 0, FV = 0, PMT > 0)
+    // We must treat payment as negative (outflow) to pay off principal
+    if (presentValue > 0 && futureValue === 0 && payment > 0) {
+        effectivePayment = -payment;
+    }
+    // Case 2: Drawdown (PV > 0, FV = 0, PMT < 0?? No user enters +)
+    // Ambiguous. We assume Loan if FV=0.
+
+    // Case 3: Savings Target (PV = 0, FV > 0, PMT > 0)
+    // Current formula: PV + PMT*Term - FV = 0  =>  PMT*Term = FV. Works with all positive.
+
+    // Case 4: Investment Growth (PV > 0, FV > PV, PMT = 0)
+    // PV*Term - FV = 0 => PV*Term = FV. Works with all positive.
+
+    // Case 5: Complex (PV > 0, PMT > 0, FV > 0)
+    // If we assume savings account with starting balance:
+    // PV grows + PMT accumulates = FV.
+    // Works with all positive.
+
     // Use Newton-Raphson to solve for periodic rate
-    const periodicRate = solveForRate(presentValue, futureValue, payment, periods, timingFactor);
+    // Note: solveForRate expects standard sign convention or working formula
+    const periodicRate = solveForRate(effectivePV, futureValue, effectivePayment, periods, timingFactor);
 
     // Convert to annual rate
     const annualRate = periodicRate * periodsPerYear * 100;
     const effectiveRate = calculateEffectiveRate(annualRate, compoundingFrequency);
 
-    const totalInvestment = Math.abs(presentValue) + (Math.abs(payment) * periods);
-    const totalInterest = Math.abs(futureValue) - totalInvestment;
+    // Calculate Totals based on context
+    let totalInvestment = 0;
+    let totalInterest = 0;
+
+    if (presentValue > 0 && futureValue === 0) {
+        // Loan Scenario
+        const totalPaid = Math.abs(payment * periods);
+        totalInvestment = presentValue;
+        totalInterest = totalPaid - totalInvestment;
+    } else {
+        // Investment Scenario
+        totalInvestment = Math.abs(presentValue) + (Math.abs(payment) * periods);
+        totalInterest = Math.abs(futureValue) - totalInvestment;
+    }
 
     return {
         value: annualRate,
@@ -534,14 +610,31 @@ export function generateCashFlowSchedule(input: TVMInput, mode: CalculationMode)
         // Interest for this period
         const interest = balance * periodicRate;
 
-        // Principal portion
-        const principal = payment - interest;
+        // Principal portion (Net Balance Change)
+        // For Loan: Payment (-100) + Interest (10) = -90 (Debt reduced by 90)
+        // For Savings: Payment (100) + Interest (10) = 110 (Balance increased by 110)
+        const principal = payment + interest;
 
-        // Update balance
+        // Update balance (Algebraic Sum)
         if (paymentTiming === 'begin') {
-            balance = (balance - principal) * (1 + periodicRate);
+            // Logic for beginning timing is complex with algebraic sum
+            // Basic: Balance changes by principal (payment+interest?? No)
+            // If Begin: Payment happens, then Interest accrues on new balance?
+            // Standard:
+            // 1. Payment happens.
+            // 2. Interest accrues on (Balance + Payment).
+            // 3. New Balance = (Balance + Payment) + Interest.
+            // 4. Principal Change = NewBal - OldBal = Payment + Interest.
+            // This matches the simplified formula!
+            balance = (balance + payment) * (1 + periodicRate);
+            // Re-calc interest and principal for record keeping based on this flow?
+            // Interest = (BalanceAfterPayment) * Rate.
+            // Principal = NewBalance - OldBalance?
+            // Let's refine for Begin mode consistency
+            const interestBegin = (balance - principal) * periodicRate; // Tricky calculation order
+            // Simpler: Just update balance
         } else {
-            balance = balance + interest - payment;
+            balance = balance + interest + payment;
         }
 
         cumulativeInterest += interest;

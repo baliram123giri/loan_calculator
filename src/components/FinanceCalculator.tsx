@@ -23,13 +23,8 @@ import {
     Calculator,
     Sparkles,
     RotateCcw,
-    Heart,
-    ChevronLeft,
-    ChevronRight,
-    Download
+    Heart
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
 import {
@@ -45,6 +40,8 @@ import {
     generateFinanceSuggestions,
     getPeriodsPerYear
 } from '@/lib/calc/finance';
+import { CalculateButton } from '@/components/Shared/CalculateButton';
+import AmortizationTable from '@/components/AmortizationTable';
 
 ChartJS.register(
     ArcElement,
@@ -91,10 +88,6 @@ export default function FinanceCalculator() {
     // Advanced options
     const [showAdvanced, setShowAdvanced] = useState(false);
 
-    // Pagination for cash flow schedule
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-
     // Adjust default values when switching to N mode to ensure table displays
     React.useEffect(() => {
         if (activeMode === 'N') {
@@ -107,7 +100,8 @@ export default function FinanceCalculator() {
     }, [activeMode, futureValue, payment]);
 
     // Calculate result based on active mode
-    const result = useMemo(() => {
+    // Calculate result function
+    const calculateResult = () => {
         try {
             const input = {
                 presentValue,
@@ -137,11 +131,22 @@ export default function FinanceCalculator() {
             console.error('Calculation error:', error);
             return null;
         }
-    }, [activeMode, presentValue, futureValue, payment, annualRate, periods, compoundingFrequency, paymentTiming]);
+    };
 
-    // Generate suggestions
-    const suggestions = useMemo(() => {
-        if (!result) return [];
+    // State for snapshotting inputs on calculate to ensure consistency across charts/tables
+    const [calculatedInput, setCalculatedInput] = useState({
+        presentValue: 10000,
+        futureValue: 0,
+        payment: 0,
+        annualRate: 6,
+        periods: 120,
+        compoundingFrequency: 'monthly' as CompoundingFrequency,
+        paymentTiming: 'end' as PaymentTiming
+    });
+
+    const [result, setResult] = useState<any>(calculateResult());
+
+    const performCalculation = () => {
         const input = {
             presentValue,
             futureValue,
@@ -151,31 +156,48 @@ export default function FinanceCalculator() {
             compoundingFrequency,
             paymentTiming
         };
-        return generateFinanceSuggestions(activeMode, input, result);
-    }, [activeMode, presentValue, futureValue, payment, annualRate, periods, compoundingFrequency, paymentTiming, result]);
+        setCalculatedInput(input);
+        setResult(calculateResult());
+    };
+
+    // Update result when mode changes
+    React.useEffect(() => {
+        const input = {
+            presentValue,
+            futureValue,
+            payment,
+            annualRate,
+            periods,
+            compoundingFrequency,
+            paymentTiming
+        };
+        setCalculatedInput(input);
+        setResult(calculateResult());
+    }, [activeMode]);
+
+    // Generate suggestions
+    const suggestions = useMemo(() => {
+        if (!result) return [];
+        return generateFinanceSuggestions(activeMode, calculatedInput, result);
+    }, [activeMode, calculatedInput, result]);
 
     // Generate cash flow schedule for visualization
     const cashFlowSchedule = useMemo(() => {
         try {
             const input = {
-                presentValue,
-                futureValue,
-                payment: activeMode === 'PMT' && result ? result.value : payment,
-                annualRate: activeMode === 'IY' && result ? result.value : annualRate,
-                periods: activeMode === 'N' && result ? Math.ceil(result.value) : periods,
-                compoundingFrequency,
-                paymentTiming
+                ...calculatedInput,
+                // Override the target value with the calculated one for the schedule
+                payment: activeMode === 'PMT' && result ? result.value : calculatedInput.payment,
+                annualRate: activeMode === 'IY' && result ? result.value : calculatedInput.annualRate,
+                periods: activeMode === 'N' && result ? Math.ceil(result.value) : calculatedInput.periods,
             };
 
             // Generate schedule for all modes
-            // For PV mode, we calculate as if it's a loan we're taking out
-            // For N mode, use the calculated periods
-            // For IY mode, use the calculated interest rate
             return generateCashFlowSchedule(input, activeMode);
         } catch (error) {
             return [];
         }
-    }, [activeMode, presentValue, futureValue, payment, annualRate, periods, compoundingFrequency, paymentTiming, result]);
+    }, [activeMode, calculatedInput, result]);
 
     // Chart data for breakdown
     const breakdownChartData = useMemo(() => {
@@ -241,6 +263,32 @@ export default function FinanceCalculator() {
         setCompoundingFrequency('monthly');
         setPaymentTiming('end');
         setShowAdvanced(false);
+
+        const defaults = {
+            presentValue: 10000,
+            futureValue: 0,
+            payment: 0,
+            annualRate: 6,
+            periods: 120,
+            compoundingFrequency: 'monthly' as CompoundingFrequency,
+            paymentTiming: 'end' as PaymentTiming
+        };
+
+        // Helper to calc with explicit values
+        const calcWithValues = (vals: typeof defaults) => {
+            const input = { ...vals };
+            switch (activeMode) {
+                case 'FV': return calculateFutureValue(input);
+                case 'PV': return calculatePresentValue(input);
+                case 'PMT': return calculatePayment(input);
+                case 'N': return calculatePeriods(input);
+                case 'IY': return calculateInterestRate(input);
+                default: return null;
+            }
+        };
+
+        setCalculatedInput(defaults);
+        setResult(calcWithValues(defaults));
     };
 
     const formatCurrency = (value: number) => {
@@ -269,65 +317,63 @@ export default function FinanceCalculator() {
         setPeriods(Math.round(years * periodsPerYear));
     };
 
-    // Pagination for cash flow schedule
-    const totalPages = Math.ceil(cashFlowSchedule.length / rowsPerPage);
-    const paginatedSchedule = cashFlowSchedule.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-    );
 
-    // Reset to page 1 when mode changes
-    React.useEffect(() => {
-        setCurrentPage(1);
-    }, [activeMode]);
 
-    // Export to PDF function
-    const exportToPDF = () => {
-        try {
-            const doc = new jsPDF();
 
-            // Add title
-            doc.setFontSize(20);
-            doc.text('Cash Flow Schedule', 14, 22);
 
-            // Add calculator details
-            doc.setFontSize(12);
-            doc.text(`Mode: ${MODES.find(m => m.id === activeMode)?.label}`, 14, 32);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 38);
+    // Prepare schedule for AmortizationTable
+    const scheduleForTable = useMemo(() => {
+        const startDate = new Date();
+        return cashFlowSchedule.map(row => {
+            const date = new Date(startDate);
+            // Calculate date based on frequency and period
+            // Note: row.period is 1-based index
+            switch (compoundingFrequency) {
+                case 'annual':
+                    date.setFullYear(date.getFullYear() + row.period); // Add years (mistake in thought trace fixed here: period 1 = +1 year?? usually period is offset. If period 1 is end of 1st year, then +1 year is correct)
+                    // Better: add period * 1 year? 
+                    // If start is Jan 1 2024. Period 1 end is Jan 1 2025. Yes.
+                    // But usually amortization tables start with period 1 AFTER 1 month.
+                    // So adding 'period' units is correct.
+                    break;
+                case 'semiannual':
+                    date.setMonth(date.getMonth() + row.period * 6);
+                    break;
+                case 'quarterly':
+                    date.setMonth(date.getMonth() + row.period * 3);
+                    break;
+                case 'monthly':
+                    date.setMonth(date.getMonth() + row.period);
+                    break;
+                case 'daily':
+                    date.setDate(date.getDate() + row.period);
+                    break;
+            }
 
-            // Add key input parameters only
-            let yPos = 48;
-            doc.setFontSize(11);
-            if (activeMode !== 'PV') { doc.text(`Present Value: ${formatCurrency(presentValue)}`, 14, yPos); yPos += 6; }
-            if (activeMode !== 'FV') { doc.text(`Future Value: ${formatCurrency(futureValue)}`, 14, yPos); yPos += 6; }
-            if (activeMode !== 'PMT') { doc.text(`Payment: ${formatCurrency(payment)}`, 14, yPos); yPos += 6; }
-            if (activeMode !== 'IY') { doc.text(`Annual Rate: ${annualRate}%`, 14, yPos); yPos += 6; }
-            if (activeMode !== 'N') { doc.text(`Years: ${formatNumber(getYearsFromPeriods(), 1)}`, 14, yPos); yPos += 6; }
+            return {
+                month: row.period,
+                date: date,
+                payment: row.payment,
+                principal: row.principal,
+                interest: row.interest,
+                balance: row.balance
+            };
+        });
+    }, [cashFlowSchedule, compoundingFrequency]);
 
-            // Prepare table data - simplified to match working examples
-            const tableColumn = ["Period", "Payment", "Interest", "Principal", "Balance"];
-            const tableRows = cashFlowSchedule.map(row => [
-                row.period.toString(),
-                formatCurrency(row.payment),
-                formatCurrency(row.interest),
-                formatCurrency(row.principal),
-                formatCurrency(row.balance)
-            ]);
+    // Prepare loan details for PDF
+    const loanDetails = useMemo(() => {
+        if (!result) return undefined;
 
-            // Add table using autoTable - simplified configuration
-            autoTable(doc, {
-                head: [tableColumn],
-                body: tableRows,
-                startY: yPos + 5,
-            });
-
-            // Save the PDF
-            doc.save(`cash-flow-schedule-${activeMode}-${new Date().getTime()}.pdf`);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF. Please try again.');
-        }
-    };
+        return {
+            loanAmount: calculatedInput.presentValue,
+            interestRate: activeMode === 'IY' ? result.value : calculatedInput.annualRate,
+            loanTerm: activeMode === 'N' ? Math.ceil(result.value) : calculatedInput.periods,
+            monthlyPayment: activeMode === 'PMT' ? result.value : calculatedInput.payment,
+            totalInterest: result.totalInterest,
+            totalCost: result.totalInvestment + result.totalInterest
+        };
+    }, [result, calculatedInput, activeMode]);
 
 
 
@@ -470,6 +516,13 @@ export default function FinanceCalculator() {
                                     </div>
                                 </div>
                             </div>
+
+                            <div className="mt-8">
+                                <CalculateButton
+                                    onClick={performCalculation}
+                                    label="Calculate"
+                                />
+                            </div>
                         </div>
 
                         {/* Results Section */}
@@ -607,92 +660,16 @@ export default function FinanceCalculator() {
                                     )}
 
                                     {/* Cash Flow Schedule Table */}
-                                    {cashFlowSchedule.length > 0 && (
-                                        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                                    Cash Flow Schedule
-                                                </h4>
-                                                <div className="flex items-center gap-3">
-                                                    {/* Rows per page selector */}
-                                                    <div className="flex items-center gap-2">
-                                                        <label className="text-sm text-gray-600 dark:text-gray-400">Rows:</label>
-                                                        <select
-                                                            value={rowsPerPage}
-                                                            onChange={(e) => {
-                                                                setRowsPerPage(Number(e.target.value));
-                                                                setCurrentPage(1);
-                                                            }}
-                                                            className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        >
-                                                            <option value={10}>10</option>
-                                                            <option value={25}>25</option>
-                                                            <option value={50}>50</option>
-                                                            <option value={100}>100</option>
-                                                        </select>
-                                                    </div>
-                                                    {/* Export button */}
-                                                    <button
-                                                        onClick={exportToPDF}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer text-sm font-medium"
-                                                    >
-                                                        <Download className="w-4 h-4" />
-                                                        Export PDF
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="overflow-x-auto">
-                                                <table className="w-full text-sm">
-                                                    <thead className="bg-gray-100 dark:bg-gray-800">
-                                                        <tr>
-                                                            <th className="px-4 py-3 text-left text-gray-700 dark:text-gray-300">Period</th>
-                                                            <th className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">Payment</th>
-                                                            <th className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">Interest</th>
-                                                            <th className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">Principal</th>
-                                                            <th className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">Balance</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                                        {paginatedSchedule.map((row, index) => (
-                                                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                                                                <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{row.period}</td>
-                                                                <td className="px-4 py-3 text-right text-gray-900 dark:text-white font-medium">{formatCurrency(row.payment)}</td>
-                                                                <td className="px-4 py-3 text-right text-green-600 dark:text-green-400">{formatCurrency(row.interest)}</td>
-                                                                <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">{formatCurrency(row.principal)}</td>
-                                                                <td className="px-4 py-3 text-right text-blue-600 dark:text-blue-400 font-bold">{formatCurrency(row.balance)}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            {/* Pagination Controls */}
-                                            {totalPages > 1 && (
-                                                <div className="flex items-center justify-between mt-4">
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                        Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, cashFlowSchedule.length)} of {cashFlowSchedule.length} periods
-                                                    </p>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                                            disabled={currentPage === 1}
-                                                            className="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                                                        >
-                                                            <ChevronLeft className="w-4 h-4" />
-                                                        </button>
-                                                        <span className="px-4 py-1 text-sm text-gray-700 dark:text-gray-300">
-                                                            Page {currentPage} of {totalPages}
-                                                        </span>
-                                                        <button
-                                                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                                            disabled={currentPage === totalPages}
-                                                            className="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                                                        >
-                                                            <ChevronRight className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
+                                    {scheduleForTable.length > 0 && (
+                                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                                Cash Flow Schedule
+                                            </h4>
+                                            <AmortizationTable
+                                                schedule={scheduleForTable}
+                                                calculatorName={`Finance Calculator - ${MODES.find(m => m.id === activeMode)?.label}`}
+                                                loanDetails={loanDetails}
+                                            />
                                         </div>
                                     )}
                                 </>

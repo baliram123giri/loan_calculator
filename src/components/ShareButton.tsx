@@ -33,7 +33,7 @@ export default function ShareButton({ data, baseUrl }: ShareButtonProps) {
     return (
         <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm cursor-pointer"
             title="Copy link to this calculation"
         >
             {copied ? <Check size={16} /> : <Share2 size={16} />}

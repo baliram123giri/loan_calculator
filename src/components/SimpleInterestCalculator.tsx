@@ -6,13 +6,15 @@ import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { calculateSimpleInterest, calculateAdvancedSimpleInterest, InterestCalculation } from '@/lib/calc/interest';
 import { Prepayment, RateChange } from '@/lib/calc/paymentCalc';
-import { Download, RotateCcw } from 'lucide-react';
+import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import ShareButton from '@/components/ShareButton';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { AdvancedOptions } from './AdvancedOptions';
+import { CalculateButton } from './Shared/CalculateButton';
+import { ResetButton } from './Shared/ResetButton';
 
 export default function SimpleInterestCalculator() {
     const searchParams = useSearchParams();
@@ -27,9 +29,6 @@ export default function SimpleInterestCalculator() {
     const [prepayments, setPrepayments] = useState<Prepayment[]>([]);
     const [rateChanges, setRateChanges] = useState<RateChange[]>([]);
 
-    // Helper functions for advanced features
-    // No longer needed here as they are handled inside AdvancedOptions component or via state updates
-
     const handlePrepaymentsChange = (newPrepayments: Prepayment[]) => {
         setPrepayments(newPrepayments);
     };
@@ -38,14 +37,42 @@ export default function SimpleInterestCalculator() {
         setRateChanges(newRateChanges);
     };
 
+    const calculate = (
+        p: number = principal,
+        r: number = rate,
+        t: number = time,
+        start: Date = startDate,
+        pre: Prepayment[] = prepayments,
+        rc: RateChange[] = rateChanges
+    ) => {
+        const res = calculateAdvancedSimpleInterest(p, r, t, start, pre, rc);
+        setResult(res);
+    };
+
     const resetToDefaults = () => {
-        setPrincipal(10000);
-        setRate(5);
-        setTime(5);
-        setStartDate(new Date());
+        const defaultPrincipal = 10000;
+        const defaultRate = 5;
+        const defaultTime = 5;
+        const defaultDate = new Date();
+
+        setPrincipal(defaultPrincipal);
+        setRate(defaultRate);
+        setTime(defaultTime);
+        setStartDate(defaultDate);
         setPrepayments([]);
         setRateChanges([]);
         setShowAdvanced(false);
+
+        // Calculate immediately with defaults
+        const res = calculateAdvancedSimpleInterest(
+            defaultPrincipal,
+            defaultRate,
+            defaultTime,
+            defaultDate,
+            [],
+            []
+        );
+        setResult(res);
     };
 
     useEffect(() => {
@@ -53,28 +80,78 @@ export default function SimpleInterestCalculator() {
         const r = searchParams.get('r');
         const t = searchParams.get('t');
 
-        if (p) setPrincipal(Number(p));
-        if (r) setRate(Number(r));
-        if (t) setTime(Number(t));
+        if (p || r || t) {
+            const newP = p ? Number(p) : 10000;
+            const newR = r ? Number(r) : 5;
+            const newT = t ? Number(t) : 5;
+
+            setPrincipal(newP);
+            setRate(newR);
+            setTime(newT);
+
+            // Trigger calculation with these new values
+            const res = calculateAdvancedSimpleInterest(newP, newR, newT, startDate, prepayments, rateChanges);
+            setResult(res);
+        } else {
+            // Initial calculation with defaults if no params
+            calculate();
+        }
     }, [searchParams]);
 
-    useEffect(() => {
-        const res = calculateAdvancedSimpleInterest(principal, rate, time, startDate, prepayments, rateChanges);
-        setResult(res);
-    }, [principal, rate, time, startDate, prepayments, rateChanges]);
+    // Removed auto-calculation useEffect
 
     const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
     const handleExportPDF = () => {
         if (!result) return;
         const doc = new jsPDF();
-        doc.setFontSize(20);
-        doc.text('Simple Interest Schedule', 14, 22);
 
-        doc.setFontSize(12);
-        doc.text(`Principal: ${formatCurrency(principal)}`, 14, 32);
-        doc.text(`Rate: ${rate}%`, 14, 38);
-        doc.text(`Time: ${time} years`, 14, 44);
+        // Header
+        doc.setFillColor(79, 70, 229); // Indigo 600
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('Simple Interest Calculator', 105, 25, { align: 'center' });
+
+        // Loan Details Box
+        doc.setDrawColor(200, 200, 200);
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(14, 50, 182, 40, 3, 3, 'S');
+
+        // Loan Details Content
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Loan Summary', 20, 62);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+
+        // Left Column
+        doc.text('Principal Amount:', 20, 72);
+        doc.text(formatCurrency(principal), 60, 72);
+
+        doc.text('Annual Rate:', 20, 80);
+        doc.text(`${rate}%`, 60, 80);
+
+        doc.text('Time Period:', 20, 88); // Added spacing
+        doc.text(`${time} years`, 60, 88);
+
+        // Right Column
+        doc.text('Total Interest:', 110, 72);
+        if (result.interest < 0) {
+            doc.setTextColor(220, 38, 38); // Red
+        } else {
+            doc.setTextColor(22, 163, 74); // Green
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.text(formatCurrency(result.interest), 150, 72);
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Total Payment:', 110, 80);
+        doc.setFont('helvetica', 'bold');
+        doc.text(formatCurrency(result.totalAmount), 150, 80);
 
         const tableColumn = ["Year", "Opening Balance", "Interest", "Closing Balance"];
         const tableRows = result.breakdown.map(row => [
@@ -87,10 +164,32 @@ export default function SimpleInterestCalculator() {
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
-            startY: 55,
+            startY: 100,
+            headStyles: {
+                fillColor: [79, 70, 229],
+                halign: 'center'
+            },
+            styles: {
+                fontSize: 9,
+                halign: 'center',
+                cellPadding: 3
+            },
+            alternateRowStyles: { fillColor: [245, 247, 255] },
+            didParseCell: (data) => {
+                if (data.section === 'body' && data.column.index === 2) {
+                    const rawInterest = result.breakdown[data.row.index].interest;
+                    if (rawInterest < 0) {
+                        data.cell.styles.textColor = [220, 38, 38]; // Red
+                    } else {
+                        data.cell.styles.textColor = [22, 163, 74]; // Green
+                    }
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
         });
 
-        doc.save('simple-interest.pdf');
+        const dateStr = new Date().toISOString().split('T')[0];
+        doc.save(`simple-interest-calculator-${dateStr}.pdf`);
     };
 
     const shareData = {
@@ -105,13 +204,7 @@ export default function SimpleInterestCalculator() {
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 space-y-6">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Input Details</h2>
-                        <button
-                            onClick={resetToDefaults}
-                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
-                        >
-                            <RotateCcw className="w-4 h-4 mr-1" />
-                            Reset
-                        </button>
+                        <ResetButton onClick={resetToDefaults} />
                     </div>
 
                     <div className="space-y-4">
@@ -182,6 +275,8 @@ export default function SimpleInterestCalculator() {
                         />
                     </div>
 
+                    <CalculateButton onClick={() => calculate()} />
+
                     {/* Advanced Options */}
                     <AdvancedOptions
                         prepayments={prepayments}
@@ -218,7 +313,7 @@ export default function SimpleInterestCalculator() {
                                     <ShareButton data={shareData} />
                                     <button
                                         onClick={handleExportPDF}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium text-sm"
+                                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium text-sm cursor-pointer"
                                     >
                                         <Download size={16} />
                                         Export PDF

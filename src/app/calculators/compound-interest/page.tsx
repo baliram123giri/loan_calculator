@@ -1,7 +1,7 @@
 import React from 'react';
 import CompoundInterestCalculator from '@/components/CompoundInterestCalculator';
 import RelatedCalculators from '@/components/RelatedCalculators';
-import { Percent, Home, DollarSign } from 'lucide-react';
+import { Percent, Home, DollarSign, TrendingUp } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -26,13 +26,19 @@ export default function CompoundInterestPage() {
             ))}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Hero Section */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Compound Interest Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate how your investments grow with the power of compound interest and regular contributions.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Compound Interest{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
+                                Growth
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate how your investments grow 📈 with the power of compound interest. See the magic of long-term wealth building.
+                        </p>
+                    </div>
                 </div>
 
                 <CompoundInterestCalculator />
@@ -42,7 +48,7 @@ export default function CompoundInterestPage() {
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                            The Power of Compound Interest
+                            ⚡ The Power of Compound Interest
                         </h2>
 
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -62,7 +68,7 @@ export default function CompoundInterestPage() {
                     {/* How Compound Interest Works */}
                     <section className="bg-teal-50 dark:bg-teal-900/10 rounded-2xl p-8 border border-teal-100 dark:border-teal-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            How Compound Interest Works
+                            ⚙️ How Compound Interest Works
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -119,7 +125,7 @@ export default function CompoundInterestPage() {
                     {/* Compounding Frequency */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            Compounding Frequency Matters
+                            🔄 Compounding Frequency Matters
                         </h3>
 
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -162,7 +168,7 @@ export default function CompoundInterestPage() {
                     {/* Wealth-Building Strategies */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            Maximize Your Compound Interest Growth
+                            🚀 Maximize Your Compound Interest Growth
                         </h3>
 
                         <div className="space-y-6">
@@ -216,7 +222,7 @@ export default function CompoundInterestPage() {
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                            Compound Interest Questions
+                            ❓ Compound Interest Questions
                         </h2>
 
                         <div className="space-y-8">

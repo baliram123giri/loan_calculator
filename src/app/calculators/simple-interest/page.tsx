@@ -1,7 +1,7 @@
 import React from 'react';
 import SimpleInterestCalculator from '@/components/SimpleInterestCalculator';
 import RelatedCalculators from '@/components/RelatedCalculators';
-import { TrendingUp, Calculator, DollarSign } from 'lucide-react';
+import { TrendingUp, Calculator, DollarSign, Percent } from 'lucide-react';
 import { generateCalculatorMetadata } from '@/lib/seo/metadata';
 import { calculatorSchemas } from '@/lib/seo/schema';
 
@@ -25,14 +25,20 @@ export default function SimpleInterestPage() {
                 />
             ))}
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Hero Section */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Simple Interest Calculator
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Calculate simple interest on loans and investments with detailed yearly breakdowns.
-                    </p>
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Simple Interest{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                                Simplified
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Calculate simple interest on loans and investments. Get clear, precise breakdowns for your financial planning.
+                        </p>
+                    </div>
                 </div>
 
                 <SimpleInterestCalculator />
@@ -41,7 +47,8 @@ export default function SimpleInterestPage() {
                 <div className="max-w-4xl mx-auto mt-16 space-y-12">
                     {/* Introduction Section */}
                     <section className="prose dark:prose-invert max-w-none">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                            <span className="text-4xl">💡</span>
                             Understanding Simple Interest
                         </h2>
 
@@ -61,7 +68,8 @@ export default function SimpleInterestPage() {
 
                     {/* How Simple Interest Works */}
                     <section className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-800">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
+                            <span className="text-3xl">🧮</span>
                             The Simple Interest Formula
                         </h3>
 
@@ -71,10 +79,12 @@ export default function SimpleInterestPage() {
                             principal amount.
                         </p>
 
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 my-6">
-                            <h4 className="font-semibold text-indigo-600 dark:text-indigo-400 mb-3">The Formula</h4>
-                            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-6 text-center mb-4">
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 my-6 shadow-sm">
+                            <h4 className="font-semibold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center gap-2">
+                                <span>📐</span> The Formula
+                            </h4>
+                            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-6 text-center mb-4 border border-indigo-100 dark:border-indigo-800">
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-wide">
                                     I = P × R × T
                                 </p>
                                 <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
@@ -84,14 +94,14 @@ export default function SimpleInterestPage() {
                                     <p><strong>T</strong> = Time period (in years)</p>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 italic text-center">
                                 Total Amount = Principal + Interest
                             </p>
                         </div>
 
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
-                            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
-                                Example Calculation
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                <span>📝</span> Example Calculation
                             </p>
                             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                 You borrow <strong className="text-indigo-600 dark:text-indigo-400">$10,000</strong> at{' '}
@@ -106,7 +116,8 @@ export default function SimpleInterestPage() {
 
                     {/* Simple vs Compound Interest */}
                     <section className="prose dark:prose-invert max-w-none">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
+                            <span className="text-3xl">⚖️</span>
                             Simple Interest vs. Compound Interest
                         </h3>
 
@@ -117,7 +128,9 @@ export default function SimpleInterestPage() {
 
                         <div className="grid md:grid-cols-2 gap-6 my-8">
                             <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Simple Interest</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                    <span>🔹</span> Simple Interest
+                                </h4>
                                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
                                     Interest calculated only on the original principal amount. The interest stays the same each period.
                                 </p>
@@ -138,7 +151,9 @@ export default function SimpleInterestPage() {
                             </div>
 
                             <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-6 border border-green-200 dark:border-green-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Compound Interest</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                    <span>📈</span> Compound Interest
+                                </h4>
                                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
                                     Interest calculated on principal plus accumulated interest. Interest grows exponentially.
                                 </p>
@@ -170,13 +185,16 @@ export default function SimpleInterestPage() {
 
                     {/* Common Uses */}
                     <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                            <span className="text-3xl">🏦</span>
                             Where Simple Interest Is Used
                         </h3>
 
                         <div className="space-y-6">
                             <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">1. Auto Loans</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span>🚗</span> 1. Auto Loans
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Most car loans use simple interest, calculated daily on the remaining balance. If you pay early
                                     in the month, you pay less interest. If you pay late, you pay more. This makes extra payments
@@ -185,7 +203,9 @@ export default function SimpleInterestPage() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">2. Short-Term Personal Loans</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span>🤝</span> 2. Short-Term Personal Loans
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Loans with terms under 1-2 years often use simple interest. This includes payday loans (though
                                     these have extremely high rates), some personal loans, and bridge loans. The shorter term means
@@ -194,7 +214,9 @@ export default function SimpleInterestPage() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">3. Some Student Loans</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span>🎓</span> 3. Some Student Loans
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Federal student loans use simple daily interest. Interest accrues daily but doesn't compound
                                     (unless you don't pay it and it capitalizes). Private student loans vary—some use simple interest,
@@ -203,7 +225,9 @@ export default function SimpleInterestPage() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">4. Certain Savings Accounts</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span>💰</span> 4. Certain Savings Accounts
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Some basic savings accounts and short-term certificates of deposit (CDs) use simple interest,
                                     though most modern savings accounts compound daily or monthly. Always check the terms to understand
@@ -212,7 +236,9 @@ export default function SimpleInterestPage() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">5. Business and Commercial Loans</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span>🏢</span> 5. Business and Commercial Loans
+                                </h4>
                                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Short-term business loans, lines of credit, and commercial paper often use simple interest. The
                                     predictability helps businesses plan cash flow and budget for interest expenses accurately.
@@ -223,7 +249,8 @@ export default function SimpleInterestPage() {
 
                     {/* FAQ Section */}
                     <section className="prose dark:prose-invert max-w-none">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                            <span className="text-4xl">❓</span>
                             Simple Interest Questions
                         </h2>
 
