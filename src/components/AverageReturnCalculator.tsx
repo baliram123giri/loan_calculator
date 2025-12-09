@@ -391,61 +391,60 @@ export default function AverageReturnCalculator() {
 
         // Schedule
         if (schedule.length > 0) {
-            if (schedule.length > 0) {
-                doc.text('Growth Schedule (Annual & Final Monthly)', 14, (doc as any).lastAutoTable.finalY + 15);
+            doc.text('Growth Schedule (Annual & Final Monthly)', 14, (doc as any).lastAutoTable.finalY + 15);
 
-                const scheduleRows: any[] = [];
-                schedule.forEach(row => {
-                    // Annual Row
-                    scheduleRows.push([
-                        row.date,
-                        formatCurrency(row.value),
-                        formatCurrency(row.gain)
-                    ]);
+            const scheduleRows: any[] = [];
+            schedule.forEach(row => {
+                // Annual Row
+                scheduleRows.push([
+                    row.date,
+                    formatCurrency(row.value),
+                    formatCurrency(row.gain)
+                ]);
 
-                    // Monthly Rows (if any) - Indented or distinct
-                    if (row.months && row.months.length > 0) {
-                        row.months.forEach(m => {
-                            scheduleRows.push([
-                                `   ${m.date}`, // Indent
-                                formatCurrency(m.value),
-                                formatCurrency(m.gain)
-                            ]);
-                        });
-                    }
-                });
+                // Monthly Rows (if any) - Indented or distinct
+                if (row.months && row.months.length > 0) {
+                    row.months.forEach(m => {
+                        scheduleRows.push([
+                            `   ${m.date}`, // Indent
+                            formatCurrency(m.value),
+                            formatCurrency(m.gain)
+                        ]);
+                    });
+                }
+            });
 
-                autoTable(doc, {
-                    startY: (doc as any).lastAutoTable.finalY + 20,
-                    head: [['Period', 'Value', 'Gain/Loss']],
-                    body: scheduleRows,
-                    theme: 'grid', // Ensure borders
-                    styles: {
-                        fontSize: 9,
-                        lineColor: [200, 200, 200], // Gray borders
-                        lineWidth: 0.1
-                    },
-                    headStyles: {
-                        fillColor: [79, 70, 229],
-                        textColor: 255
-                    },
-                    didParseCell: (data) => {
-                        if (data.section === 'body' && data.column.index === 2) {
-                            const cellText = data.cell.raw as string; // e.g. "$1,200.00" or "-$500.00"
-                            // Simple check for negative sign or parenthesis often used in accounting
-                            // But here we rely on text content.
-                            // Ideally we'd use raw value, but we passed formatted string.
-                            // Let's parse.
-                            if (cellText.includes('-') || cellText.includes('(')) {
-                                data.cell.styles.textColor = [220, 38, 38]; // Red
-                            } else {
-                                data.cell.styles.textColor = [22, 163, 74]; // Green
-                            }
+            autoTable(doc, {
+                startY: (doc as any).lastAutoTable.finalY + 20,
+                head: [['Period', 'Value', 'Gain/Loss']],
+                body: scheduleRows,
+                theme: 'grid', // Ensure borders
+                styles: {
+                    fontSize: 9,
+                    lineColor: [200, 200, 200], // Gray borders
+                    lineWidth: 0.1
+                },
+                headStyles: {
+                    fillColor: [79, 70, 229],
+                    textColor: 255
+                },
+                didParseCell: (data) => {
+                    if (data.section === 'body' && data.column.index === 2) {
+                        const cellText = data.cell.raw as string; // e.g. "$1,200.00" or "-$500.00"
+                        // Simple check for negative sign or parenthesis often used in accounting
+                        // But here we rely on text content.
+                        // Ideally we'd use raw value, but we passed formatted string.
+                        // Let's parse.
+                        if (cellText.includes('-') || cellText.includes('(')) {
+                            data.cell.styles.textColor = [220, 38, 38]; // Red
+                        } else {
+                            data.cell.styles.textColor = [22, 163, 74]; // Green
                         }
                     }
-                });
-            }
+                }
+            });
         }
+
 
         const timestamp = Date.now();
         doc.save(`average-return-report-${timestamp}.pdf`);
