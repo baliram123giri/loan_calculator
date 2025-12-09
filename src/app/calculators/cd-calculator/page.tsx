@@ -23,18 +23,18 @@ export default function CDCalculatorPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Hero Section */}
-            <div className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/10 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-900/50 border-b border-gray-200 dark:border-gray-800 pb-16 pt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-4xl mx-auto mb-12">
-                        <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-                            Maximize Your Returns with Our{' '}
+                        <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Maximize Returns with Our <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
                                 CD Calculator
                             </span>
                         </h1>
                         <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
-                            Visualize the growth of your Certificate of Deposit investments.
-                            Compare APY, compounding frequencies, and tax impacts to make smarter savings decisions.
+                            Visualize your Certificate of Deposit growth with precision.
+                            Compare rates, frequencies, and tax impacts to guarantee your financial future.
                         </p>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ export default function CDCalculatorPage() {
                         <section className="prose dark:prose-invert max-w-none">
                             <h2 className="flex items-center text-3xl font-bold text-gray-900 dark:text-white mb-6">
                                 <Landmark className="w-8 h-8 mr-3 text-blue-600" />
-                                Why Choose a Certificate of Deposit (CD)?
+                                🏦 Why Choose a Certificate of Deposit (CD)?
                             </h2>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                                 A Certificate of Deposit (CD) is one of the safest investment vehicles available. Unlike the stock market,
@@ -71,10 +71,38 @@ export default function CDCalculatorPage() {
                             </p>
                         </section>
 
+                        {/* Math Formulas Section */}
+                        <section className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-900/50">
+                            <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                                🧮 The Math Behind the Magic
+                            </h2>
+                            <p className="text-gray-700 dark:text-gray-300 mb-6">
+                                Understanding how your CD interest is calculated can help you make better decisions. Here are the formulas we use:
+                            </p>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                        Compound Interest Formula
+                                    </h3>
+                                    <div className="bg-white dark:bg-gray-900 p-4 rounded-lg font-mono text-sm text-indigo-600 dark:text-indigo-400 mb-4 overflow-x-auto border border-gray-200 dark:border-gray-800 shadow-sm">
+                                        A = P(1 + r/n)^(nt)
+                                    </div>
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 grid sm:grid-cols-2 gap-2">
+                                        <li>• <strong>A</strong>: Future Value (Total Balance)</li>
+                                        <li>• <strong>P</strong>: Principal (Deposit Amount)</li>
+                                        <li>• <strong>r</strong>: Annual Interest Rate (decimal)</li>
+                                        <li>• <strong>n</strong>: Compounding Frequency per year</li>
+                                        <li>• <strong>t</strong>: Time in years</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
                         {/* How it works */}
                         <section className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-                                Understanding the Mechanics of a CD
+                                ⚙️ Understanding the Mechanics of a CD
                             </h2>
 
                             <div className="grid md:grid-cols-2 gap-8">
@@ -139,7 +167,7 @@ export default function CDCalculatorPage() {
                         {/* CD Ladder Strategy */}
                         <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-2xl p-8 border border-blue-100 dark:border-blue-800">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                                Pro Tip: The CD Ladder Strategy
+                                🧗 Pro Tip: The CD Ladder Strategy
                             </h2>
                             <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
                                 Don't want to lock all your money up for 5 years? Try a <strong className="text-blue-700 dark:text-blue-300">CD Ladder</strong>.
@@ -171,7 +199,7 @@ export default function CDCalculatorPage() {
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-8">
                                 <HelpCircle className="w-6 h-6 mr-3 text-gray-600" />
-                                Frequently Asked Questions
+                                ❓ Frequently Asked Questions
                             </h2>
 
                             <div className="space-y-6">

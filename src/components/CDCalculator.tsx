@@ -28,9 +28,12 @@ import {
     Sparkles,
     Heart
 } from 'lucide-react';
+import { CalculateButton } from './Shared/CalculateButton';
+import { ResetButton } from './Shared/ResetButton';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
-import ExportButton from './ExportButton';
 
 ChartJS.register(
     CategoryScale,
@@ -77,12 +80,37 @@ export default function CDCalculator() {
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [liked, setLiked] = useState(false);
 
+    // Snapshot state for calculation
+    const [calculatedValues, setCalculatedValues] = useState({
+        depositAmount: 10000,
+        rate: 5.0,
+        termYears: 5,
+        termMonths: 0,
+        compoundingFrequency: 12,
+        taxRate: 0,
+        inflationRate: 0
+    });
+    const [hasCalculated, setHasCalculated] = useState(true);
+
+    const handleCalculate = () => {
+        setCalculatedValues({
+            depositAmount,
+            rate,
+            termYears,
+            termMonths,
+            compoundingFrequency,
+            taxRate,
+            inflationRate
+        });
+        setHasCalculated(true);
+    };
+
     // Calculation Logic
     const { result, schedule } = useMemo(() => {
-        const principal = depositAmount;
-        const annualRate = rate / 100;
-        const totalYears = termYears + (termMonths / 12);
-        const frequency = compoundingFrequency;
+        const principal = calculatedValues.depositAmount;
+        const annualRate = calculatedValues.rate / 100;
+        const totalYears = calculatedValues.termYears + (calculatedValues.termMonths / 12);
+        const frequency = calculatedValues.compoundingFrequency;
 
         // Validation for zero/negative values to avoid NaN
         if (principal <= 0 || totalYears <= 0) {
@@ -103,8 +131,6 @@ export default function CDCalculator() {
         const totalPeriods = totalYears * frequency;
         const ratePerPeriod = annualRate / frequency;
 
-        let currentBalance = principal;
-        let totalInterest = 0;
         const scheduleData: ScheduleItem[] = [];
 
         // Generate Schedule
@@ -134,10 +160,10 @@ export default function CDCalculator() {
         const apy = (Math.pow(1 + ratePerPeriod, frequency) - 1) * 100;
 
         // Real Value (Inflation Adjusted): PV = FV / (1 + i)^t
-        const realVal = finalBalance / Math.pow(1 + inflationRate / 100, totalYears);
+        const realVal = finalBalance / Math.pow(1 + calculatedValues.inflationRate / 100, totalYears);
 
         // Tax Calculation
-        const taxAmt = finalInterest * (taxRate / 100);
+        const taxAmt = finalInterest * (calculatedValues.taxRate / 100);
         const afterTaxBal = finalBalance - taxAmt;
 
         return {
@@ -151,16 +177,16 @@ export default function CDCalculator() {
             },
             schedule: scheduleData
         };
-    }, [depositAmount, rate, termYears, termMonths, compoundingFrequency, taxRate, inflationRate]);
+    }, [calculatedValues]);
 
     // AI Suggestions Generation
     useEffect(() => {
         const newSuggestions = [];
-        const totalYears = termYears + (termMonths / 12);
+        const totalYears = calculatedValues.termYears + (calculatedValues.termMonths / 12);
 
-        if (rate < 3) {
+        if (calculatedValues.rate < 3) {
             newSuggestions.push("💡 Rates adhere to market trends. With a rate below 3%, consider looking for high-yield savings accounts or short-term treasury bills which might offer better liquidity.");
-        } else if (rate > 5) {
+        } else if (calculatedValues.rate > 5) {
             newSuggestions.push("🚀 Excellent rate! Locking in a rate above 5% is historically a strong move for guaranteed returns.");
         }
 
@@ -170,21 +196,21 @@ export default function CDCalculator() {
             newSuggestions.push("🔄 Short-term CD: Good for parking cash you'll need soon. Have you checked if a No-Penalty CD offers a similar rate?");
         }
 
-        if (compoundingFrequency === 1) {
+        if (calculatedValues.compoundingFrequency === 1) {
             newSuggestions.push("📈 Pro Tip: Switching to daily or monthly compounding could slightly increase your APY compared to annual compounding.");
         }
 
-        if (inflationRate > 0 && result.apy < inflationRate) {
-            newSuggestions.push(`⚠️ Inflation Alert: Your APY (${result.apy.toFixed(2)}%) is lower than the inflation rate (${inflationRate}%). Your purchasing power may actually decrease over time.`);
+        if (calculatedValues.inflationRate > 0 && result.apy < calculatedValues.inflationRate) {
+            newSuggestions.push(`⚠️ Inflation Alert: Your APY (${result.apy.toFixed(2)}%) is lower than the inflation rate (${calculatedValues.inflationRate}%). Your purchasing power may actually decrease over time.`);
         }
 
         // CD Ladder suggestion
-        if (depositAmount >= 10000 && totalYears >= 3) {
+        if (calculatedValues.depositAmount >= 10000 && totalYears >= 3) {
             newSuggestions.push("🪜 Strategy: With this amount and term, consider a 'CD Ladder'. Split your $10k into five $2k CDs maturing in 1, 2, 3, 4, and 5 years to balance high rates with liquidity.");
         }
 
         setSuggestions(newSuggestions);
-    }, [depositAmount, rate, termYears, termMonths, compoundingFrequency, inflationRate, result.apy]);
+    }, [calculatedValues, result.apy]);
 
     // Chart Data
     const chartData = {
@@ -200,7 +226,7 @@ export default function CDCalculator() {
             },
             {
                 label: 'Principal',
-                data: schedule.filter((_, i) => i % 12 === 0 || i === schedule.length - 1).map(() => depositAmount),
+                data: schedule.filter((_, i) => i % 12 === 0 || i === schedule.length - 1).map(() => calculatedValues.depositAmount),
                 borderColor: 'rgb(156, 163, 175)',
                 borderDash: [5, 5],
                 fill: false,
@@ -213,7 +239,7 @@ export default function CDCalculator() {
         labels: ['Principal', 'Interest Earned'],
         datasets: [
             {
-                data: [depositAmount, result.totalInterest],
+                data: [calculatedValues.depositAmount, result.totalInterest],
                 backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)'],
                 borderColor: ['rgba(59, 130, 246, 1)', 'rgba(16, 185, 129, 1)'],
                 borderWidth: 1,
@@ -226,13 +252,86 @@ export default function CDCalculator() {
     };
 
     const resetCalculator = () => {
-        setDepositAmount(10000);
-        setRate(5.0);
-        setTermYears(5);
-        setTermMonths(0);
-        setCompoundingFrequency(12);
-        setTaxRate(0);
-        setInflationRate(0);
+        const defaults = {
+            depositAmount: 10000,
+            rate: 5.0,
+            termYears: 5,
+            termMonths: 0,
+            compoundingFrequency: 12,
+            taxRate: 0,
+            inflationRate: 0
+        };
+
+        setDepositAmount(defaults.depositAmount);
+        setRate(defaults.rate);
+        setTermYears(defaults.termYears);
+        setTermMonths(defaults.termMonths);
+        setCompoundingFrequency(defaults.compoundingFrequency);
+        setTaxRate(defaults.taxRate);
+        setInflationRate(defaults.inflationRate);
+
+        setCalculatedValues(defaults);
+        setHasCalculated(true);
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFillColor(220, 38, 38); // Red 600
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('CD Investment Report', 105, 25, { align: 'center' });
+
+        // Summary Section
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.text('Investment Summary', 14, 50);
+
+        const summaryData = [
+            ['Deposit Amount', formatCurrency(calculatedValues.depositAmount)],
+            ['Term', `${calculatedValues.termYears} Years ${calculatedValues.termMonths > 0 ? `${calculatedValues.termMonths} Months` : ''}`],
+            ['Rate (APY)', `${calculatedValues.rate}%`],
+            ['Total Interest', formatCurrency(result.totalInterest)],
+            ['Total Balance', formatCurrency(result.totalBalance)],
+            ['Real Value', formatCurrency(result.realValue)]
+        ];
+
+        autoTable(doc, {
+            startY: 55,
+            head: [['Metric', 'Value']],
+            body: summaryData,
+            theme: 'striped',
+            headStyles: { fillColor: [220, 38, 38] }
+        });
+
+        // Schedule
+        if (schedule.length > 0) {
+            doc.text('Amortization Schedule', 14, (doc as any).lastAutoTable.finalY + 15);
+
+            // Filter for readability in PDF akin to the table view
+            const tableRows = schedule
+                .filter((_, i) => i === 0 || i === schedule.length - 1 || (i + 1) % 12 === 0)
+                .map(row => [
+                    row.period.toString(),
+                    row.year.toString(),
+                    formatCurrency(row.interestEarned),
+                    formatCurrency(row.totalInterest),
+                    formatCurrency(row.balance)
+                ]);
+
+            autoTable(doc, {
+                startY: (doc as any).lastAutoTable.finalY + 20,
+                head: [['Month', 'Year', 'Interest Earned', 'Total Interest', 'Balance']],
+                body: tableRows,
+                headStyles: { fillColor: [220, 38, 38] },
+                styles: { fontSize: 8 }
+            });
+        }
+
+        const timestamp = Date.now();
+        doc.save(`cd-report-${timestamp}.pdf`);
     };
 
     return (
@@ -247,13 +346,7 @@ export default function CDCalculator() {
                                     <Calculator className="w-5 h-5 mr-2 text-blue-600" />
                                     CD Details
                                 </h3>
-                                <button
-                                    onClick={resetCalculator}
-                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-colors cursor-pointer"
-                                >
-                                    <RefreshCw className="w-4 h-4 mr-1" />
-                                    Reset
-                                </button>
+                                <ResetButton onClick={resetCalculator} />
                             </div>
 
                             <div className="space-y-6">
@@ -345,204 +438,211 @@ export default function CDCalculator() {
                                     </div>
                                 </details>
                             </div>
+                            <CalculateButton onClick={handleCalculate} label="Calculate Returns" />
                         </div>
 
                         {/* Results Section */}
                         <div className="lg:col-span-7 space-y-8">
-                            {/* Summary Cards */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
-                                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Total Balance</p>
-                                    <div className="text-3xl font-bold text-blue-900 dark:text-blue-100 tracking-tight">
-                                        {formatCurrency(result.totalBalance)}
+                            {!hasCalculated ? (
+                                <div className="h-full flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 min-h-[400px]">
+                                    <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4">
+                                        <Sparkles className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                    <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
-                                        End of {termYears} years {termMonths > 0 && `& ${termMonths} months`}
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ready to Calculate</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
+                                        Enter your CD details and click "Calculate Returns" to see your potential growth and earnings.
                                     </p>
                                 </div>
-
-                                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-2xl border border-green-100 dark:border-green-800">
-                                    <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">Total Interest Earned</p>
-                                    <div className="text-3xl font-bold text-green-900 dark:text-green-100 tracking-tight">
-                                        {formatCurrency(result.totalInterest)}
-                                    </div>
-                                    <p className="text-xs text-green-500 dark:text-green-400 mt-2">
-                                        {((result.totalInterest / depositAmount) * 100).toFixed(1)}% Return on Investment
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Detailed Stats Grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Effective APY</p>
-                                    <p className="text-lg font-bold text-gray-900 dark:text-white">{result.apy.toFixed(2)}%</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Real Value</p>
-                                    <p className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(result.realValue)}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Est. Tax</p>
-                                    <p className="text-lg font-bold text-red-600 dark:text-red-400">{formatCurrency(result.taxAmount)}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Post-Tax Bal</p>
-                                    <p className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(result.afterTaxBalance)}</p>
-                                </div>
-                            </div>
-
-                            {/* Chart Section */}
-                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Growth Trajectory</h4>
-                                <div className="h-64 md:h-80 w-full">
-                                    <Line
-                                        data={chartData}
-                                        options={{
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            interaction: {
-                                                mode: 'index',
-                                                intersect: false,
-                                            },
-                                            plugins: {
-                                                legend: {
-                                                    position: 'top',
-                                                    labels: { color: '#6B7280' } // gray-500
-                                                },
-                                                tooltip: {
-                                                    callbacks: {
-                                                        label: (ctx) => {
-                                                            if (ctx.parsed.y !== null) {
-                                                                return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
-                                                            }
-                                                            return '';
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            scales: {
-                                                y: {
-                                                    beginAtZero: false,
-                                                    grid: { color: 'rgba(107, 114, 128, 0.1)' },
-                                                    ticks: {
-                                                        color: '#6B7280',
-                                                        callback: (val) => formatCurrency(val as number).split('.')[0] // Condensed currency
-                                                    }
-                                                },
-                                                x: {
-                                                    grid: { display: false },
-                                                    ticks: { color: '#6B7280' }
-                                                }
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* AI Suggestions */}
-                    {suggestions.length > 0 && (
-                        <div className="mt-12">
-                            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-800">
-                                <div className="flex items-center mb-6">
-                                    <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                                        <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI-Powered Insights</h3>
-                                </div>
-                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                    {suggestions.map((suggestion, index) => (
-                                        <div key={index} className="bg-white/80 dark:bg-gray-900/80 p-5 rounded-xl border border-white dark:border-gray-700 shadow-sm">
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                {suggestion}
+                            ) : (
+                                <>
+                                    {/* Summary Cards */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
+                                            <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Total Balance</p>
+                                            <div className="text-3xl font-bold text-blue-900 dark:text-blue-100 tracking-tight">
+                                                {formatCurrency(result.totalBalance)}
+                                            </div>
+                                            <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
+                                                End of {termYears} years {termMonths > 0 && `& ${termMonths} months`}
                                             </p>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
-                    {/* Schedule Table */}
-                    <div className="mt-12">
-                        <div className="flex items-center justify-between mb-6">
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-white">Amortization Schedule</h4>
-                            <ExportButton
-                                columns={['Period (Month)', 'Year', 'Interest Earned', 'Total Interest', 'Balance']}
-                                data={schedule.map(row => [
-                                    row.period,
-                                    row.year,
-                                    formatCurrency(row.interestEarned),
-                                    formatCurrency(row.totalInterest),
-                                    formatCurrency(row.balance)
-                                ])}
-                                title="CD_Calculator_Schedule"
-                                inputs={{
-                                    "Deposit Amount": formatCurrency(depositAmount),
-                                    "Interest Rate": `${rate}%`,
-                                    "Term": `${termYears} Years ${termMonths > 0 ? `${termMonths} Months` : ''}`,
-                                    "Compounding": compoundingFrequency === 12 ? 'Monthly' : compoundingFrequency === 365 ? 'Daily' : 'Annually',
-                                    "Total Balance": formatCurrency(result.totalBalance),
-                                    "Total Interest": formatCurrency(result.totalInterest),
-                                    "APY": `${result.apy.toFixed(2)}%`
-                                }}
-                            />
-                        </div>
-                        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium">
-                                    <tr>
-                                        <th className="px-6 py-4">Month</th>
-                                        <th className="px-6 py-4">Year</th>
-                                        <th className="px-6 py-4 text-right">Interest Earned</th>
-                                        <th className="px-6 py-4 text-right">Total Interest</th>
-                                        <th className="px-6 py-4 text-right">End Balance</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                                    {schedule.map((row, index) => (
-                                        // Show first month, last month, and every 6th month to keep table manageable
-                                        (index === 0 || index === schedule.length - 1 || (index + 1) % 12 === 0) && (
-                                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{row.period}</td>
-                                                <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{row.year}</td>
-                                                <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-medium">
-                                                    +{formatCurrency(row.interestEarned)}
-                                                </td>
-                                                <td className="px-6 py-4 text-right text-gray-600 dark:text-gray-400">
-                                                    {formatCurrency(row.totalInterest)}
-                                                </td>
-                                                <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-bold">
-                                                    {formatCurrency(row.balance)}
-                                                </td>
-                                            </tr>
-                                        )
-                                    ))}
-                                </tbody>
-                            </table>
-                            {schedule.length > 20 && (
-                                <div className="p-4 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                                    Showing condensed view (yearly & key milestones)
-                                </div>
+                                        <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-2xl border border-green-100 dark:border-green-800">
+                                            <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">Total Interest Earned</p>
+                                            <div className="text-3xl font-bold text-green-900 dark:text-green-100 tracking-tight">
+                                                {formatCurrency(result.totalInterest)}
+                                            </div>
+                                            <p className="text-xs text-green-500 dark:text-green-400 mt-2">
+                                                {((result.totalInterest / depositAmount) * 100).toFixed(1)}% Return on Investment
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Detailed Stats Grid */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Effective APY</p>
+                                            <p className="text-lg font-bold text-gray-900 dark:text-white">{result.apy.toFixed(2)}%</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Real Value</p>
+                                            <p className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(result.realValue)}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Est. Tax</p>
+                                            <p className="text-lg font-bold text-red-600 dark:text-red-400">{formatCurrency(result.taxAmount)}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Post-Tax Bal</p>
+                                            <p className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(result.afterTaxBalance)}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Chart Section */}
+                                    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Growth Trajectory</h4>
+                                        <div className="h-64 md:h-80 w-full">
+                                            <Line
+                                                data={chartData}
+                                                options={{
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    interaction: {
+                                                        mode: 'index',
+                                                        intersect: false,
+                                                    },
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top',
+                                                            labels: { color: '#6B7280' } // gray-500
+                                                        },
+                                                        tooltip: {
+                                                            callbacks: {
+                                                                label: (ctx) => {
+                                                                    if (ctx.parsed.y !== null) {
+                                                                        return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`;
+                                                                    }
+                                                                    return '';
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    scales: {
+                                                        y: {
+                                                            beginAtZero: false,
+                                                            grid: { color: 'rgba(107, 114, 128, 0.1)' },
+                                                            ticks: {
+                                                                color: '#6B7280',
+                                                                callback: (val) => formatCurrency(val as number).split('.')[0] // Condensed currency
+                                                            }
+                                                        },
+                                                        x: {
+                                                            grid: { display: false },
+                                                            ticks: { color: '#6B7280' }
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
 
-                    {/* Bottom Actions */}
-                    <div className="mt-8 flex justify-center">
-                        <button
-                            onClick={() => setLiked(!liked)}
-                            className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-200 cursor-pointer ${liked
-                                ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                }`}
-                        >
-                            <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-                            <span>{liked ? 'Added to favorites' : 'Add to favorites'}</span>
-                        </button>
-                    </div>
+                    {/* Full Width Sections */}
+                    {hasCalculated && (
+                        <>
+                            {/* AI Suggestions */}
+                            {suggestions.length > 0 && (
+                                <div className="mt-12">
+                                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-800">
+                                        <div className="flex items-center mb-6">
+                                            <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
+                                                <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI-Powered Insights</h3>
+                                        </div>
+                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                            {suggestions.map((suggestion, index) => (
+                                                <div key={index} className="bg-white/80 dark:bg-gray-900/80 p-5 rounded-xl border border-white dark:border-gray-700 shadow-sm">
+                                                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                        {suggestion}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Schedule Table */}
+                            <div className="mt-12">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h4 className="text-xl font-bold text-gray-900 dark:text-white">Amortization Schedule</h4>
+                                    <button
+                                        onClick={handleExportPDF}
+                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                                    >
+                                        <Download size={16} />
+                                        Export PDF
+                                    </button>
+                                </div>
+                                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium">
+                                            <tr>
+                                                <th className="px-6 py-4">Month</th>
+                                                <th className="px-6 py-4">Year</th>
+                                                <th className="px-6 py-4 text-right">Interest Earned</th>
+                                                <th className="px-6 py-4 text-right">Total Interest</th>
+                                                <th className="px-6 py-4 text-right">End Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                                            {schedule.map((row, index) => (
+                                                // Show first month, last month, and every 6th month to keep table manageable
+                                                (index === 0 || index === schedule.length - 1 || (index + 1) % 12 === 0) && (
+                                                    <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{row.period}</td>
+                                                        <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{row.year}</td>
+                                                        <td className="px-6 py-4 text-right text-green-600 dark:text-green-400 font-medium">
+                                                            +{formatCurrency(row.interestEarned)}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right text-gray-600 dark:text-gray-400">
+                                                            {formatCurrency(row.totalInterest)}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right text-blue-600 dark:text-blue-400 font-bold">
+                                                            {formatCurrency(row.balance)}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    {schedule.length > 20 && (
+                                        <div className="p-4 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                                            Showing condensed view (yearly & key milestones)
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Bottom Actions */}
+                            <div className="mt-8 flex justify-center">
+                                <button
+                                    onClick={() => setLiked(!liked)}
+                                    className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-200 cursor-pointer ${liked
+                                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                        }`}
+                                >
+                                    <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                                    <span>{liked ? 'Added to favorites' : 'Add to favorites'}</span>
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
