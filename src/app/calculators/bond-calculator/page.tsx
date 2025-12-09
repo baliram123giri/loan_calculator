@@ -70,7 +70,7 @@ export default function BondCalculatorPage() {
                         {/* How it works */}
                         <section className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-                                Key Metrics Decoded
+                                📊 Key Metrics Decoded
                             </h2>
 
                             <div className="grid md:grid-cols-2 gap-8">
