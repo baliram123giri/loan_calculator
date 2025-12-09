@@ -14,6 +14,7 @@ import {
     CreditCard
 } from 'lucide-react';
 import NavSearch from './NavSearch';
+import CurrencySelector from './CurrencySelector';
 
 interface CalculatorItem {
     href: string;
@@ -197,10 +198,15 @@ export default function NavBar() {
                                 </Link>
                             );
                         })}
+
+                        <div className="ml-2 border-l border-gray-200 dark:border-gray-800 pl-2">
+                            <CurrencySelector />
+                        </div>
                     </nav>
 
                     {/* Mobile Menu Button */}
                     <div className="flex items-center gap-2 xl:hidden">
+                        <CurrencySelector />
                         {/* Mobile Search Trigger could go here if we wanted a separate icon, but input is hidden on mobile currently */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

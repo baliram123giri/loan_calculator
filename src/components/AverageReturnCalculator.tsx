@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, Fragment } from 'react';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -312,8 +313,10 @@ export default function AverageReturnCalculator() {
         ]
     };
 
+    const { currency } = useCurrency();
+
     const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+        return `${currency.symbol}${val.toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     const resetCalculator = () => {

@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import { ToastProvider } from "@/components/Toast";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +34,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col`}
       >
         <ToastProvider>
-          <NavBar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <CookieConsent />
+          <CurrencyProvider>
+            <NavBar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <CookieConsent />
+          </CurrencyProvider>
         </ToastProvider>
       </body>
     </html>
