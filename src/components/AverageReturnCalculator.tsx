@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Fragment } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -16,16 +16,19 @@ import {
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
 import {
+    Heart,
+    Target,
+    Calendar,
+    ChevronRight,
     TrendingUp,
     Download,
     Info,
     ChevronDown,
-    Sparkles,
-    Heart,
-    Target
+    Sparkles
 } from 'lucide-react';
 import { CalculateButton } from './Shared/CalculateButton';
 import { ResetButton } from './Shared/ResetButton';
+import { DatePicker } from './Shared/DatePicker';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import CurrencyInput from './CurrencyInput';
@@ -48,6 +51,8 @@ interface ScheduleItem {
     year: number;
     value: number;
     gain: number;
+    date: string;
+    months?: ScheduleItem[];
 }
 
 
@@ -57,6 +62,7 @@ export default function AverageReturnCalculator() {
     const [finalValue, setFinalValue] = useState(15000);
     const [years, setYears] = useState(5);
     const [months, setMonths] = useState(0);
+    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
 
     // Advanced Inputs
     const [inflationRate, setInflationRate] = useState(0);
@@ -65,6 +71,17 @@ export default function AverageReturnCalculator() {
     // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [liked, setLiked] = useState(false);
+    const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set());
+
+    const toggleYear = (year: number) => {
+        const newExpanded = new Set(expandedYears);
+        if (newExpanded.has(year)) {
+            newExpanded.delete(year);
+        } else {
+            newExpanded.add(year);
+        }
+        setExpandedYears(newExpanded);
+    };
 
     // Snapshot state for calculation
     const [calculatedValues, setCalculatedValues] = useState({
@@ -72,10 +89,11 @@ export default function AverageReturnCalculator() {
         finalValue: 15000,
         years: 5,
         months: 0,
+        startDate: new Date().toISOString().split('T')[0],
         inflationRate: 0,
         taxRate: 0
     });
-    const [hasCalculated, setHasCalculated] = useState(false);
+    const [hasCalculated, setHasCalculated] = useState(true);
 
     const handleCalculate = () => {
         setCalculatedValues({
@@ -83,6 +101,7 @@ export default function AverageReturnCalculator() {
             finalValue,
             years,
             months,
+            startDate,
             inflationRate,
             taxRate
         });
@@ -140,25 +159,77 @@ export default function AverageReturnCalculator() {
 
         // Generate Schedule for Chart (Interpolating CAGR curve)
         const scheduleData: ScheduleItem[] = [];
+        const startObj = new Date(calculatedValues.startDate);
         const steps = Math.ceil(time);
 
-        for (let i = 0; i <= steps; i++) {
-            // Visualize the growth year by year based on the CAGR
-            const t = i;
+        // Year 0 (Initial)
+        scheduleData.push({
+            year: 0,
+            value: start,
+            gain: 0,
+            date: startObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+            months: []
+        });
+
+        for (let i = 1; i <= steps; i++) {
+            const t = Math.min(i, time);
             const val = start * Math.pow(1 + cagrDec, t);
-            scheduleData.push({
-                year: i,
+
+            const yearStart = new Date(startObj);
+            yearStart.setFullYear(yearStart.getFullYear() + (i - 1));
+
+            const yearEnd = new Date(startObj);
+            // Calculate end date for this row
+            if (t === i) {
+                // Full year
+                yearEnd.setFullYear(yearEnd.getFullYear() + i);
+            } else {
+                // Partial year end
+                const partialMonths = Math.round((t - (i - 1)) * 12);
+                yearEnd.setFullYear(yearEnd.getFullYear() + (i - 1));
+                yearEnd.setMonth(yearEnd.getMonth() + partialMonths);
+            }
+
+            // Label: Standard date for all, range/financial year ONLY for the last row
+            let label;
+            if (i === steps) {
+                label = `${yearStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} - ${yearEnd.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`;
+            } else {
+                label = yearEnd.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+            }
+
+            const row: ScheduleItem = {
+                year: t,
                 value: val,
-                gain: val - start
-            });
-        }
-        // Ensure faint point matches exactly if time is integer, otherwise append final point
-        if (steps < time) {
-            scheduleData.push({
-                year: time,
-                value: end,
-                gain: end - start
-            });
+                gain: val - start,
+                date: label,
+                months: []
+            };
+
+            // Generate months ONLY for the last row as requested
+            if (i === steps) {
+                const monthlyItems: ScheduleItem[] = [];
+                // Round to nearest integer to avoid float errors like 11.99
+                const monthsCount = Math.round((t - (i - 1)) * 12);
+
+                for (let m = 1; m <= monthsCount; m++) {
+                    const monthT = (i - 1) + (m / 12);
+                    const mVal = start * Math.pow(1 + cagrDec, monthT);
+
+                    const mDate = new Date(yearStart);
+                    mDate.setMonth(mDate.getMonth() + m);
+
+                    monthlyItems.push({
+                        year: monthT,
+                        value: mVal,
+                        gain: mVal - start,
+                        date: mDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                    });
+                }
+                row.months = monthlyItems;
+            }
+
+            scheduleData.push(row);
         }
 
         return {
@@ -205,7 +276,7 @@ export default function AverageReturnCalculator() {
 
     // Chart Data
     const chartData = {
-        labels: schedule.map(item => `Year ${item.year}`),
+        labels: schedule.map(item => `Year ${parseFloat(item.year.toFixed(2))}`),
         datasets: [
             {
                 label: 'Investment Value',
@@ -230,7 +301,7 @@ export default function AverageReturnCalculator() {
     };
 
     const barChartData = {
-        labels: schedule.map(item => `Year ${item.year}`),
+        labels: schedule.map(item => `Year ${parseFloat(item.year.toFixed(2))}`),
         datasets: [
             {
                 label: 'Cumulative Gain',
@@ -251,6 +322,7 @@ export default function AverageReturnCalculator() {
             finalValue: 15000,
             years: 5,
             months: 0,
+            startDate: new Date().toISOString().split('T')[0],
             inflationRate: 0,
             taxRate: 0
         };
@@ -258,6 +330,7 @@ export default function AverageReturnCalculator() {
         setFinalValue(defaults.finalValue);
         setYears(defaults.years);
         setMonths(defaults.months);
+        setStartDate(defaults.startDate);
         setInflationRate(defaults.inflationRate);
         setTaxRate(defaults.taxRate);
 
@@ -318,20 +391,60 @@ export default function AverageReturnCalculator() {
 
         // Schedule
         if (schedule.length > 0) {
-            doc.text('Growth Schedule (Annual)', 14, (doc as any).lastAutoTable.finalY + 15);
-            const scheduleRows = schedule.map(row => [
-                `Year ${row.year}`,
-                formatCurrency(row.value),
-                formatCurrency(row.gain)
-            ]);
+            if (schedule.length > 0) {
+                doc.text('Growth Schedule (Annual & Final Monthly)', 14, (doc as any).lastAutoTable.finalY + 15);
 
-            autoTable(doc, {
-                startY: (doc as any).lastAutoTable.finalY + 20,
-                head: [['Period', 'Value', 'Gain/Loss']],
-                body: scheduleRows,
-                styles: { fontSize: 9 },
-                headStyles: { fillColor: [79, 70, 229] }
-            });
+                const scheduleRows: any[] = [];
+                schedule.forEach(row => {
+                    // Annual Row
+                    scheduleRows.push([
+                        row.date,
+                        formatCurrency(row.value),
+                        formatCurrency(row.gain)
+                    ]);
+
+                    // Monthly Rows (if any) - Indented or distinct
+                    if (row.months && row.months.length > 0) {
+                        row.months.forEach(m => {
+                            scheduleRows.push([
+                                `   ${m.date}`, // Indent
+                                formatCurrency(m.value),
+                                formatCurrency(m.gain)
+                            ]);
+                        });
+                    }
+                });
+
+                autoTable(doc, {
+                    startY: (doc as any).lastAutoTable.finalY + 20,
+                    head: [['Period', 'Value', 'Gain/Loss']],
+                    body: scheduleRows,
+                    theme: 'grid', // Ensure borders
+                    styles: {
+                        fontSize: 9,
+                        lineColor: [200, 200, 200], // Gray borders
+                        lineWidth: 0.1
+                    },
+                    headStyles: {
+                        fillColor: [79, 70, 229],
+                        textColor: 255
+                    },
+                    didParseCell: (data) => {
+                        if (data.section === 'body' && data.column.index === 2) {
+                            const cellText = data.cell.raw as string; // e.g. "$1,200.00" or "-$500.00"
+                            // Simple check for negative sign or parenthesis often used in accounting
+                            // But here we rely on text content.
+                            // Ideally we'd use raw value, but we passed formatted string.
+                            // Let's parse.
+                            if (cellText.includes('-') || cellText.includes('(')) {
+                                data.cell.styles.textColor = [220, 38, 38]; // Red
+                            } else {
+                                data.cell.styles.textColor = [22, 163, 74]; // Green
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         const timestamp = Date.now();
@@ -385,6 +498,18 @@ export default function AverageReturnCalculator() {
                                         min={0}
                                         max={11}
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Start Date
+                                    </label>
+                                    <div className="relative">
+                                        <DatePicker
+                                            value={startDate}
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Advanced Options Toggle */}
@@ -581,7 +706,16 @@ export default function AverageReturnCalculator() {
 
                                     {/* Growth Table */}
                                     <div className="mt-8">
-                                        <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Annual Growth Schedule</h4>
+                                        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+                                            <h4 className="text-xl font-bold text-gray-900 dark:text-white">Annual Growth Schedule</h4>
+                                            <button
+                                                onClick={handleExportPDF}
+                                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold shadow-sm text-sm cursor-pointer"
+                                            >
+                                                <Download size={16} />
+                                                Download PDF
+                                            </button>
+                                        </div>
                                         <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
                                             <table className="w-full text-sm text-left">
                                                 <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase font-medium">
@@ -593,15 +727,41 @@ export default function AverageReturnCalculator() {
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
                                                     {schedule.map((row, index) => (
-                                                        <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">Year {row.year}</td>
-                                                            <td className="px-6 py-4 text-right font-bold text-indigo-600 dark:text-indigo-400">
-                                                                {formatCurrency(row.value)}
-                                                            </td>
-                                                            <td className={`px-6 py-4 text-right font-medium ${row.gain >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                                                {row.gain >= 0 ? '+' : ''}{formatCurrency(row.gain)}
-                                                            </td>
-                                                        </tr>
+                                                        <Fragment key={index}>
+                                                            <tr
+                                                                className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer group"
+                                                                onClick={() => row.months && row.months.length > 0 && toggleYear(row.year)}
+                                                            >
+                                                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                                                                    {row.months && row.months.length > 0 && (
+                                                                        <span className="text-gray-400 transition-transform duration-200" style={{ transform: expandedYears.has(row.year) ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                                                                            <ChevronRight className="w-4 h-4" />
+                                                                        </span>
+                                                                    )}
+                                                                    {row.date}
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right font-bold text-indigo-600 dark:text-indigo-400">
+                                                                    {formatCurrency(row.value)}
+                                                                </td>
+                                                                <td className={`px-6 py-4 text-right font-medium ${row.gain >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                                    {row.gain >= 0 ? '+' : ''}{formatCurrency(row.gain)}
+                                                                </td>
+                                                            </tr>
+                                                            {/* Expanded Months */}
+                                                            {expandedYears.has(row.year) && row.months && row.months.map((month, mIndex) => (
+                                                                <tr key={`${index}-m-${mIndex}`} className="bg-gray-50/50 dark:bg-gray-900/30 text-sm animate-in fade-in slide-in-from-top-1">
+                                                                    <td className="px-6 py-3 pl-12 text-gray-500 dark:text-gray-400">
+                                                                        {month.date}
+                                                                    </td>
+                                                                    <td className="px-6 py-3 text-right text-gray-600 dark:text-gray-400">
+                                                                        {formatCurrency(month.value)}
+                                                                    </td>
+                                                                    <td className={`px-6 py-3 text-right font-medium ${month.gain >= 0 ? 'text-green-600/80 dark:text-green-400/80' : 'text-red-600/80 dark:text-red-400/80'}`}>
+                                                                        {month.gain >= 0 ? '+' : ''}{formatCurrency(month.gain)}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </Fragment>
                                                     ))}
                                                 </tbody>
                                             </table>
@@ -638,27 +798,18 @@ export default function AverageReturnCalculator() {
                                 </div>
                             )}
 
-                            {/* Export & Actions */}
+                            {/* Saved Button Only - PDF moved up */}
                             <div className="mt-12 flex flex-col items-center border-t border-gray-100 dark:border-gray-800 pt-8">
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={handleExportPDF}
-                                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md cursor-pointer"
-                                    >
-                                        <Download size={18} />
-                                        Download PDF Report
-                                    </button>
-                                    <button
-                                        onClick={() => setLiked(!liked)}
-                                        className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all font-medium border cursor-pointer ${liked
-                                            ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/50'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
-                                            }`}
-                                    >
-                                        <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-                                        {liked ? 'Saved' : 'Save Result'}
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={() => setLiked(!liked)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all font-medium border cursor-pointer ${liked
+                                        ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/50'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
+                                        }`}
+                                >
+                                    <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                                    {liked ? 'Saved' : 'Save Result'}
+                                </button>
                             </div>
                         </>
                     )}
