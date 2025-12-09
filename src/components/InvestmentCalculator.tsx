@@ -20,11 +20,16 @@ import {
     Target,
     Sparkles,
     Info,
-    RotateCcw,
     ChevronLeft,
     ChevronRight,
-    Heart
+    Heart,
+    Download,
+    Calculator
 } from 'lucide-react';
+import { CalculateButton } from './Shared/CalculateButton';
+import { ResetButton } from './Shared/ResetButton';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
 import {
@@ -85,44 +90,80 @@ export default function InvestmentCalculator() {
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 
+    // Snapshot of inputs for calculation
+    const [calculatedValues, setCalculatedValues] = useState({
+        activeTab: 'sip' as TabType,
+        lumpsumAmount: 100000,
+        monthlySIP: 5000,
+        combinedLumpsum: 50000,
+        combinedMonthlySIP: 3000,
+        stepupMonthlySIP: 5000,
+        stepupRate: 10,
+        targetAmount: 1000000,
+        currentSavings: 0,
+        years: 10,
+        annualReturn: 12,
+        inflationRate: 0,
+        taxRate: 0
+    });
+
+    const handleCalculate = () => {
+        setCalculatedValues({
+            activeTab,
+            lumpsumAmount,
+            monthlySIP,
+            combinedLumpsum,
+            combinedMonthlySIP,
+            stepupMonthlySIP,
+            stepupRate,
+            targetAmount,
+            currentSavings,
+            years,
+            annualReturn,
+            inflationRate,
+            taxRate
+        });
+        setCurrentPage(1);
+    };
+
     // Calculate results based on active tab
     const result: InvestmentResult | null = useMemo(() => {
-        if (activeTab === 'goal') return null;
+        if (calculatedValues.activeTab === 'goal') return null;
 
         try {
-            if (activeTab === 'lumpsum') {
+            if (calculatedValues.activeTab === 'lumpsum') {
                 return calculateLumpsum({
-                    principal: lumpsumAmount,
-                    annualRate: annualReturn,
-                    years,
-                    inflationRate: inflationRate || undefined,
-                    taxRate: taxRate || undefined
+                    principal: calculatedValues.lumpsumAmount,
+                    annualRate: calculatedValues.annualReturn,
+                    years: calculatedValues.years,
+                    inflationRate: calculatedValues.inflationRate || undefined,
+                    taxRate: calculatedValues.taxRate || undefined
                 });
-            } else if (activeTab === 'sip') {
+            } else if (calculatedValues.activeTab === 'sip') {
                 return calculateSIP({
-                    monthlyInvestment: monthlySIP,
-                    annualRate: annualReturn,
-                    years,
-                    inflationRate: inflationRate || undefined,
-                    taxRate: taxRate || undefined
+                    monthlyInvestment: calculatedValues.monthlySIP,
+                    annualRate: calculatedValues.annualReturn,
+                    years: calculatedValues.years,
+                    inflationRate: calculatedValues.inflationRate || undefined,
+                    taxRate: calculatedValues.taxRate || undefined
                 });
-            } else if (activeTab === 'combined') {
+            } else if (calculatedValues.activeTab === 'combined') {
                 return calculateCombined({
-                    lumpsum: combinedLumpsum,
-                    monthlyInvestment: combinedMonthlySIP,
-                    annualRate: annualReturn,
-                    years,
-                    inflationRate: inflationRate || undefined,
-                    taxRate: taxRate || undefined
+                    lumpsum: calculatedValues.combinedLumpsum,
+                    monthlyInvestment: calculatedValues.combinedMonthlySIP,
+                    annualRate: calculatedValues.annualReturn,
+                    years: calculatedValues.years,
+                    inflationRate: calculatedValues.inflationRate || undefined,
+                    taxRate: calculatedValues.taxRate || undefined
                 });
-            } else if (activeTab === 'stepup') {
+            } else if (calculatedValues.activeTab === 'stepup') {
                 return calculateStepUpSIP({
-                    initialMonthlyInvestment: stepupMonthlySIP,
-                    annualRate: annualReturn,
-                    years,
-                    stepUpRate: stepupRate,
-                    inflationRate: inflationRate || undefined,
-                    taxRate: taxRate || undefined
+                    initialMonthlyInvestment: calculatedValues.stepupMonthlySIP,
+                    annualRate: calculatedValues.annualReturn,
+                    years: calculatedValues.years,
+                    stepUpRate: calculatedValues.stepupRate,
+                    inflationRate: calculatedValues.inflationRate || undefined,
+                    taxRate: calculatedValues.taxRate || undefined
                 });
             }
         } catch (error) {
@@ -130,48 +171,47 @@ export default function InvestmentCalculator() {
             return null;
         }
         return null;
-    }, [activeTab, lumpsumAmount, monthlySIP, combinedLumpsum, combinedMonthlySIP,
-        stepupMonthlySIP, stepupRate, years, annualReturn, inflationRate, taxRate]);
+    }, [calculatedValues]);
 
     // Calculate required SIP for goal planner
     const requiredSIP = useMemo(() => {
-        if (activeTab !== 'goal') return 0;
+        if (calculatedValues.activeTab !== 'goal') return 0;
         try {
             return calculateGoalPlanning({
-                targetAmount,
-                currentSavings,
-                annualRate: annualReturn,
-                years
+                targetAmount: calculatedValues.targetAmount,
+                currentSavings: calculatedValues.currentSavings,
+                annualRate: calculatedValues.annualReturn,
+                years: calculatedValues.years
             });
         } catch (error) {
             console.error('Goal calculation error:', error);
             return 0;
         }
-    }, [activeTab, targetAmount, currentSavings, annualReturn, years]);
+    }, [calculatedValues]);
 
     // Generate yearly breakdown
     const yearlyBreakdown = useMemo((): YearlyBreakdown[] => {
-        if (activeTab === 'goal') return [];
+        if (calculatedValues.activeTab === 'goal') return [];
 
         try {
-            if (activeTab === 'lumpsum') {
+            if (calculatedValues.activeTab === 'lumpsum') {
                 return generateYearlyBreakdown(
-                    { principal: lumpsumAmount, annualRate: annualReturn, years },
+                    { principal: calculatedValues.lumpsumAmount, annualRate: calculatedValues.annualReturn, years: calculatedValues.years },
                     'lumpsum'
                 );
-            } else if (activeTab === 'sip') {
+            } else if (calculatedValues.activeTab === 'sip') {
                 return generateYearlyBreakdown(
-                    { monthlyInvestment: monthlySIP, annualRate: annualReturn, years },
+                    { monthlyInvestment: calculatedValues.monthlySIP, annualRate: calculatedValues.annualReturn, years: calculatedValues.years },
                     'sip'
                 );
-            } else if (activeTab === 'combined') {
+            } else if (calculatedValues.activeTab === 'combined') {
                 return generateYearlyBreakdown(
-                    { lumpsum: combinedLumpsum, monthlyInvestment: combinedMonthlySIP, annualRate: annualReturn, years },
+                    { lumpsum: calculatedValues.combinedLumpsum, monthlyInvestment: calculatedValues.combinedMonthlySIP, annualRate: calculatedValues.annualReturn, years: calculatedValues.years },
                     'combined'
                 );
-            } else if (activeTab === 'stepup') {
+            } else if (calculatedValues.activeTab === 'stepup') {
                 return generateYearlyBreakdown(
-                    { initialMonthlyInvestment: stepupMonthlySIP, annualRate: annualReturn, years, stepUpRate: stepupRate },
+                    { initialMonthlyInvestment: calculatedValues.stepupMonthlySIP, annualRate: calculatedValues.annualReturn, years: calculatedValues.years, stepUpRate: calculatedValues.stepupRate },
                     'stepup'
                 );
             }
@@ -179,26 +219,24 @@ export default function InvestmentCalculator() {
             console.error('Breakdown error:', error);
         }
         return [];
-    }, [activeTab, lumpsumAmount, monthlySIP, combinedLumpsum, combinedMonthlySIP,
-        stepupMonthlySIP, stepupRate, years, annualReturn]);
+    }, [calculatedValues]);
 
     // Generate AI suggestions
     const suggestions = useMemo(() => {
         const inputData = {
-            annualRate: annualReturn,
-            years,
-            principal: lumpsumAmount,
-            monthlyInvestment: monthlySIP,
-            initialMonthlyInvestment: stepupMonthlySIP,
-            lumpsum: combinedLumpsum,
-            stepUpRate: stepupRate,
-            inflationRate,
-            taxRate
+            annualRate: calculatedValues.annualReturn,
+            years: calculatedValues.years,
+            principal: calculatedValues.lumpsumAmount,
+            monthlyInvestment: calculatedValues.monthlySIP,
+            initialMonthlyInvestment: calculatedValues.stepupMonthlySIP,
+            lumpsum: calculatedValues.combinedLumpsum,
+            stepUpRate: calculatedValues.stepupRate,
+            inflationRate: calculatedValues.inflationRate,
+            taxRate: calculatedValues.taxRate
         };
 
-        return generateSuggestions(activeTab, inputData, result || undefined);
-    }, [activeTab, lumpsumAmount, monthlySIP, combinedLumpsum, combinedMonthlySIP,
-        stepupMonthlySIP, stepupRate, annualReturn, years, inflationRate, taxRate, result]);
+        return generateSuggestions(calculatedValues.activeTab, inputData, result || undefined);
+    }, [calculatedValues, result]);
 
     // Chart data for growth visualization
     const growthChartData = useMemo(() => {
@@ -247,19 +285,104 @@ export default function InvestmentCalculator() {
     }, [result]);
 
     const resetToDefaults = () => {
-        setLumpsumAmount(100000);
-        setMonthlySIP(5000);
-        setCombinedLumpsum(50000);
-        setCombinedMonthlySIP(3000);
-        setStepupMonthlySIP(5000);
-        setStepupRate(10);
-        setTargetAmount(1000000);
-        setCurrentSavings(0);
-        setYears(10);
-        setAnnualReturn(12);
-        setInflationRate(0);
-        setTaxRate(0);
+        const defaults = {
+            activeTab: 'sip' as TabType,
+            lumpsumAmount: 100000,
+            monthlySIP: 5000,
+            combinedLumpsum: 50000,
+            combinedMonthlySIP: 3000,
+            stepupMonthlySIP: 5000,
+            stepupRate: 10,
+            targetAmount: 1000000,
+            currentSavings: 0,
+            years: 10,
+            annualReturn: 12,
+            inflationRate: 0,
+            taxRate: 0
+        };
+
+        setActiveTab(defaults.activeTab);
+        setLumpsumAmount(defaults.lumpsumAmount);
+        setMonthlySIP(defaults.monthlySIP);
+        setCombinedLumpsum(defaults.combinedLumpsum);
+        setCombinedMonthlySIP(defaults.combinedMonthlySIP);
+        setStepupMonthlySIP(defaults.stepupMonthlySIP);
+        setStepupRate(defaults.stepupRate);
+        setTargetAmount(defaults.targetAmount);
+        setCurrentSavings(defaults.currentSavings);
+        setYears(defaults.years);
+        setAnnualReturn(defaults.annualReturn);
+        setInflationRate(defaults.inflationRate);
+        setTaxRate(defaults.taxRate);
         setCurrentPage(1);
+
+        setCalculatedValues(defaults);
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFillColor(220, 38, 38); // Red 600
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        const reportTitle = {
+            'sip': 'SIP Investment Report',
+            'lumpsum': 'Lumpsum Investment Report',
+            'combined': 'Lumpsum + SIP Investment Report',
+            'stepup': 'Step-Up SIP Investment Report',
+            'goal': 'Goal Planning Report'
+        }[calculatedValues.activeTab] || 'Investment Report';
+
+        doc.text(reportTitle, 105, 25, { align: 'center' });
+
+        // Summary Section
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.text('Investment Summary', 14, 50);
+
+        if (result) {
+            const summaryData = [
+                ['Total Investment', formatCurrency(result.totalInvestment)],
+                ['Total Returns', formatCurrency(result.totalReturns)],
+                ['Future Value', formatCurrency(result.futureValue)],
+                ['CAGR', `${result.cagr.toFixed(2)}%`]
+            ];
+
+            autoTable(doc, {
+                startY: 55,
+                head: [['Metric', 'Value']],
+                body: summaryData,
+                theme: 'striped',
+                headStyles: { fillColor: [220, 38, 38] }
+            });
+        }
+
+        // Yearly Breakdown
+        if (yearlyBreakdown.length > 0) {
+            doc.text('Yearly Breakdown', 14, (doc as any).lastAutoTable.finalY + 15);
+
+            const tableBody = yearlyBreakdown.map(row => [
+                row.year.toString(),
+                formatCurrency(row.yearlyInvestment),
+                formatCurrency(row.totalInvestment),
+                formatCurrency(row.interestEarned),
+                formatCurrency(row.totalInterest),
+                formatCurrency(row.balance)
+            ]);
+
+            autoTable(doc, {
+                startY: (doc as any).lastAutoTable.finalY + 20,
+                head: [['Year', 'Yearly Inv.', 'Total Inv.', 'Interest', 'Total Int.', 'Balance']],
+                body: tableBody,
+                headStyles: { fillColor: [220, 38, 38] },
+                styles: { fontSize: 8 }
+            });
+        }
+
+        const timestamp = Date.now();
+        doc.save(`investment-report-${timestamp}.pdf`);
     };
 
     const formatCurrency = (value: number) => {
@@ -324,13 +447,7 @@ export default function InvestmentCalculator() {
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                     Investment Details
                                 </h3>
-                                <button
-                                    onClick={resetToDefaults}
-                                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
-                                >
-                                    <RotateCcw className="w-4 h-4 mr-1" />
-                                    Reset
-                                </button>
+                                <ResetButton onClick={resetToDefaults} />
                             </div>
 
                             {/* Tab-specific inputs */}
@@ -468,6 +585,17 @@ export default function InvestmentCalculator() {
                                     />
                                 </div>
                             </details>
+
+                            <CalculateButton
+                                onClick={handleCalculate}
+                                label={{
+                                    sip: 'Calculate SIP Returns',
+                                    lumpsum: 'Calculate Lumpsum Returns',
+                                    combined: 'Calculate Total Returns',
+                                    stepup: 'Calculate Step-Up Returns',
+                                    goal: 'Calculate Required Investment'
+                                }[activeTab]}
+                            />
                         </div>
 
                         {/* Results Section */}
@@ -622,7 +750,7 @@ export default function InvestmentCalculator() {
                                             tooltip: {
                                                 callbacks: {
                                                     label: function (context) {
-                                                        return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                                        return context.dataset.label + ': ' + formatCurrency(context.parsed.y as unknown as number);
                                                     }
                                                 }
                                             }
@@ -685,6 +813,15 @@ export default function InvestmentCalculator() {
                             <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                                 Year-by-Year Breakdown
                             </h4>
+                            <div className="flex justify-end mb-4">
+                                <button
+                                    onClick={handleExportPDF}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"
+                                >
+                                    <Download size={16} />
+                                    Export PDF
+                                </button>
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead className="bg-gray-100 dark:bg-gray-800">

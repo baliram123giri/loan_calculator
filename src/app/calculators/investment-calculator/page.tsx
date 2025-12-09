@@ -23,18 +23,18 @@ export default function InvestmentCalculatorPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Hero Section */}
-            <div className="bg-gradient-to-b from-white to-purple-50 dark:from-gray-900 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16">
+            {/* Hero Section */}
+            <div className="bg-gradient-to-b from-white to-purple-50 dark:from-gray-900 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-800 pb-12 pt-16 mb-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-4xl mx-auto mb-12">
                         <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-                            Build Your Wealth with {' '}
+                            Build Your Wealth with <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
                                 Smart Investment Planning
                             </span>
                         </h1>
                         <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
-                            Calculate investment returns for SIP, lumpsum, or combined strategies.
-                            Visualize your wealth growth and get AI-powered insights to reach your financial goals faster.
+                            Calculate investment returns for SIP, lumpsum, or combined strategies. Visualize your wealth growth and get AI-powered insights to reach your financial goals faster.
                         </p>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ export default function InvestmentCalculatorPage() {
                         <section className="prose dark:prose-invert max-w-none">
                             <h2 className="flex items-center text-3xl font-bold text-gray-900 dark:text-white mb-6">
                                 <Calculator className="w-8 h-8 mr-3 text-purple-600" />
-                                Your Path to Financial Freedom Starts Here
+                                🗽 Your Path to Financial Freedom Starts Here
                             </h2>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                                 Whether you're saving for retirement, a dream home, your child's education, or simply building wealth,
@@ -73,7 +73,7 @@ export default function InvestmentCalculatorPage() {
                         {/* Investment Types */}
                         <section className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                Understanding Investment Strategies
+                                📊 Understanding Investment Strategies
                             </h2>
 
                             <div className="space-y-6">
@@ -140,7 +140,7 @@ export default function InvestmentCalculatorPage() {
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">
                                 <Zap className="w-6 h-6 mr-3 text-yellow-600" />
-                                The Magic of Compound Interest
+                                ✨ The Magic of Compound Interest
                             </h2>
 
                             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -185,7 +185,7 @@ export default function InvestmentCalculatorPage() {
                         {/* Smart Investment Strategies */}
                         <section className="bg-green-50 dark:bg-green-900/10 rounded-2xl p-8 border border-green-100 dark:border-green-800">
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                7 Smart Strategies to Maximize Returns
+                                📈 7 Smart Strategies to Maximize Returns
                             </h3>
 
                             <div className="space-y-6">
@@ -272,7 +272,7 @@ export default function InvestmentCalculatorPage() {
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">
                                 <Shield className="w-6 h-6 mr-3 text-red-600" />
-                                5 Investment Mistakes to Avoid
+                                🛑 5 Investment Mistakes to Avoid
                             </h2>
 
                             <div className="space-y-4">
@@ -322,7 +322,7 @@ export default function InvestmentCalculatorPage() {
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-8">
                                 <HelpCircle className="w-6 h-6 mr-3 text-gray-600" />
-                                Frequently Asked Questions
+                                ❓ Frequently Asked Questions
                             </h2>
 
                             <div className="space-y-6">
@@ -440,42 +440,42 @@ export default function InvestmentCalculatorPage() {
                         </section>
                     </div>
 
-                    {/* Related Tools Section */}
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                        <RelatedCalculators
-                            links={[
-                                {
-                                    href: "/calculators/compound-interest",
-                                    title: "Compound Interest",
-                                    description: "Calculate compound growth",
-                                    icon: TrendingUp,
-                                    iconColorClass: "text-blue-600",
-                                    iconBgClass: "bg-blue-100",
-                                    hoverBgClass: "group-hover:bg-blue-600"
-                                },
-                                {
-                                    href: "/calculators/simple-interest",
-                                    title: "Simple Interest",
-                                    description: "Calculate simple returns",
-                                    icon: DollarSign,
-                                    iconColorClass: "text-green-600",
-                                    iconBgClass: "bg-green-100",
-                                    hoverBgClass: "group-hover:bg-green-600"
-                                },
-                                {
-                                    href: "/calculators/real-estate-calculator",
-                                    title: "Real Estate ROI",
-                                    description: "Property investment returns",
-                                    icon: PiggyBank,
-                                    iconColorClass: "text-purple-600",
-                                    iconBgClass: "bg-purple-100",
-                                    hoverBgClass: "group-hover:bg-purple-600"
-                                }
-                            ]}
-                            title="Related Financial Tools"
-                        />
-                    </div>
                 </div>
+
+            </div>
+            <div className="w-[80%] mx-auto space-y-8 mt-12 bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                <RelatedCalculators
+                    links={[
+                        {
+                            href: "/calculators/compound-interest",
+                            title: "Compound Interest",
+                            description: "Calculate compound growth",
+                            icon: TrendingUp,
+                            iconColorClass: "text-blue-600",
+                            iconBgClass: "bg-blue-100",
+                            hoverBgClass: "group-hover:bg-blue-600"
+                        },
+                        {
+                            href: "/calculators/simple-interest",
+                            title: "Simple Interest",
+                            description: "Calculate simple returns",
+                            icon: DollarSign,
+                            iconColorClass: "text-green-600",
+                            iconBgClass: "bg-green-100",
+                            hoverBgClass: "group-hover:bg-green-600"
+                        },
+                        {
+                            href: "/calculators/real-estate-calculator",
+                            title: "Real Estate ROI",
+                            description: "Property investment returns",
+                            icon: PiggyBank,
+                            iconColorClass: "text-purple-600",
+                            iconBgClass: "bg-purple-100",
+                            hoverBgClass: "group-hover:bg-purple-600"
+                        }
+                    ]}
+                    title="Related Financial Tools"
+                />
             </div>
         </div>
     );
