@@ -34,6 +34,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
+import { loadUnicodeFont } from '@/utils/pdfUtils';
 
 ChartJS.register(
     CategoryScale,
@@ -319,6 +320,10 @@ export default function AverageReturnCalculator() {
         return `${currency.symbol}${val.toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
+    const formatCurrencyForPDF = (val: number) => {
+        return `${currency.code} ${val.toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
     const resetCalculator = () => {
         const defaults = {
             initialInvestment: 10000,
@@ -341,8 +346,11 @@ export default function AverageReturnCalculator() {
         setHasCalculated(true);
     };
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         const doc = new jsPDF();
+
+        // Load custom font for Unicode support (e.g. Rupee symbol)
+        await loadUnicodeFont(doc);
 
         // Header
         doc.setFillColor(79, 70, 229); // Indigo 600
@@ -369,7 +377,10 @@ export default function AverageReturnCalculator() {
             head: [['Parameter', 'Value']],
             body: inputData,
             theme: 'grid',
-            headStyles: { fillColor: [79, 70, 229] }
+            headStyles: { fillColor: [79, 70, 229] },
+            columnStyles: {
+                1: { font: 'NotoSans' } // Only apply to Value column
+            }
         });
 
         // Results
@@ -389,7 +400,10 @@ export default function AverageReturnCalculator() {
             head: [['Metric', 'Result']],
             body: resultData,
             theme: 'striped',
-            headStyles: { fillColor: [16, 185, 129] } // Green
+            headStyles: { fillColor: [16, 185, 129] }, // Green
+            columnStyles: {
+                1: { font: 'NotoSans' } // Only apply to Result column
+            }
         });
 
         // Schedule
@@ -427,6 +441,10 @@ export default function AverageReturnCalculator() {
                     lineColor: [200, 200, 200], // Gray borders
                     lineWidth: 0.1
                 },
+                columnStyles: {
+                    1: { font: 'NotoSans' }, // Value
+                    2: { font: 'NotoSans' }  // Gain/Loss
+                },
                 headStyles: {
                     fillColor: [79, 70, 229],
                     textColor: 255
@@ -435,9 +453,6 @@ export default function AverageReturnCalculator() {
                     if (data.section === 'body' && data.column.index === 2) {
                         const cellText = data.cell.raw as string; // e.g. "$1,200.00" or "-$500.00"
                         // Simple check for negative sign or parenthesis often used in accounting
-                        // But here we rely on text content.
-                        // Ideally we'd use raw value, but we passed formatted string.
-                        // Let's parse.
                         if (cellText.includes('-') || cellText.includes('(')) {
                             data.cell.styles.textColor = [220, 38, 38]; // Red
                         } else {
