@@ -17,14 +17,9 @@ import { Line, Pie } from 'react-chartjs-2';
 import {
     Calculator,
     TrendingUp,
-    DollarSign,
-    Calendar,
-    Percent,
-    RefreshCw,
     Download,
     Info,
     ChevronDown,
-    ChevronUp,
     Sparkles,
     Heart
 } from 'lucide-react';

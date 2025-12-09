@@ -79,6 +79,7 @@ export default function NavBar() {
                 { href: '/calculators/interest-calculator', label: 'Interest Calculator', description: 'Advanced interest calculator with charts' },
                 { href: '/calculators/savings-calculator', label: 'Savings Calculator', description: 'Plan your savings growth' },
                 { href: '/calculators/investment-calculator', label: 'Investment Calculator', description: 'SIP, lumpsum & goal planning' },
+                { href: '/calculators/average-return-calculator', label: 'Average Return', description: 'Calculate CAGR & total returns' },
                 { href: '/calculators/cd-calculator', label: 'CD Calculator', description: 'CD returns with tax & inflation' },
                 { href: '/calculators/bond-calculator', label: 'Bond Calculator', description: 'Bond Price, YTM & Duration' },
             ]

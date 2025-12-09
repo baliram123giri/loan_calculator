@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { calculateEMI, EMIResult } from '@/lib/calc/emi';
-import { ArrowRight, TrendingDown, TrendingUp } from 'lucide-react';
+import { TrendingDown } from 'lucide-react';
 
 export default function LoanComparison({ currencySymbol = "$" }: { currencySymbol?: string }) {
     const [loanA, setLoanA] = useState({ principal: 1000000, rate: 7.5, tenure: 20 });
