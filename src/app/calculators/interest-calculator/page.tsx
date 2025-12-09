@@ -41,16 +41,15 @@ export default function InterestCalculatorPage() {
                 </div>
 
                 {/* SEO Content */}
-                <div className="mt-24 grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="mt-24 flex flex-col lg:flex-row gap-12">
 
                     {/* Main Content */}
-                    <div className="lg:col-span-8 space-y-12">
+                    <div className="flex-1 space-y-12">
 
                         {/* Introduction */}
                         <section className="prose dark:prose-invert max-w-none">
                             <h2 className="flex items-center text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                                <Calculator className="w-8 h-8 mr-3 text-blue-600" />
-                                Understanding Interest: The Engine of Wealth
+                                🧠 Understanding Interest: The Engine of Wealth
                             </h2>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                                 Interest is essentially the cost of borrowing money or the reward for saving it. When you deposit money in a bank, the bank pays you interest for using your funds. Conversely, when you take a loan, you pay interest to the lender.
@@ -63,7 +62,7 @@ export default function InterestCalculatorPage() {
                         {/* Simple vs Compound */}
                         <section className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                Simple vs. Compound Interest: What's the Difference?
+                                ⚖️ Simple vs. Compound Interest: What's the Difference?
                             </h2>
                             <div className="grid md:grid-cols-2 gap-8">
                                 <div>
@@ -104,8 +103,7 @@ export default function InterestCalculatorPage() {
                         {/* Tips */}
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                <TrendingUp className="w-6 h-6 mr-3 text-green-600" />
-                                3 Tips to Maximize Your Returns
+                                🚀 3 Tips to Maximize Your Returns
                             </h2>
                             <div className="grid gap-6">
                                 <div className="flex items-start">
@@ -135,8 +133,7 @@ export default function InterestCalculatorPage() {
                         {/* FAQ */}
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                <HelpCircle className="w-6 h-6 mr-3 text-gray-600" />
-                                Frequently Asked Questions
+                                ❓ Frequently Asked Questions
                             </h2>
                             <div className="space-y-6">
                                 <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800">
@@ -162,39 +159,40 @@ export default function InterestCalculatorPage() {
                     </div>
 
                     {/* Sidebar / Related Tools */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <RelatedCalculators
-                            links={[
-                                {
-                                    href: "/calculators/loan",
-                                    title: "Loan Calculator",
-                                    description: "Calculate EMI & Amortization",
-                                    icon: DollarSign,
-                                    iconColorClass: "text-blue-600",
-                                    iconBgClass: "bg-blue-100",
-                                    hoverBgClass: "group-hover:bg-blue-600"
-                                },
-                                {
-                                    href: "/calculators/mortgage",
-                                    title: "Mortgage Calculator",
-                                    description: "Plan your home loan",
-                                    icon: TrendingUp,
-                                    iconColorClass: "text-purple-600",
-                                    iconBgClass: "bg-purple-100",
-                                    hoverBgClass: "group-hover:bg-purple-600"
-                                },
-                                {
-                                    href: "/calculators/apr",
-                                    title: "APR Calculator",
-                                    description: "Find true cost of borrowing",
-                                    icon: Percent,
-                                    iconColorClass: "text-green-600",
-                                    iconBgClass: "bg-green-100",
-                                    hoverBgClass: "group-hover:bg-green-600"
-                                }
-                            ]}
-                        />
-                    </div>
+
+                </div>
+                <div className="w-[80%] mx-auto space-y-8 mt-5">
+                    <RelatedCalculators
+                        links={[
+                            {
+                                href: "/calculators/loan",
+                                title: "Loan Calculator",
+                                description: "Calculate EMI & Amortization",
+                                icon: DollarSign,
+                                iconColorClass: "text-blue-600",
+                                iconBgClass: "bg-blue-100",
+                                hoverBgClass: "group-hover:bg-blue-600"
+                            },
+                            {
+                                href: "/calculators/mortgage",
+                                title: "Mortgage Calculator",
+                                description: "Plan your home loan",
+                                icon: TrendingUp,
+                                iconColorClass: "text-purple-600",
+                                iconBgClass: "bg-purple-100",
+                                hoverBgClass: "group-hover:bg-purple-600"
+                            },
+                            {
+                                href: "/calculators/apr",
+                                title: "APR Calculator",
+                                description: "Find true cost of borrowing",
+                                icon: Percent,
+                                iconColorClass: "text-green-600",
+                                iconBgClass: "bg-green-100",
+                                hoverBgClass: "group-hover:bg-green-600"
+                            }
+                        ]}
+                    />
                 </div>
             </div>
         </div>
