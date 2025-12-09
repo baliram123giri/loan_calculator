@@ -157,9 +157,6 @@ export default function InterestCalculatorPage() {
                             </div>
                         </section>
                     </div>
-
-                    {/* Sidebar / Related Tools */}
-
                 </div>
                 <div className="w-[80%] mx-auto space-y-8 mt-5">
                     <RelatedCalculators

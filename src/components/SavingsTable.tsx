@@ -110,7 +110,7 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
 
         // --- Header Section ---
         doc.setFontSize(18);
-        doc.setTextColor(16, 185, 129); // Green color
+        doc.setTextColor(220, 38, 38); // Red color
         doc.text("Savings Calculator Report", 14, 20);
 
         let startY = 35;
@@ -225,7 +225,7 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
             startY: startY,
             theme: 'grid',
             headStyles: {
-                fillColor: [16, 185, 129],
+                fillColor: [220, 38, 38],
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
                 halign: 'right'
@@ -262,7 +262,8 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
             }
         });
 
-        doc.save("savings_simulation_report.pdf");
+        const timestamp = Date.now();
+        doc.save(`savings-calculator-report-${timestamp}.pdf`);
     };
 
     const years = Object.keys(groupedData).map(Number).sort((a, b) => a - b);
@@ -281,7 +282,7 @@ export default function SavingsTable({ schedule, currencySymbol = "$", inputs }:
                     </button>
                     <button
                         onClick={downloadPDF}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 cursor-pointer shadow-sm transition-all"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 cursor-pointer shadow-sm transition-all"
                     >
                         <Download className="w-4 h-4" />
                         Export PDF

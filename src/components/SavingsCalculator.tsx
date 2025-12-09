@@ -17,7 +17,9 @@ import { Doughnut, Line } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
 import SavingsTable from './SavingsTable';
-import { ChevronDown, ChevronUp, RotateCcw, TrendingUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw, TrendingUp, Calculator } from 'lucide-react';
+import { CalculateButton } from './Shared/CalculateButton';
+import { ResetButton } from './Shared/ResetButton';
 
 ChartJS.register(
     CategoryScale,
@@ -63,9 +65,63 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
     useEffect(() => {
         calculateSavings();
-    }, [initialDeposit, periodicContribution, contributionFrequency, interestRate, years, compoundingFrequency, inflationRate, taxRate, startDate, additionalContribution, additionalFrequency]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const calculateSavings = () => {
+
+
+    const generateAiSuggestion = (balance: number, principal: number, yrs: number, contribution: number, freq: string, infRate: number, intRate: number, initDep: number) => {
+        let suggestions = [];
+        const interestRatio = (balance - principal) / principal;
+
+        // Inflation Check
+        if (infRate > 0) {
+            const realValue = balance / Math.pow(1 + infRate / 100, yrs);
+            suggestions.push(`Factoring in ${infRate}% inflation, your "Real" purchasing power is **$${realValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}**.`);
+        }
+
+        // Standard Support
+        if (interestRatio > 0.5) {
+            suggestions.push(`Great job! Over ${yrs} years, ${(interestRatio * 100).toFixed(0)}% of your balance comes from interest.`);
+        }
+
+        // Upsell Tip
+        // normalize to monthly for tip calculation
+        const monthlyEq = freq === 'monthly' ? contribution : contribution / 12;
+        const extraFifty = calculateFutureValue(initDep, monthlyEq + 50, intRate, yrs);
+        const diff = extraFifty - balance;
+        suggestions.push(`💡 **AI Tip**: Increasing your monthly contribution by just $50 could add an extra **$${diff.toLocaleString(undefined, { maximumFractionDigits: 0 })}**!`);
+
+        setAiSuggestion(suggestions[suggestions.length - 1] || "Your savings are on the right track!");
+    };
+
+    const calculateFutureValue = (p: number, monthlyPmt: number, rPct: number, tYrs: number) => {
+        const r = rPct / 100;
+        let b = p;
+        const eff = r / 12;
+        for (let i = 0; i < tYrs * 12; i++) {
+            b += b * eff;
+            b += monthlyPmt;
+        }
+        return b;
+    };
+
+
+
+    // Refactored Calculate to accept overrides
+    const calculateSavings = (overrides?: any) => {
+        const _initialDeposit = overrides?.initialDeposit ?? initialDeposit;
+        const _periodicContribution = overrides?.periodicContribution ?? periodicContribution;
+        const _contributionFrequency = overrides?.contributionFrequency ?? contributionFrequency;
+        const _interestRate = overrides?.interestRate ?? interestRate;
+        const _years = overrides?.years ?? years;
+        const _compoundingFrequency = overrides?.compoundingFrequency ?? compoundingFrequency;
+        const _startDate = overrides?.startDate ?? startDate;
+        const _additionalContribution = overrides?.additionalContribution ?? additionalContribution;
+        const _additionalFrequency = overrides?.additionalFrequency ?? additionalFrequency;
+        const _inflationRate = overrides?.inflationRate ?? inflationRate;
+        const _taxRate = overrides?.taxRate ?? taxRate;
+
         const frequencyMap: { [key: string]: number } = {
             'daily': 365,
             'weekly': 52,
@@ -75,17 +131,17 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
             'semi-annually': 2,
             'annually': 1
         };
-        const n = frequencyMap[compoundingFrequency] || 12;
-        const r = interestRate / 100;
+        const n = frequencyMap[_compoundingFrequency] || 12;
+        const r = _interestRate / 100;
 
         // Start Date Parsing
-        const start = new Date(startDate);
+        const start = new Date(_startDate);
 
         // Simulation
-        let balance = initialDeposit;
-        let totalContributed = initialDeposit;
+        let balance = _initialDeposit;
+        let totalContributed = _initialDeposit;
 
-        let currentContribution = periodicContribution;
+        let currentContribution = _periodicContribution;
 
         const history = [];
         const tableSchedule = [];
@@ -102,7 +158,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
             balance: balance
         });
 
-        for (let m = 1; m <= years * 12; m++) {
+        for (let m = 1; m <= _years * 12; m++) {
             // Calculate current date for this month
             const currentDate = new Date(start);
             currentDate.setMonth(start.getMonth() + m);
@@ -115,8 +171,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
             let interestEarned = balance * effectiveMonthlyRate;
 
             // 2. Apply Tax on Interest
-            if (taxRate > 0) {
-                const tax = interestEarned * (taxRate / 100);
+            if (_taxRate > 0) {
+                const tax = interestEarned * (_taxRate / 100);
                 interestEarned -= tax;
             }
 
@@ -124,9 +180,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
             // 3. Add Periodic Contribution
             let isContributionMonth = false;
-            if (contributionFrequency === 'monthly') {
+            if (_contributionFrequency === 'monthly') {
                 isContributionMonth = true;
-            } else if (contributionFrequency === 'annually') {
+            } else if (_contributionFrequency === 'annually') {
                 if (m % 12 === 0) isContributionMonth = true;
             }
 
@@ -137,22 +193,18 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
 
             // 4. Add Additional Contribution (from Advanced)
             let isAdditionalMonth = false;
-            if (additionalContribution > 0) {
-                if (additionalFrequency === 'monthly') {
+            if (_additionalContribution > 0) {
+                if (_additionalFrequency === 'monthly') {
                     isAdditionalMonth = true;
-                } else if (additionalFrequency === 'annually') {
+                } else if (_additionalFrequency === 'annually') {
                     if (m % 12 === 0) isAdditionalMonth = true;
                 }
 
                 if (isAdditionalMonth) {
-                    balance += additionalContribution;
-                    totalContributed += additionalContribution;
-                    // Note: currentContribution logic usually affects the MAIN contribution step-up, 
-                    // additional is typically fixed or we could apply step-up there too, but let's keep it simple fixed for now.
+                    balance += _additionalContribution;
+                    totalContributed += _additionalContribution;
                 }
             }
-
-
 
             // Record data
             tableSchedule.push({
@@ -166,7 +218,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
             });
 
             // For Chart: Record periodically
-            if (years > 20) {
+            if (_years > 20) {
                 if (m % 12 === 0) history.push({ month: m, balance: balance, principal: totalContributed });
             } else {
                 if (m % 6 === 0) history.push({ month: m, balance: balance, principal: totalContributed });
@@ -174,8 +226,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         }
 
         // Final Sync
-        if (history[history.length - 1].month !== years * 12) {
-            history.push({ month: years * 12, balance: balance, principal: totalContributed });
+        if (history[history.length - 1].month !== _years * 12) {
+            history.push({ month: _years * 12, balance: balance, principal: totalContributed });
         }
 
         const finalBalance = balance;
@@ -224,59 +276,38 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
             ]
         });
 
-        generateAiSuggestion(finalBalance, finalPrincipal, years, periodicContribution, contributionFrequency);
+        generateAiSuggestion(finalBalance, finalPrincipal, _years, _periodicContribution, _contributionFrequency, _inflationRate, _interestRate, _initialDeposit);
     };
 
-    const generateAiSuggestion = (balance: number, principal: number, yrs: number, contribution: number, freq: string) => {
-        let suggestions = [];
-        const interestRatio = (balance - principal) / principal;
+    const handleReset = () => {
+        const defaults = {
+            initialDeposit: 5000,
+            periodicContribution: 500,
+            contributionFrequency: 'monthly',
+            interestRate: 4.5,
+            years: 10,
+            compoundingFrequency: 'monthly',
+            startDate: new Date().toISOString().split('T')[0],
+            additionalContribution: 0,
+            additionalFrequency: 'annually',
+            inflationRate: 0,
+            taxRate: 0
+        };
 
-        // Inflation Check
-        if (inflationRate > 0) {
-            const realValue = balance / Math.pow(1 + inflationRate / 100, yrs);
-            suggestions.push(`Factoring in ${inflationRate}% inflation, your "Real" purchasing power is **$${realValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}**.`);
-        }
-
-        // Standard Support
-        if (interestRatio > 0.5) {
-            suggestions.push(`Great job! Over ${yrs} years, ${(interestRatio * 100).toFixed(0)}% of your balance comes from interest.`);
-        }
-
-        // Upsell Tip
-        // normalize to monthly for tip calculation
-        const monthlyEq = freq === 'monthly' ? contribution : contribution / 12;
-        const extraFifty = calculateFutureValue(initialDeposit, monthlyEq + 50, interestRate, yrs);
-        const diff = extraFifty - balance;
-        suggestions.push(`💡 **AI Tip**: Increasing your monthly contribution by just $50 could add an extra **$${diff.toLocaleString(undefined, { maximumFractionDigits: 0 })}**!`);
-
-        setAiSuggestion(suggestions[suggestions.length - 1] || "Your savings are on the right track!");
-    };
-
-    const calculateFutureValue = (p: number, monthlyPmt: number, rPct: number, tYrs: number) => {
-        const r = rPct / 100;
-        let b = p;
-        const eff = r / 12;
-        for (let i = 0; i < tYrs * 12; i++) {
-            b += b * eff;
-            b += monthlyPmt;
-        }
-        return b;
-    };
-
-    const resetToDefaults = () => {
-        setInitialDeposit(5000);
-        setPeriodicContribution(500);
-        setContributionFrequency('monthly');
-        setInterestRate(4.5);
-        setYears(10);
-        setCompoundingFrequency('monthly');
-        setStartDate(new Date().toISOString().split('T')[0]);
-        setAdditionalContribution(0);
-        setAdditionalFrequency('annually');
-        setInflationRate(0);
-        setTaxRate(0);
-
+        setInitialDeposit(defaults.initialDeposit);
+        setPeriodicContribution(defaults.periodicContribution);
+        setContributionFrequency(defaults.contributionFrequency);
+        setInterestRate(defaults.interestRate);
+        setYears(defaults.years);
+        setCompoundingFrequency(defaults.compoundingFrequency);
+        setStartDate(defaults.startDate);
+        setAdditionalContribution(defaults.additionalContribution);
+        setAdditionalFrequency(defaults.additionalFrequency);
+        setInflationRate(defaults.inflationRate);
+        setTaxRate(defaults.taxRate);
         setShowAdvanced(false);
+
+        calculateSavings(defaults);
     };
 
     const compoundingOptions = [
@@ -287,20 +318,16 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
         <div className="flex flex-col gap-8">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                 <div className="p-6 md:p-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-                        <button
-                            onClick={resetToDefaults}
-                            className="flex items-center text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
-                        >
-                            <RotateCcw className="w-4 h-4 mr-1" />
-                            Reset
-                        </button>
-                    </div>
-
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Inputs Side */}
                         <div className="space-y-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <Calculator className="w-5 h-5 mr-2 text-blue-600" />
+                                    Calculator Inputs
+                                </h3>
+                                <ResetButton onClick={handleReset} />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Initial Deposit</label>
                                 <CurrencyInput value={initialDeposit} onChange={setInitialDeposit} />
@@ -426,6 +453,8 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ title = "Savings 
                                     />
                                 </div>
                             </div>
+
+                            <CalculateButton onClick={() => calculateSavings()} />
                         </div>
 
                         {/* Results Side */}
