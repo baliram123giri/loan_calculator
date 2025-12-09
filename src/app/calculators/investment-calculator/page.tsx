@@ -136,6 +136,48 @@ export default function InvestmentCalculatorPage() {
                             </div>
                         </section>
 
+                        {/* Investment Formulas */}
+                        <section className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                                🧮 The Math Behind the Magic
+                            </h2>
+                            <p className="text-gray-600 dark:text-gray-400 mb-6">
+                                Transparency is key to trust. Here are the exact financial formulas used in this calculator to determine your future wealth.
+                            </p>
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                        Lumpsum Calculation
+                                    </h3>
+                                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg font-mono text-sm text-blue-600 dark:text-blue-400 mb-4 overflow-x-auto">
+                                        A = P(1 + r)^t
+                                    </div>
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <li>• <strong>A</strong>: Future Value of the investment</li>
+                                        <li>• <strong>P</strong>: Principal amount (initial investment)</li>
+                                        <li>• <strong>r</strong>: Annual interest rate (decimal)</li>
+                                        <li>• <strong>t</strong>: Number of years</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                        SIP Calculation
+                                    </h3>
+                                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg font-mono text-sm text-green-600 dark:text-green-400 mb-4 overflow-x-auto">
+                                        M = P × [((1 + i)^n - 1) / i] × (1 + i)
+                                    </div>
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <li>• <strong>M</strong>: Maturity Amount</li>
+                                        <li>• <strong>P</strong>: Monthly SIP amount</li>
+                                        <li>• <strong>i</strong>: Monthly interest rate (Annual Rate / 12 / 100)</li>
+                                        <li>• <strong>n</strong>: Total number of months</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
                         {/* The Power of Compounding */}
                         <section>
                             <h2 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white mb-6">

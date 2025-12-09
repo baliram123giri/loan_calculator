@@ -286,7 +286,7 @@ export default function InvestmentCalculator() {
 
     const resetToDefaults = () => {
         const defaults = {
-            activeTab: 'sip' as TabType,
+            activeTab: activeTab,
             lumpsumAmount: 100000,
             monthlySIP: 5000,
             combinedLumpsum: 50000,
@@ -301,7 +301,7 @@ export default function InvestmentCalculator() {
             taxRate: 0
         };
 
-        setActiveTab(defaults.activeTab);
+        // Don't reset active tab, keep user where they are
         setLumpsumAmount(defaults.lumpsumAmount);
         setMonthlySIP(defaults.monthlySIP);
         setCombinedLumpsum(defaults.combinedLumpsum);
@@ -344,6 +344,7 @@ export default function InvestmentCalculator() {
 
         if (result) {
             const summaryData = [
+                ['Strategy', calculatedValues.activeTab.toUpperCase()],
                 ['Total Investment', formatCurrency(result.totalInvestment)],
                 ['Total Returns', formatCurrency(result.totalReturns)],
                 ['Future Value', formatCurrency(result.futureValue)],
@@ -893,7 +894,7 @@ export default function InvestmentCalculator() {
                     <div className="mt-8 text-center">
                         <button
                             onClick={() => setLiked(!liked)}
-                            className={`inline-flex items-center px-6 py-3 rounded-full transition-all ${liked
+                            className={`cursor-pointer inline-flex items-center px-6 py-3 rounded-full transition-all ${liked
                                 ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
