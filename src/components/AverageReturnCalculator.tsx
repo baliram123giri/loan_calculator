@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, Fragment } from 'react';
 import { useCurrency } from '@/context/CurrencyContext';
+
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -28,6 +29,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import { CalculateButton } from './Shared/CalculateButton';
+
 import { ResetButton } from './Shared/ResetButton';
 import { DatePicker } from './Shared/DatePicker';
 import jsPDF from 'jspdf';
@@ -49,6 +51,9 @@ ChartJS.register(
     ArcElement
 );
 
+
+import { useSearchParams } from 'next/navigation';
+
 interface ScheduleItem {
     year: number;
     value: number;
@@ -59,16 +64,51 @@ interface ScheduleItem {
 
 
 export default function AverageReturnCalculator() {
+
     // Basic Inputs
-    const [initialInvestment, setInitialInvestment] = useState(10000);
-    const [finalValue, setFinalValue] = useState(15000);
-    const [years, setYears] = useState(5);
-    const [months, setMonths] = useState(0);
-    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const searchParams = useSearchParams();
+
+    // Try to get initial state from URL params
+    const getInitialState = () => {
+        // Fallback to individual URL params (backward compatibility)
+        return {
+            initialInvestment: Number(searchParams.get('initialInvestment')) || 10000,
+            finalValue: Number(searchParams.get('finalValue')) || 15000,
+            years: Number(searchParams.get('years')) || 5,
+            months: Number(searchParams.get('months')) || 0,
+            startDate: searchParams.get('startDate') || new Date().toISOString().split('T')[0],
+            inflationRate: Number(searchParams.get('inflationRate')) || 0,
+            taxRate: Number(searchParams.get('taxRate')) || 0,
+            hasData: !!searchParams.get('initialInvestment')
+        };
+    };
+
+    const initialState = getInitialState();
+
+    // Initialize state, potentially from URL params if present (and valid numbers)
+    const [initialInvestment, setInitialInvestment] = useState(
+        initialState.initialInvestment
+    );
+    const [finalValue, setFinalValue] = useState(
+        initialState.finalValue
+    );
+    const [years, setYears] = useState(
+        initialState.years
+    );
+    const [months, setMonths] = useState(
+        initialState.months
+    );
+    const [startDate, setStartDate] = useState(
+        initialState.startDate
+    );
 
     // Advanced Inputs
-    const [inflationRate, setInflationRate] = useState(0);
-    const [taxRate, setTaxRate] = useState(0);
+    const [inflationRate, setInflationRate] = useState(
+        initialState.inflationRate
+    );
+    const [taxRate, setTaxRate] = useState(
+        initialState.taxRate
+    );
 
     // AI Suggestions
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -87,15 +127,19 @@ export default function AverageReturnCalculator() {
 
     // Snapshot state for calculation
     const [calculatedValues, setCalculatedValues] = useState({
-        initialInvestment: 10000,
-        finalValue: 15000,
-        years: 5,
-        months: 0,
-        startDate: new Date().toISOString().split('T')[0],
-        inflationRate: 0,
-        taxRate: 0
+        initialInvestment: initialState.initialInvestment,
+        finalValue: initialState.finalValue,
+        years: initialState.years,
+        months: initialState.months,
+        startDate: initialState.startDate,
+        inflationRate: initialState.inflationRate,
+        taxRate: initialState.taxRate
     });
-    const [hasCalculated, setHasCalculated] = useState(true);
+
+    // Auto-calculate if params are present
+    const [hasCalculated, setHasCalculated] = useState(
+        initialState.hasData || true // Default to true for now so user sees something, or force false if pure clean slate wanted
+    );
 
     const handleCalculate = () => {
         setCalculatedValues({
@@ -109,6 +153,7 @@ export default function AverageReturnCalculator() {
         });
         setHasCalculated(true);
     };
+
 
     // Calculation Logic
     const { result, schedule } = useMemo(() => {
@@ -649,6 +694,8 @@ export default function AverageReturnCalculator() {
                                             <div className="h-64 sm:h-80 w-full">
                                                 <Line
                                                     data={chartData}
+                                                    aria-label="Investment growth chart showing value over time"
+                                                    role="img"
                                                     options={{
                                                         responsive: true,
                                                         maintainAspectRatio: false,
@@ -687,6 +734,8 @@ export default function AverageReturnCalculator() {
                                             <div className="h-64 sm:h-80 w-full">
                                                 <Bar
                                                     data={barChartData}
+                                                    aria-label="Bar chart showing cumulative gains for each year"
+                                                    role="img"
                                                     options={{
                                                         responsive: true,
                                                         maintainAspectRatio: false,

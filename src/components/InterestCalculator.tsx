@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateSimpleInterest, calculateCompoundInterest, InterestCalculation } from '@/lib/calc/interest';
 import { TrendingUp, PieChart, Calculator, DollarSign, Percent, Clock, RotateCcw, Download, ChevronLeft, ChevronRight, Lightbulb, ArrowRight } from 'lucide-react';
-import ShareButton from '@/components/ShareButton';
+
 import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
 import { CalculateButton } from './Shared/CalculateButton';
@@ -409,19 +409,6 @@ export default function InterestCalculator() {
                     <div className="lg:col-span-8 p-8 space-y-8">
                         {result && (
                             <>
-                                <div className="flex justify-end">
-                                    <ShareButton
-                                        data={{
-                                            type: calculationType,
-                                            principal,
-                                            rate,
-                                            time,
-                                            frequency: compoundingFrequency,
-                                            contribution: monthlyContribution
-                                        }}
-                                    />
-                                </div>
-
                                 {/* Result Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 text-white p-6 rounded-2xl shadow-xl transform transition hover:scale-105">

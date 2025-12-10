@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { calculatePropertyTax, TaxResult } from '@/lib/calc/tax';
-import ShareButton from '@/components/ShareButton';
+
 import { RotateCcw, FileText } from 'lucide-react';
 import { CalculateButton } from './Shared/CalculateButton';
 import jsPDF from 'jspdf';
@@ -85,11 +85,6 @@ export default function PropertyTaxCalculator() {
         doc.save(`Property_Tax_Estimate_${Date.now()}.pdf`);
     };
 
-    const shareData = {
-        v: value,
-        r: rate
-    };
-
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-6">
@@ -163,7 +158,6 @@ export default function PropertyTaxCalculator() {
                             </div>
                         </div>
                         <div className="flex justify-end gap-2">
-                            <ShareButton data={shareData} />
                             <button
                                 onClick={handleExportPDF}
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm cursor-pointer shadow-sm"

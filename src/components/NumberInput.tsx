@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-interface NumberInputProps {
+interface NumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
     value: number;
     onChange: (value: number) => void;
     label?: string;
@@ -22,7 +22,8 @@ export default function NumberInput({
     min,
     max,
     suffix,
-    decimalScale = 2
+    decimalScale = 2,
+    ...props
 }: NumberInputProps) {
     const [displayValue, setDisplayValue] = useState(value.toString());
     const [isFocused, setIsFocused] = useState(false);
@@ -73,15 +74,18 @@ export default function NumberInput({
         setDisplayValue(numValue.toString());
     };
 
+    const id = React.useId();
+
     return (
         <div>
             {label && (
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {label}
                 </label>
             )}
             <div className="relative">
                 <input
+                    id={id}
                     type="text"
                     inputMode="decimal"
                     value={displayValue}
@@ -90,6 +94,7 @@ export default function NumberInput({
                     onBlur={handleBlur}
                     placeholder={placeholder}
                     className={`w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border ${suffix ? 'pr-8' : ''} ${className}`}
+                    {...props}
                 />
                 {suffix && (
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

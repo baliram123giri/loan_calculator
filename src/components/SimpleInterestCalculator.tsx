@@ -9,7 +9,7 @@ import { Prepayment, RateChange } from '@/lib/calc/paymentCalc';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import ShareButton from '@/components/ShareButton';
+
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { AdvancedOptions } from './AdvancedOptions';
@@ -192,12 +192,6 @@ export default function SimpleInterestCalculator() {
         doc.save(`simple-interest-calculator-${dateStr}.pdf`);
     };
 
-    const shareData = {
-        p: principal,
-        r: rate,
-        t: time
-    };
-
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-6">
@@ -309,16 +303,13 @@ export default function SimpleInterestCalculator() {
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
                             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
                                 <h3 className="text-lg font-bold">Yearly Breakdown</h3>
-                                <div className="flex gap-2">
-                                    <ShareButton data={shareData} />
-                                    <button
-                                        onClick={handleExportPDF}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium text-sm cursor-pointer"
-                                    >
-                                        <Download size={16} />
-                                        Export PDF
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleExportPDF}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium text-sm cursor-pointer"
+                                >
+                                    <Download size={16} />
+                                    Export PDF
+                                </button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">

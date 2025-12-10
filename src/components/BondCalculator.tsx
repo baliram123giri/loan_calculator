@@ -605,7 +605,7 @@ export default function BondCalculator() {
 
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <label id="annual-coupon-label" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                             Annual Coupon
                                         </label>
                                         <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
@@ -637,6 +637,7 @@ export default function BondCalculator() {
                                             max={50}
                                             step={0.1}
                                             suffix="%"
+                                            aria-labelledby="annual-coupon-label"
                                         />
                                     ) : (
                                         <CurrencyInput
@@ -644,13 +645,14 @@ export default function BondCalculator() {
                                             onChange={handleCouponAmountChange}
                                             min={0}
                                             max={1000000}
+                                            aria-labelledby="annual-coupon-label"
                                         />
                                     )}
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <label htmlFor="settlement-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Settlement Date
                                         </label>
                                         <input
@@ -658,10 +660,11 @@ export default function BondCalculator() {
                                             value={settlementDate}
                                             onChange={(e) => setSettlementDate(e.target.value)}
                                             className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                                            id="settlement-date"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <label htmlFor="maturity-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                             Maturity Date
                                         </label>
                                         <input
@@ -669,12 +672,13 @@ export default function BondCalculator() {
                                             value={maturityDate}
                                             onChange={(e) => setMaturityDate(e.target.value)}
                                             className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-800 dark:text-white"
+                                            id="maturity-date"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label htmlFor="coupon-frequency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Coupon Frequency
                                     </label>
                                     <div className="relative">
@@ -682,6 +686,7 @@ export default function BondCalculator() {
                                             value={frequency}
                                             onChange={(e) => setFrequency(Number(e.target.value))}
                                             className="block w-full pl-3 pr-10 py-3 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg dark:bg-gray-800 dark:text-white appearance-none border"
+                                            id="coupon-frequency"
                                         >
                                             <option value={1}>Annual (1/yr)</option>
                                             <option value={2}>Semiannual (2/yr)</option>

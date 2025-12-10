@@ -8,7 +8,7 @@ import { calculateCompoundInterest, calculateAPY, InterestCalculation } from '@/
 import { Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import ShareButton from '@/components/ShareButton';
+
 import { CalculateButton } from './Shared/CalculateButton';
 import { ResetButton } from './Shared/ResetButton';
 
@@ -179,13 +179,6 @@ export default function CompoundInterestCalculator() {
         doc.save(`compound-interest-calculator-${dateStr}.pdf`);
     };
 
-    const shareData = {
-        p: principal,
-        r: rate,
-        t: time,
-        f: frequency
-    };
-
     // Pagination Logic
     const showPagination = result && result.breakdown.length > ITEMS_PER_PAGE;
     const totalPages = result ? Math.ceil(result.breakdown.length / ITEMS_PER_PAGE) : 0;
@@ -314,18 +307,13 @@ export default function CompoundInterestCalculator() {
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
                             <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Yearly Breakdown</h3>
-                                <div className="flex gap-2">
-                                    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                                        <ShareButton data={shareData} />
-                                    </div>
-                                    <button
-                                        onClick={handleExportPDF}
-                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md font-medium text-sm cursor-pointer"
-                                    >
-                                        <Download size={16} />
-                                        Export PDF
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleExportPDF}
+                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md font-medium text-sm cursor-pointer"
+                                >
+                                    <Download size={16} />
+                                    Export PDF
+                                </button>
                             </div>
 
                             <div className="overflow-x-auto">

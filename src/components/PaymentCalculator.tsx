@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import PaymentCalculatorForm from './PaymentCalculatorForm';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
-import ShareButton from '@/components/ShareButton';
+
 import { PaymentResult } from '@/lib/calc/paymentCalc';
 import { LoanTypeConfig } from '@/types/loanTypes';
 
@@ -53,13 +53,6 @@ export default function PaymentCalculator() {
         setResult(null);
     };
 
-    const shareData = {
-        p: calcParams.principal,
-        r: calcParams.rate,
-        t: calcParams.tenureMonths / 12,
-        m: calcParams.mode === 'fixed-payment' ? calcParams.monthlyPayment : undefined
-    };
-
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column: Inputs */}
@@ -93,9 +86,6 @@ export default function PaymentCalculator() {
                                         </p>
                                     </div>
                                 )}
-                            </div>
-                            <div className="flex items-start pt-2 gap-2">
-                                <ShareButton data={shareData} />
                             </div>
                         </div>
 

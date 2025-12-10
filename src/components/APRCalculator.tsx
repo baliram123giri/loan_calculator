@@ -5,7 +5,7 @@ import { calculateLoanSummary } from '@/lib/calc/aprCalc';
 import { generatePaymentAmortization } from '@/lib/calc/paymentCalc';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import CurrencyInput from './CurrencyInput';
-import ShareButton from './ShareButton';
+
 import AmortizationTable from './AmortizationTable';
 import ChartBalance from './ChartBalance';
 import ChartPaymentComposition from './ChartPaymentComposition';
@@ -341,16 +341,7 @@ export default function APRCalculator() {
                                     </span>
                                 </div>
                             </div>
-                            <div className="mt-6">
-                                <ShareButton
-                                    data={{
-                                        p: principal,
-                                        r: interestRate,
-                                        t: termType === 'years' ? termValue : termValue / 12,
-                                        f: result.totalFees
-                                    }}
-                                />
-                            </div>
+
                         </div>
                     </div>
                 </div>

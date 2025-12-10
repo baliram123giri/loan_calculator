@@ -12,11 +12,49 @@ import {
     HelpCircle
 } from 'lucide-react';
 
-export const metadata: Metadata = {
-    title: 'Average Return Calculator | Calculate CAGR & Total Return',
-    description: 'Calculate average annual return (CAGR), total return, and real return adjusted for inflation. Free online Rate of Return calculator for investors.',
-    keywords: 'average return calculator, rate of return calculator, CAGR calculator, investment return, annualized return calculator, portfolio growth',
-};
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
+    const params = await searchParams;
+    const initial = params?.initialInvestment ? Number(params.initialInvestment).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) : null;
+    const final = params?.finalValue ? Number(params.finalValue).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) : null;
+
+    let ogParams = new URLSearchParams();
+    ogParams.set('title', 'Average Return Calculator');
+
+    if (initial && final) {
+        ogParams.set('subtitle', `My investment grew from ${initial} to ${final}`);
+
+        // Calculate rough CAGR if possible for the highlight
+        ogParams.set('highlight', 'See my results 🚀');
+    } else {
+        ogParams.set('subtitle', 'Calculate CAGR & Real Returns instantly');
+    }
+
+    const ogUrl = `/api/og?${ogParams.toString()}`;
+
+    return {
+        title: 'Average Return Calculator | Calculate CAGR & Total Return',
+        description: 'Calculate average annual return (CAGR), total return, and real return adjusted for inflation. Free online Rate of Return calculator for investors.',
+        keywords: 'average return calculator, rate of return calculator, CAGR calculator, investment return, annualized return calculator, portfolio growth',
+        openGraph: {
+            title: 'Average Return Calculator | Loanly',
+            description: initial && final ? `Check out this calculation: ${initial} → ${final}` : 'Determine the true performance of your investments.',
+            images: [
+                {
+                    url: ogUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: 'Average Return Calculator Result',
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: 'Average Return Calculator | Loanly',
+            description: initial && final ? `Check out this calculation: ${initial} → ${final}` : 'Determine the true performance of your investments.',
+            images: [ogUrl],
+        }
+    };
+}
 
 export default function AverageReturnCalculatorPage() {
     return (
@@ -46,7 +84,9 @@ export default function AverageReturnCalculatorPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Calculator Component */}
                 <div className="-mt-20 relative z-10">
-                    <AverageReturnCalculator />
+                    <React.Suspense fallback={<div className="h-96 flex items-center justify-center bg-white dark:bg-gray-900 rounded-xl shadow-lg"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>}>
+                        <AverageReturnCalculator />
+                    </React.Suspense>
                 </div>
 
                 {/* SEO Content */}

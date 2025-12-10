@@ -6,7 +6,7 @@ import CalculatorForm from '@/components/CalculatorForm';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
 import SaveScenario from '@/components/SaveScenario';
-import ShareButton from '@/components/ShareButton';
+
 import { EMIResult } from '@/lib/calc/emi';
 import { LoanTypeConfig } from '@/types/loanTypes';
 
@@ -48,12 +48,6 @@ export default function MortgageCalculator() {
         setLoanParams(params);
     }, []);
 
-    const shareData = {
-        p: loanParams.principal,
-        r: loanParams.rate,
-        t: loanParams.tenureMonths / 12
-    };
-
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column: Inputs */}
@@ -90,7 +84,6 @@ export default function MortgageCalculator() {
                                     currencySymbol="$"
                                     onLoad={(scenario) => setLoadScenario(scenario)}
                                 />
-                                <ShareButton data={shareData} />
                             </div>
                         </div>
 

@@ -6,7 +6,7 @@ import { calculateFHA, FHAInput, FHAResult } from '@/lib/calc/fha';
 import EMIResultCard from '@/components/EMIResultCard';
 import AmortizationTable from '@/components/AmortizationTable';
 import ExportButton from '@/components/ExportButton';
-import ShareButton from '@/components/ShareButton';
+
 import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
 import { LoanTypeConfig } from '@/types/loanTypes';
