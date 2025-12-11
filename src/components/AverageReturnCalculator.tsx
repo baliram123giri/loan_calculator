@@ -365,10 +365,6 @@ export default function AverageReturnCalculator() {
         return `${currency.symbol}${val.toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
-    const formatCurrencyForPDF = (val: number) => {
-        return `${currency.code} ${val.toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    };
-
     const resetCalculator = () => {
         const defaults = {
             initialInvestment: 10000,
