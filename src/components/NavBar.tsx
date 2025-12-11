@@ -81,6 +81,7 @@ export default function NavBar() {
                 { href: '/calculators/savings-calculator', label: 'Savings Calculator', description: 'Plan your savings growth' },
                 { href: '/calculators/investment-calculator', label: 'Investment Calculator', description: 'SIP, lumpsum & goal planning' },
                 { href: '/calculators/average-return-calculator', label: 'Average Return', description: 'Calculate CAGR & total returns' },
+                { href: '/calculators/irr-calculator', label: 'IRR Calculator', description: 'Calculate Internal Rate of Return' },
                 { href: '/calculators/cd-calculator', label: 'CD Calculator', description: 'CD returns with tax & inflation' },
                 { href: '/calculators/bond-calculator', label: 'Bond Calculator', description: 'Bond Price, YTM & Duration' },
             ]
@@ -147,6 +148,8 @@ export default function NavBar() {
                                             ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                             }`}
+                                        aria-label={`${category.label} menu`}
+                                        aria-expanded={openDropdown === category.label}
                                     >
                                         <Icon size={16} />
                                         {category.label}
@@ -211,6 +214,8 @@ export default function NavBar() {
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                            aria-expanded={mobileMenuOpen}
                         >
                             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
@@ -235,6 +240,8 @@ export default function NavBar() {
                                     <button
                                         onClick={() => setOpenDropdown(isOpen ? null : category.label)}
                                         className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                        aria-label={`${category.label} menu`}
+                                        aria-expanded={isOpen}
                                     >
                                         <div className="flex items-center gap-2">
                                             <Icon size={18} />

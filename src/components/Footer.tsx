@@ -68,6 +68,11 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
+                                <Link href="/calculators/irr-calculator" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                    IRR Calculator
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/calculators/sales-tax" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     Sales Tax
                                 </Link>

@@ -76,12 +76,17 @@ export default function NavSearch({ items }: NavSearchProps) {
                     onChange={handleSearch}
                     onFocus={() => query.length > 0 && setIsOpen(true)}
                     placeholder="Search calculators..."
+                    aria-label="Search calculators"
+                    role="searchbox"
+                    aria-autocomplete="list"
+                    aria-expanded={isOpen && suggestions.length > 0}
                     className="block w-full pl-10 pr-10 py-2 border border-gray-200 dark:border-gray-700 rounded-full leading-5 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 transition-all shadow-sm group-hover:shadow-md"
                 />
                 {query && (
                     <button
                         onClick={clearSearch}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                        aria-label="Clear search"
                     >
                         <X size={16} />
                     </button>
@@ -89,7 +94,7 @@ export default function NavSearch({ items }: NavSearchProps) {
             </div>
 
             {isOpen && suggestions.length > 0 && (
-                <div className="absolute mt-2 w-full bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div id="search-results" role="listbox" aria-label="Calculator search results" className="absolute mt-2 w-full bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="max-h-[60vh] overflow-y-auto py-2">
                         {suggestions.map((item, index) => (
                             <div key={`${item.href}-${index}`}>
@@ -106,6 +111,8 @@ export default function NavSearch({ items }: NavSearchProps) {
                                 <button
                                     onClick={() => handleSelect(item.href)}
                                     className="w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 flex items-start justify-between group transition-colors border-b border-gray-50 dark:border-gray-800/50 last:border-0 cursor-pointer"
+                                    role="option"
+                                    aria-label={`${item.label}: ${item.description}`}
                                 >
                                     <div>
                                         <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
