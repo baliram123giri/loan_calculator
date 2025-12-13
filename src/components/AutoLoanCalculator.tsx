@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { flushSync } from 'react-dom';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -25,6 +26,7 @@ interface AutoLoanCalculatorProps {
 }
 
 const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto Loan Calculator" }) => {
+    const { currency } = useCurrency();
     const [mode, setMode] = useState<'price' | 'monthly'>('price');
     const [vehiclePrice, setVehiclePrice] = useState<number>(35000);
     const [monthlyBudget, setMonthlyBudget] = useState<number>(600);
@@ -295,22 +297,22 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                             <div className="mb-8 text-center">
                                 <p className="text-sm text-gray-500 mb-1">{mode === 'price' ? 'Estimated Monthly Payment' : 'Estimated Vehicle Price'}</p>
                                 <div className="text-4xl font-bold text-blue-600">
-                                    {mode === 'price' ? `$${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                                    {mode === 'price' ? `${currency.symbol}${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `${currency.symbol}${vehiclePrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                                 </div>
-                                {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with ${monthlyBudget}/mo budget</p>}
+                                {mode === 'monthly' && <p className="text-sm text-gray-500 mt-1">with {currency.symbol}{monthlyBudget}/mo budget</p>}
                             </div>
                             <div className="space-y-4 mb-8">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Total Loan Amount</span>
-                                    <span className="font-semibold text-gray-900">${totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                    <span className="font-semibold text-gray-900">{currency.symbol}{totalLoanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Total Interest</span>
-                                    <span className="font-semibold text-gray-900">${totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                    <span className="font-semibold text-gray-900">{currency.symbol}{totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Total Cost (Loan + Interest)</span>
-                                    <span className="font-semibold text-gray-900">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                    <span className="font-semibold text-gray-900">{currency.symbol}{totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">Payoff Date</span>
@@ -327,6 +329,7 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
             <div className="mt-12">
                 <AmortizationTable
                     schedule={amortizationSchedule}
+                    currencySymbol={currency.symbol}
                     calculatorName="Auto Loan"
                     loanDetails={{
                         loanAmount: totalLoanAmount,

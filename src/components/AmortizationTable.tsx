@@ -3,6 +3,7 @@ import { AmortizationRow } from '@/lib/calc/emi';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { loadUnicodeFont } from '@/utils/pdfUtils';
 
 interface AmortizationTableProps {
     schedule: AmortizationRow[];
@@ -115,8 +116,9 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
         }
     };
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         const doc = new jsPDF();
+        await loadUnicodeFont(doc);
 
         // Parse gradient color or use default blue
         let headerColor: [number, number, number] = [37, 99, 235]; // Default blue-600
@@ -176,7 +178,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
                 doc.text(label, x, y);
 
                 // Value - Normal & Lighter - closer to label
-                doc.setFont('helvetica', 'normal');
+                doc.setFont('NotoSans', 'normal');
                 doc.setTextColor(71, 85, 105); // Slate-600
                 doc.text(value, x + 38, y);
             };
@@ -199,7 +201,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(30, 41, 59);
                 doc.text("VA Funding Fee:", col1X, additionalY);
-                doc.setFont('helvetica', 'normal');
+                doc.setFont('NotoSans', 'normal');
                 doc.setTextColor(71, 85, 105);
                 doc.text(`${formatCurrency(loanDetails.fundingFee)} (${loanDetails.fundingFeeRate}%)`, col1X + 38, additionalY);
                 startY = additionalY + 6;
@@ -209,14 +211,14 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(30, 41, 59);
                 doc.text("Upfront MIP:", col1X, additionalY);
-                doc.setFont('helvetica', 'normal');
+                doc.setFont('NotoSans', 'normal');
                 doc.setTextColor(71, 85, 105);
                 doc.text(formatCurrency(loanDetails.upfrontMIP), col1X + 38, additionalY);
 
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(30, 41, 59);
                 doc.text("Total MIP Paid:", col2X, additionalY);
-                doc.setFont('helvetica', 'normal');
+                doc.setFont('NotoSans', 'normal');
                 doc.setTextColor(71, 85, 105);
                 doc.text(formatCurrency(loanDetails.totalMIPPaid || 0), col2X + 38, additionalY);
                 startY = additionalY + 6;
@@ -265,10 +267,10 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             columnStyles: {
                 0: { halign: 'center', cellWidth: 15 }, // Sr
                 1: { halign: 'left' },   // Date
-                2: { halign: 'right' }, // Principal
-                3: { halign: 'right' }, // Interest
-                4: { halign: 'right' }, // Payment
-                5: { halign: 'right' }  // Balance
+                2: { halign: 'right', font: 'NotoSans' }, // Principal
+                3: { halign: 'right', font: 'NotoSans' }, // Interest
+                4: { halign: 'right', font: 'NotoSans' }, // Payment
+                5: { halign: 'right', font: 'NotoSans' }  // Balance
             }
         });
 
