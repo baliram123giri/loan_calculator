@@ -26,7 +26,10 @@ const MORTGAGE_CONFIG: LoanTypeConfig = {
     defaultRate: 6.5
 };
 
+import { useCurrency } from '@/context/CurrencyContext';
+
 export default function MortgageCalculator() {
+    const { currency } = useCurrency();
     const [result, setResult] = useState<EMIResult | null>(null);
     const [loanParams, setLoanParams] = useState({ principal: 300000, rate: 6.5, tenureMonths: 360 });
     const [loadScenario, setLoadScenario] = useState<any>(null);
@@ -56,7 +59,7 @@ export default function MortgageCalculator() {
                     key={resetKey}
                     onResultChange={handleResultChange}
                     loanTypeConfig={MORTGAGE_CONFIG}
-                    currencySymbol="$"
+                    currencySymbol={currency.symbol}
                     loadScenario={loadScenario}
                     onScenarioLoaded={() => setLoadScenario(null)}
                     persistenceKey="mortgage_calculator_state"
@@ -68,11 +71,21 @@ export default function MortgageCalculator() {
 
             {/* Right Column: Results */}
             <div className="lg:col-span-8 space-y-8">
-                {result && (
+                {!result ? (
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-100 dark:border-gray-800 text-center py-20">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 mb-6">
+                            <span className="text-3xl">🏠</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ready to Calculate</h3>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                            Enter your mortgage details and click "Calculate Mortgage" to see your monthly payments and amortization schedule.
+                        </p>
+                    </div>
+                ) : (
                     <>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex-1">
-                                <EMIResultCard result={result} currencySymbol="$" />
+                                <EMIResultCard result={result} currencySymbol={currency.symbol} />
                             </div>
                             <div className="flex items-start pt-2 gap-2">
                                 <SaveScenario
@@ -81,7 +94,7 @@ export default function MortgageCalculator() {
                                     rate={loanParams.rate}
                                     tenureMonths={loanParams.tenureMonths}
                                     result={result}
-                                    currencySymbol="$"
+                                    currencySymbol={currency.symbol}
                                     onLoad={(scenario) => setLoadScenario(scenario)}
                                 />
                             </div>
@@ -107,7 +120,7 @@ export default function MortgageCalculator() {
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
                             <AmortizationTable
                                 schedule={result.amortization}
-                                currencySymbol="$"
+                                currencySymbol={currency.symbol}
                                 calculatorName="Mortgage Calculator"
                                 loanDetails={{
                                     loanAmount: loanParams.principal,

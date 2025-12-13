@@ -216,12 +216,12 @@ export default function CalculatorForm({
         }
     }, [manualCalculation, performCalculation]);
 
-    // Calculate once on mount for manual mode
-    useEffect(() => {
-        if (manualCalculation) {
-            performCalculation();
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // Calculate once on mount for manual mode - REMOVED to support manual trigger pattern
+    // useEffect(() => {
+    //     if (manualCalculation) {
+    //         performCalculation();
+    //     }
+    // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const addExtraPayment = () => {
         setExtraPayments([
