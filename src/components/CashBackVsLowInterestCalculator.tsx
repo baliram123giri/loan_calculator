@@ -18,10 +18,12 @@ import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
 import { CalculateButton } from './Shared/CalculateButton';
 import { ResetButton } from './Shared/ResetButton';
-import { DatePicker } from './Shared/DatePicker';
+import LocalizedDatePicker from './LocalizedDatePicker';
 import { ChevronDown, ChevronUp, Info, CheckCircle, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { loadUnicodeFont } from '@/utils/pdfUtils';
+import { useCurrency } from '@/context/CurrencyContext';
 
 ChartJS.register(
     CategoryScale,
@@ -35,6 +37,7 @@ ChartJS.register(
 );
 
 const CashBackVsLowInterestCalculator = () => {
+    const { currency } = useCurrency();
     // Inputs
     const [carPrice, setCarPrice] = useState<number>(35000);
     const [downPayment, setDownPayment] = useState<number>(5000);
@@ -202,8 +205,9 @@ const CashBackVsLowInterestCalculator = () => {
         });
     };
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         const doc = new jsPDF();
+        await loadUnicodeFont(doc);
 
         // 1. Header Section with Gradient-like Bar
         doc.setFillColor(37, 99, 235); // Blue-600
@@ -245,19 +249,25 @@ const CashBackVsLowInterestCalculator = () => {
             doc.setTextColor(15, 23, 42); // Slate-900
             doc.text(label, x, y);
 
-            doc.setFont('helvetica', 'normal');
+            // Use NotoSans for value if it contains currency symbol
+            if (value.includes(currency.symbol)) {
+                doc.setFont('NotoSans', 'normal');
+            } else {
+                doc.setFont('helvetica', 'normal');
+            }
+
             doc.setTextColor(71, 85, 105); // Slate-600
             doc.text(value, x + 40, y);
         };
 
         // Left Column
-        drawDetail("Car Price:", `$${carPrice.toLocaleString()}`, col1X, row1Y);
-        drawDetail("Down Payment:", `$${downPayment.toLocaleString()}`, col1X, row2Y);
-        drawDetail("Trade-in:", `$${tradeInValue.toLocaleString()}`, col1X, row3Y);
+        drawDetail("Car Price:", `${currency.symbol}${carPrice.toLocaleString()}`, col1X, row1Y);
+        drawDetail("Down Payment:", `${currency.symbol}${downPayment.toLocaleString()}`, col1X, row2Y);
+        drawDetail("Trade-in:", `${currency.symbol}${tradeInValue.toLocaleString()}`, col1X, row3Y);
         drawDetail("Loan Term:", `${loanTerm} months`, col1X, row4Y);
 
         // Right Column
-        drawDetail("Cash Back:", `$${cashBackAmount.toLocaleString()}`, col2X, row1Y);
+        drawDetail("Cash Back:", `${currency.symbol}${cashBackAmount.toLocaleString()}`, col2X, row1Y);
         drawDetail("Standard Rate:", `${standardRate}%`, col2X, row2Y);
         drawDetail("Low Rate:", `${lowInterestRate}%`, col2X, row3Y);
         drawDetail("Winner:", `Option ${results.betterOption}`, col2X, row4Y);
@@ -268,9 +278,9 @@ const CashBackVsLowInterestCalculator = () => {
         const tableBody = [
             [
                 'Loan Amount',
-                `$${results.optionA.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-                `$${results.optionB.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-                `$${Math.abs(results.optionA.loanAmount - results.optionB.loanAmount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                `${currency.symbol}${results.optionA.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                `${currency.symbol}${results.optionB.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                `${currency.symbol}${Math.abs(results.optionA.loanAmount - results.optionB.loanAmount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
             ],
             [
                 'Interest Rate',
@@ -286,21 +296,21 @@ const CashBackVsLowInterestCalculator = () => {
             ],
             [
                 'Monthly Payment',
-                `$${results.optionA.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                `$${results.optionB.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                `$${Math.abs(results.optionA.monthlyPayment - results.optionB.monthlyPayment).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                `${currency.symbol}${results.optionA.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                `${currency.symbol}${results.optionB.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                `${currency.symbol}${Math.abs(results.optionA.monthlyPayment - results.optionB.monthlyPayment).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             ],
             [
                 'Total Interest',
-                `$${results.optionA.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-                `$${results.optionB.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-                `$${Math.abs(results.optionA.totalInterest - results.optionB.totalInterest).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                `${currency.symbol}${results.optionA.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                `${currency.symbol}${results.optionB.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                `${currency.symbol}${Math.abs(results.optionA.totalInterest - results.optionB.totalInterest).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
             ],
             [
                 'Total Cost',
-                `$${results.optionA.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-                `$${results.optionB.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-                `$${results.savings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                `${currency.symbol}${results.optionA.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                `${currency.symbol}${results.optionB.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                `${currency.symbol}${results.savings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
             ]
         ];
 
@@ -333,9 +343,9 @@ const CashBackVsLowInterestCalculator = () => {
             },
             columnStyles: {
                 0: { halign: 'left', cellWidth: 50 },
-                1: { halign: 'right', cellWidth: 45 },
-                2: { halign: 'right', cellWidth: 45 },
-                3: { halign: 'right', cellWidth: 42 }
+                1: { halign: 'right', cellWidth: 45, font: 'NotoSans' },
+                2: { halign: 'right', cellWidth: 45, font: 'NotoSans' },
+                3: { halign: 'right', cellWidth: 42, font: 'NotoSans' }
             }
         });
 
@@ -385,7 +395,7 @@ const CashBackVsLowInterestCalculator = () => {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                            label += new Intl.NumberFormat(currency.locale, { style: 'currency', currency: currency.code }).format(context.parsed.y);
                         }
                         return label;
                     }
@@ -396,7 +406,7 @@ const CashBackVsLowInterestCalculator = () => {
             y: {
                 ticks: {
                     callback: function (value: any) {
-                        return '$' + value.toLocaleString();
+                        return currency.symbol + value.toLocaleString();
                     }
                 }
             },
@@ -502,10 +512,10 @@ const CashBackVsLowInterestCalculator = () => {
                                     <label htmlFor="includeTax" className="text-sm text-gray-700">Include taxes and fees in loan</label>
                                 </div>
                                 <div>
-                                    <DatePicker
+                                    <LocalizedDatePicker
                                         label="Start Date"
                                         value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
+                                        onChange={(val) => setStartDate(val)}
                                     />
                                 </div>
                             </div>
@@ -538,7 +548,7 @@ const CashBackVsLowInterestCalculator = () => {
                                         Option {results.betterOption} is better!
                                     </h3>
                                     <p className="text-gray-700">
-                                        You will save <span className="font-bold text-gray-900">${results.savings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> by choosing the
+                                        You will save <span className="font-bold text-gray-900">{currency.symbol}{results.savings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> by choosing the
                                         {results.betterOption === 'A' ? ' Cash Back ' : ' Low Interest '} option.
                                     </p>
                                 </div>
@@ -552,21 +562,21 @@ const CashBackVsLowInterestCalculator = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <h4 className="font-bold text-gray-900">Option A: Cash Back</h4>
                                     <span className="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                                        ${cashBackAmount.toLocaleString()} Rebate
+                                        {currency.symbol}{cashBackAmount.toLocaleString()} Rebate
                                     </span>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Monthly Payment</span>
-                                        <span className="font-bold text-gray-900">${results.optionA.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className="font-bold text-gray-900">{currency.symbol}{results.optionA.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Total Interest</span>
-                                        <span className="font-medium text-gray-900">${results.optionA.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                        <span className="font-medium text-gray-900">{currency.symbol}{results.optionA.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="pt-3 border-t border-gray-200 flex justify-between text-sm">
                                         <span className="text-gray-600 font-medium">Total Cost</span>
-                                        <span className="font-bold text-xl text-blue-600">${results.optionA.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                        <span className="font-bold text-xl text-blue-600">{currency.symbol}{results.optionA.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -582,15 +592,15 @@ const CashBackVsLowInterestCalculator = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Monthly Payment</span>
-                                        <span className="font-bold text-gray-900">${results.optionB.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className="font-bold text-gray-900">{currency.symbol}{results.optionB.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Total Interest</span>
-                                        <span className="font-medium text-gray-900">${results.optionB.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                        <span className="font-medium text-gray-900">{currency.symbol}{results.optionB.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="pt-3 border-t border-gray-200 flex justify-between text-sm">
                                         <span className="text-gray-600 font-medium">Total Cost</span>
-                                        <span className="font-bold text-xl text-green-600">${results.optionB.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                        <span className="font-bold text-xl text-green-600">{currency.symbol}{results.optionB.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -632,9 +642,9 @@ const CashBackVsLowInterestCalculator = () => {
                             <tbody>
                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="py-3 px-4 text-gray-700">Loan Amount</td>
-                                    <td className="py-3 px-4 text-right font-medium">${results.optionA.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                                    <td className="py-3 px-4 text-right font-medium">${results.optionB.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                                    <td className="py-3 px-4 text-right font-medium">${Math.abs(results.optionA.loanAmount - results.optionB.loanAmount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-medium">{currency.symbol}{results.optionA.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-medium">{currency.symbol}{results.optionB.loanAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-medium">{currency.symbol}{Math.abs(results.optionA.loanAmount - results.optionB.loanAmount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                                 </tr>
                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="py-3 px-4 text-gray-700">Interest Rate</td>
@@ -650,28 +660,28 @@ const CashBackVsLowInterestCalculator = () => {
                                 </tr>
                                 <tr className="border-b border-gray-100 hover:bg-gray-50 bg-blue-50">
                                     <td className="py-3 px-4 text-gray-900 font-semibold">Monthly Payment</td>
-                                    <td className="py-3 px-4 text-right font-bold text-blue-600">${results.optionA.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    <td className="py-3 px-4 text-right font-bold text-green-600">${results.optionB.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    <td className="py-3 px-4 text-right font-bold">${Math.abs(results.optionA.monthlyPayment - results.optionB.monthlyPayment).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    <td className="py-3 px-4 text-right font-bold text-blue-600">{currency.symbol}{results.optionA.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    <td className="py-3 px-4 text-right font-bold text-green-600">{currency.symbol}{results.optionB.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    <td className="py-3 px-4 text-right font-bold">{currency.symbol}{Math.abs(results.optionA.monthlyPayment - results.optionB.monthlyPayment).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 </tr>
                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="py-3 px-4 text-gray-700">Total Interest Paid</td>
-                                    <td className="py-3 px-4 text-right font-medium">${results.optionA.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                                    <td className="py-3 px-4 text-right font-medium">${results.optionB.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                                    <td className="py-3 px-4 text-right font-medium">${Math.abs(results.optionA.totalInterest - results.optionB.totalInterest).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-medium">{currency.symbol}{results.optionA.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-medium">{currency.symbol}{results.optionB.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-medium">{currency.symbol}{Math.abs(results.optionA.totalInterest - results.optionB.totalInterest).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                                 </tr>
                                 <tr className="border-b-2 border-gray-200 hover:bg-gray-50 bg-green-50">
                                     <td className="py-3 px-4 text-gray-900 font-bold">Total Cost</td>
-                                    <td className="py-3 px-4 text-right font-bold text-lg">${results.optionA.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                                    <td className="py-3 px-4 text-right font-bold text-lg">${results.optionB.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                                    <td className="py-3 px-4 text-right font-bold text-lg">${results.savings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-bold text-lg">{currency.symbol}{results.optionA.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-bold text-lg">{currency.symbol}{results.optionB.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                                    <td className="py-3 px-4 text-right font-bold text-lg">{currency.symbol}{results.savings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                                 </tr>
                                 <tr className="bg-gradient-to-r from-blue-50 to-green-50">
                                     <td className="py-4 px-4 text-gray-900 font-bold">Winner</td>
                                     <td className="py-4 px-4 text-right" colSpan={3}>
                                         <span className={`inline-flex items-center px-4 py-2 rounded-full font-bold ${results.betterOption === 'A' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'}`}>
                                             <CheckCircle className="w-5 h-5 mr-2" />
-                                            Option {results.betterOption} saves ${results.savings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            Option {results.betterOption} saves {currency.symbol}{results.savings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </span>
                                     </td>
                                 </tr>

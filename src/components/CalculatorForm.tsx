@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import LocalizedDatePicker from './LocalizedDatePicker';
 import { InputNumber } from './Shared/InputNumber';
 import { Slider } from './Shared/Slider';
 import { CalculateButton } from './Shared/CalculateButton';
@@ -336,12 +335,9 @@ export default function CalculatorForm({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Loan Start Date
                 </label>
-                <DatePicker
-                    selected={startDate}
-                    onChange={(date: Date | null) => date && setStartDate(date)}
-                    dateFormat="dd MMM yyyy"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    wrapperClassName="w-full"
+                <LocalizedDatePicker
+                    value={startDate.toISOString().split('T')[0]}
+                    onChange={(val) => val && setStartDate(new Date(val))}
                 />
             </div>
 

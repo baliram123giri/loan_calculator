@@ -12,6 +12,7 @@ import { LoanTypeConfig } from '@/types/loanTypes';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
+import { useCurrency } from '@/context/CurrencyContext';
 
 const PERSONAL_LOAN_CONFIG: LoanTypeConfig = {
     name: 'Personal Loan',
@@ -27,6 +28,7 @@ const PERSONAL_LOAN_CONFIG: LoanTypeConfig = {
 };
 
 export default function LoanCalculator() {
+    const { currency } = useCurrency();
     const [result, setResult] = useState<EMIResult | null>(null);
     const [loanParams, setLoanParams] = useState({ principal: 10000, rate: 10.0, tenureMonths: 36 });
     const [loadScenario, setLoadScenario] = useState<any>(null);
@@ -56,7 +58,7 @@ export default function LoanCalculator() {
                     key={resetKey}
                     onResultChange={handleResultChange}
                     loanTypeConfig={PERSONAL_LOAN_CONFIG}
-                    currencySymbol="$"
+                    currencySymbol={currency.symbol}
                     loadScenario={loadScenario}
                     onScenarioLoaded={() => setLoadScenario(null)}
                     persistenceKey="personal_loan_calculator_state"
@@ -72,7 +74,7 @@ export default function LoanCalculator() {
                     <>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex-1">
-                                <EMIResultCard result={result} currencySymbol="$" />
+                                <EMIResultCard result={result} currencySymbol={currency.symbol} />
                             </div>
                             <div className="flex items-start pt-2 gap-2">
                                 <SaveScenario
@@ -81,7 +83,7 @@ export default function LoanCalculator() {
                                     rate={loanParams.rate}
                                     tenureMonths={loanParams.tenureMonths}
                                     result={result}
-                                    currencySymbol="$"
+                                    currencySymbol={currency.symbol}
                                     onLoad={(scenario) => setLoadScenario(scenario)}
                                 />
                             </div>
@@ -106,7 +108,7 @@ export default function LoanCalculator() {
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
                             <AmortizationTable
                                 schedule={result.amortization}
-                                currencySymbol="$"
+                                currencySymbol={currency.symbol}
                                 calculatorName="Personal Loan"
                                 loanDetails={{
                                     loanAmount: loanParams.principal,
