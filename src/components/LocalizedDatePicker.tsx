@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useCurrency } from '@/context/CurrencyContext';
@@ -8,10 +8,13 @@ interface LocalizedDatePickerProps {
     label?: string;
     value: string; // YYYY-MM-DD
     onChange: (value: string) => void;
+    id?: string;
 }
 
-export default function LocalizedDatePicker({ label, value, onChange }: LocalizedDatePickerProps) {
+export default function LocalizedDatePicker({ label, value, onChange, id }: LocalizedDatePickerProps) {
     const { currency } = useCurrency();
+    const generatedId = useId();
+    const inputId = id || generatedId;
 
     // Parse YYYY-MM-DD into a local Date object safely
     const dateValue = React.useMemo(() => {
@@ -48,9 +51,10 @@ export default function LocalizedDatePicker({ label, value, onChange }: Localize
 
     return (
         <div className="w-full">
-            {label && <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>}
+            {label && <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>}
             <div className="relative">
                 <DatePicker
+                    id={inputId}
                     selected={dateValue}
                     onChange={handleDateChange}
                     dateFormat={getDateFormat(currency.locale)}

@@ -11,6 +11,7 @@ import { LoanTypeConfig } from '@/types/loanTypes';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
+import { useCurrency } from '@/context/CurrencyContext';
 
 const PAYMENT_CONFIG: LoanTypeConfig = {
     name: 'Payment Calculator',
@@ -26,6 +27,7 @@ const PAYMENT_CONFIG: LoanTypeConfig = {
 };
 
 export default function PaymentCalculator() {
+    const { currency } = useCurrency();
     const [result, setResult] = useState<PaymentResult | null>(null);
     const [calcParams, setCalcParams] = useState({
         principal: 20000,
@@ -60,7 +62,7 @@ export default function PaymentCalculator() {
                 <PaymentCalculatorForm
                     key={resetKey}
                     onResultChange={handleResultChange}
-                    currencySymbol="$"
+                    currencySymbol={currency.symbol}
                     persistenceKey="payment_calculator_state"
                     onReset={resetToDefaults}
                 />
@@ -74,14 +76,13 @@ export default function PaymentCalculator() {
                             <div className="flex-1">
                                 <EMIResultCard
                                     result={result}
-                                    currencySymbol="$"
-                                    //@ts-ignore
+                                    currencySymbol={currency.symbol}
                                     title={calcParams.mode === 'fixed-term' ? "Monthly Payment" : "Required Term"}
                                 />
                                 {calcParams.mode === 'fixed-payment' && (
                                     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                                         <p className="text-sm text-blue-800 dark:text-blue-200">
-                                            With a monthly payment of <strong>${calcParams.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>,
+                                            With a monthly payment of <strong>{currency.symbol}{calcParams.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>,
                                             you will pay off this loan in <strong>{(result.calculatedTermMonths! / 12).toFixed(2)} years</strong> (or <strong>{result.calculatedTermMonths!.toFixed(2)} months</strong>).
                                         </p>
                                     </div>
@@ -109,7 +110,7 @@ export default function PaymentCalculator() {
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
                             <AmortizationTable
                                 schedule={result.amortization}
-                                currencySymbol="$"
+                                currencySymbol={currency.symbol}
                                 calculatorName="Payment Calculator"
                                 loanDetails={{
                                     loanAmount: calcParams.principal,

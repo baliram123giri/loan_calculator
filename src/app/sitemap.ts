@@ -4,114 +4,68 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://calcbz.com'; // Update with actual domain
     const currentDate = new Date();
 
-    return [
-        {
-            url: baseUrl,
-            lastModified: currentDate,
-            changeFrequency: 'monthly',
-            priority: 1.0,
-        },
-        {
-            url: `${baseUrl}/calculators/mortgage`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/calculators/loan`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/calculators/simple-interest`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/compound-interest`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/finance-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/calculators/investment-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/sales-tax`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.7,
-        },
-        {
-            url: `${baseUrl}/calculators/property-tax`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.7,
-        },
-        {
-            url: `${baseUrl}/calculators/house-affordability`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/down-payment-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/rent-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/compare`,
-            lastModified: currentDate,
-            changeFrequency: 'monthly',
-            priority: 0.6,
-        },
-        {
-            url: `${baseUrl}/calculators/dti-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/real-estate-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/rental-property-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/refinance-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/calculators/investment-calculator`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
+    const calculators = [
+        'mortgage',
+        'loan', // Personal Loan
+        'auto-loan-calculator',
+        'auto-lease-calculator',
+        'interest-calculator',
+        'simple-interest',
+        'compound-interest',
+        'finance-calculator',
+        'investment-calculator',
+        'roi-calculator',
+        'irr-calculator',
+        'average-return-calculator',
+        'cagr-calculator',
+        'sales-tax',
+        'property-tax',
+        'vat-calculator',
+        'house-affordability',
+        'down-payment-calculator',
+        'rent-calculator',
+        'rental-property-calculator',
+        'refinance-calculator',
+        'fha-loan-calculator',
+        'va-mortgage-calculator',
+        'compare', // Loan Comparison
+        'dti-calculator',
+        'apr',
+        'bond-calculator',
+        'cash-back-vs-low-interest',
+        'cd-calculator',
+        'payment', // Payment Calculator
+        'real-estate-calculator',
+        'savings-calculator',
+        'inflation-calculator'
     ];
+
+    const routes = calculators.map(calc => ({
+        url: `${baseUrl}/calculators/${calc}`,
+        lastModified: currentDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+    }));
+
+    // Add core pages with higher priority
+    routes.push({
+        url: baseUrl,
+        lastModified: currentDate,
+        //@ts-ignore
+        changeFrequency: 'monthly' as const,
+        priority: 1.0,
+    });
+
+    // Add info pages
+    ['about', 'privacy', 'contact', 'terms', 'disclaimer', 'faq'].forEach(page => {
+        routes.push({
+            url: `${baseUrl}/info/${page}`,
+            lastModified: currentDate,
+            //@ts-ignore
+            changeFrequency: 'monthly' as const,
+            priority: 0.5,
+        });
+    });
+
+    return routes;
 }

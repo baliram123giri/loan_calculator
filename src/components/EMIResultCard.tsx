@@ -4,9 +4,10 @@ import { EMIResult } from '@/lib/calc/emi';
 interface EMIResultCardProps {
     result: EMIResult | null;
     currencySymbol?: string;
+    title?: string;
 }
 
-export default function EMIResultCard({ result, currencySymbol = "$" }: EMIResultCardProps) {
+export default function EMIResultCard({ result, currencySymbol = "$", title }: EMIResultCardProps) {
     if (!result) return null;
 
     const formatCurrency = (value: number) => {
@@ -21,7 +22,7 @@ export default function EMIResultCard({ result, currencySymbol = "$" }: EMIResul
     return (
         <div className="bg-blue-600 text-white rounded-2xl p-6 shadow-lg dark:bg-blue-700">
             <div className="text-center space-y-2 mb-6">
-                <p className="text-blue-100 font-medium">Monthly EMI</p>
+                <p className="text-blue-100 font-medium">{title || "Monthly EMI"}</p>
                 <h3 className="text-4xl font-bold">{formatCurrency(result.emi)}</h3>
             </div>
 
