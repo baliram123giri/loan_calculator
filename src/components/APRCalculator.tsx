@@ -11,7 +11,8 @@ import ChartBalance from './ChartBalance';
 import ChartPaymentComposition from './ChartPaymentComposition';
 import NumberInput from './NumberInput';
 import { CalculateButton } from './Shared/CalculateButton';
-import { ChevronDown, ChevronUp, Info, RotateCcw } from 'lucide-react';
+import { ResetButton } from './Shared/ResetButton';
+import { ChevronDown, ChevronUp, Info, Briefcase } from 'lucide-react';
 
 export default function APRCalculator() {
     // State for inputs
@@ -40,6 +41,7 @@ export default function APRCalculator() {
     const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
     const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
     const [viewMode, setViewMode] = useState<'schedule' | 'analysis'>('schedule');
+    const [hasCalculated, setHasCalculated] = useState(true);
 
     // Calculate results - manual calculation function
     const performCalculation = React.useCallback(() => {
@@ -55,6 +57,7 @@ export default function APRCalculator() {
                 totalCost: 0
             });
             setAmortizationSchedule([]);
+            setHasCalculated(true);
             return;
         }
 
@@ -75,6 +78,7 @@ export default function APRCalculator() {
             summary.monthlyPayment
         );
         setAmortizationSchedule(schedule.amortization);
+        setHasCalculated(true);
     }, [principal, interestRate, termValue, termType, fees]);
 
     // Calculate once on mount
@@ -114,6 +118,7 @@ export default function APRCalculator() {
         setShowFees(true);
         setViewMode('schedule');
         setActiveChart('balance');
+        setHasCalculated(true);
 
         // Immediately recalculate with default values
         const totalFees = defaults.fees.origination + defaults.fees.documentation + defaults.fees.other;
@@ -145,43 +150,30 @@ export default function APRCalculator() {
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Briefcase className="w-5 h-5 text-blue-600" />
                                 Loan Details
                             </h2>
-                            <button
-                                onClick={resetToDefaults}
-                                className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
-                            >
-                                <RotateCcw className="w-4 h-4 mr-1" />
-                                Reset
-                            </button>
+                            <ResetButton onClick={resetToDefaults} />
                         </div>
 
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Loan Amount
-                                </label>
-                                <CurrencyInput
-                                    value={principal}
-                                    onChange={setPrincipal}
-                                />
-                            </div>
+                            <CurrencyInput
+                                label="Loan Amount"
+                                value={principal}
+                                onChange={setPrincipal}
+                            />
 
                             <div className="grid grid-cols-2 gap-4">
+                                <NumberInput
+                                    label="Interest Rate"
+                                    value={interestRate}
+                                    onChange={setInterestRate}
+                                    suffix="%"
+                                    min={0}
+                                    max={100}
+                                />
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Interest Rate (%)
-                                    </label>
-                                    <NumberInput
-                                        value={interestRate}
-                                        onChange={setInterestRate}
-                                        suffix="%"
-                                        min={0}
-                                        max={100}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label id="term-label" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Term
                                     </label>
                                     <div className="flex rounded-md shadow-sm">
@@ -190,11 +182,13 @@ export default function APRCalculator() {
                                             onChange={setTermValue}
                                             className="rounded-r-none"
                                             min={0}
+                                            aria-labelledby="term-label"
                                         />
                                         <select
                                             value={termType}
                                             onChange={(e) => setTermType(e.target.value as 'years' | 'months')}
                                             className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                                            aria-label="Term Type"
                                         >
                                             <option value="years">Years</option>
                                             <option value="months">Months</option>
@@ -208,43 +202,36 @@ export default function APRCalculator() {
                             <button
                                 onClick={() => setShowFees(!showFees)}
                                 className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-900 dark:text-white mb-4"
+                                aria-expanded={showFees}
+                                aria-controls="fees-section"
                             >
                                 <span className="flex items-center gap-2">
                                     Fees & Closing Costs
-                                    <Info size={14} className="text-gray-400" />
+                                    <Info size={14} className="text-gray-400" aria-hidden="true" />
                                 </span>
-                                {showFees ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                {showFees ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
                             </button>
 
                             {showFees && (
-                                <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Origination Fee
-                                        </label>
-                                        <CurrencyInput
-                                            value={fees.origination}
-                                            onChange={(v) => handleFeeChange('origination', v)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Documentation Fee
-                                        </label>
-                                        <CurrencyInput
-                                            value={fees.documentation}
-                                            onChange={(v) => handleFeeChange('documentation', v)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Other Closing Costs
-                                        </label>
-                                        <CurrencyInput
-                                            value={fees.other}
-                                            onChange={(v) => handleFeeChange('other', v)}
-                                        />
-                                    </div>
+                                <div
+                                    id="fees-section"
+                                    className="space-y-4 animate-in slide-in-from-top-2 duration-200"
+                                >
+                                    <CurrencyInput
+                                        label="Origination Fee"
+                                        value={fees.origination}
+                                        onChange={(v) => handleFeeChange('origination', v)}
+                                    />
+                                    <CurrencyInput
+                                        label="Documentation Fee"
+                                        value={fees.documentation}
+                                        onChange={(v) => handleFeeChange('documentation', v)}
+                                    />
+                                    <CurrencyInput
+                                        label="Other Closing Costs"
+                                        value={fees.other}
+                                        onChange={(v) => handleFeeChange('other', v)}
+                                    />
                                 </div>
                             )}
                         </div>
@@ -258,96 +245,110 @@ export default function APRCalculator() {
 
                 {/* Right Column: Results */}
                 <div className="lg:col-span-7 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* APR Card */}
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                            <h3 className="text-blue-100 font-medium mb-1">Annual Percentage Rate (APR)</h3>
-                            <div className="text-4xl font-bold mb-2">
-                                {result.apr.toFixed(3)}%
+                    {!hasCalculated ? (
+                        <div className="h-full flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 min-h-[400px]">
+                            <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4">
+                                <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <p className="text-sm text-blue-100 opacity-90">
-                                This is the true cost of your loan including fees.
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ready to Calculate</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
+                                Enter your loan details and click "Calculate APR" to see your financing costs.
                             </p>
                         </div>
-
-                        {/* Monthly Payment Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
-                            <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-1">Monthly Payment</h3>
-                            <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                                ${result.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </div>
-                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                                Principal & Interest
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Breakdown Chart & Summary */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Cost Breakdown</h3>
-                            <div className="h-64 flex items-center justify-center">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={chartData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={5}
-                                            dataKey="value"
-                                        >
-                                            {chartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            formatter={(value: number) => `$${value.toLocaleString()}`}
-                                            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                        />
-                                        <Legend verticalAlign="bottom" height={36} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-center">
-                            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Loan Summary</h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                    <span className="text-gray-600 dark:text-gray-400">Total Principal</span>
-                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                        ${principal.toLocaleString()}
-                                    </span>
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* APR Card */}
+                                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                                    <h3 className="text-blue-100 font-medium mb-1">Annual Percentage Rate (APR)</h3>
+                                    <div className="text-4xl font-bold mb-2">
+                                        {result.apr.toFixed(3)}%
+                                    </div>
+                                    <p className="text-sm text-blue-100 opacity-90">
+                                        This is the true cost of your loan including fees.
+                                    </p>
                                 </div>
-                                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                    <span className="text-gray-600 dark:text-gray-400">Total Interest</span>
-                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                        ${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                    <span className="text-gray-600 dark:text-gray-400">Total Fees</span>
-                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                        ${result.totalFees.toLocaleString()}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className="text-lg font-bold text-gray-900 dark:text-white">Total Cost</span>
-                                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                                        ${result.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                    </span>
+
+                                {/* Monthly Payment Card */}
+                                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+                                    <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-1">Monthly Payment</h3>
+                                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                                        ${result.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
+                                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                                        Principal & Interest
+                                    </p>
                                 </div>
                             </div>
 
-                        </div>
-                    </div>
+                            {/* Breakdown Chart & Summary */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                    <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Cost Breakdown</h3>
+                                    <div className="h-64 flex items-center justify-center">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={chartData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={60}
+                                                    outerRadius={80}
+                                                    paddingAngle={5}
+                                                    dataKey="value"
+                                                >
+                                                    {chartData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip
+                                                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                                />
+                                                <Legend verticalAlign="bottom" height={36} />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-center">
+                                    <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Loan Summary</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                                            <span className="text-gray-600 dark:text-gray-400">Total Principal</span>
+                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                ${principal.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                                            <span className="text-gray-600 dark:text-gray-400">Total Interest</span>
+                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                ${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                                            <span className="text-gray-600 dark:text-gray-400">Total Fees</span>
+                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                ${result.totalFees.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-2">
+                                            <span className="text-lg font-bold text-gray-900 dark:text-white">Total Cost</span>
+                                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                                ${result.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
-            {amortizationSchedule.length > 0 && (
+            {(amortizationSchedule.length > 0 && hasCalculated) && (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">

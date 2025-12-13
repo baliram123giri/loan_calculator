@@ -198,6 +198,7 @@ export default function PaymentCalculatorForm({
                     max={1000000}
                     step={1000}
                     onChange={(e) => setPrincipal(Number(e.target.value))}
+                    aria-label="Loan Amount Slider"
                 />
             </div>
 
@@ -218,6 +219,7 @@ export default function PaymentCalculatorForm({
                     max={20}
                     step={0.1}
                     onChange={(e) => setRate(Number(e.target.value))}
+                    aria-label="Interest Rate Slider"
                 />
             </div>
 
@@ -238,6 +240,7 @@ export default function PaymentCalculatorForm({
                         step={1}
                         onChange={(e) => setTenureYears(Number(e.target.value))}
                         valueDisplay={`${tenureYears} Years`}
+                        aria-label="Tenure Slider"
                     />
                 </div>
             ) : (
@@ -256,6 +259,7 @@ export default function PaymentCalculatorForm({
                         max={10000}
                         step={50}
                         onChange={(e) => setMonthlyPayment(Number(e.target.value))}
+                        aria-label="Monthly Payment Slider"
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                         Minimum required to cover interest: {currencySymbol}{Math.ceil((principal * (rate / 100 / 12)) + 1)}

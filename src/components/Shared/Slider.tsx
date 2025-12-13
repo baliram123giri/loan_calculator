@@ -8,12 +8,15 @@ interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     ({ className, label, valueDisplay, ...props }, ref) => {
+        const id = React.useId();
+        const inputId = props.id || id;
+
         return (
             <div className="flex flex-col gap-2">
                 {(label || valueDisplay) && (
                     <div className="flex justify-between items-center">
                         {label && (
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label htmlFor={inputId} className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {label}
                             </label>
                         )}
@@ -26,6 +29,7 @@ export const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
                 )}
                 <input
                     type="range"
+                    id={inputId}
                     className={cn(
                         "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-blue-600",
                         className

@@ -156,7 +156,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
     },
     apr: {
         title: 'APR Calculator | Annual Percentage Rate Calculator - calcbz.com',
-        description: 'Calculate the true cost of your loan with our free APR Calculator. Factor in fees and closing costs to see the effective annual percentage rate. Compare loan offers accurately.',
+        description: 'Calculate the true cost of your loan including fees and closing costs. Find the effective annual percentage rate (APR) with our free calculator.',
         keywords: [
             'APR calculator',
             'annual percentage rate calculator',
