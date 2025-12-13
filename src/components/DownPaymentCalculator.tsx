@@ -5,9 +5,11 @@ import dynamic from 'next/dynamic';
 import { calculateEMI, EMIResult } from '@/lib/calc/emi';
 import CurrencyInput from '@/components/CurrencyInput';
 import NumberInput from '@/components/NumberInput';
-import { ChevronDown, ChevronUp, Calendar, DollarSign, Percent, Info, RotateCcw } from 'lucide-react';
+import { ChevronDown, ChevronUp, DollarSign, Info, RotateCcw } from 'lucide-react';
 import AmortizationTable from '@/components/AmortizationTable';
 import { CalculateButton } from '@/components/Shared/CalculateButton';
+import { useCurrency } from '@/context/CurrencyContext';
+import LocalizedDatePicker from '@/components/LocalizedDatePicker';
 
 const ChartBreakup = dynamic(() => import('@/components/ChartBreakup'), { ssr: false });
 const ChartBalance = dynamic(() => import('@/components/ChartBalance'), { ssr: false });
@@ -24,13 +26,22 @@ interface DownPaymentResult extends EMIResult {
 }
 
 export default function DownPaymentCalculator() {
+    const { currency } = useCurrency();
+    const currencySymbol = currency.symbol;
+
     // --- State ---
     const [homePrice, setHomePrice] = useState(300000);
     const [downPayment, setDownPayment] = useState(60000);
     const [downPaymentPercent, setDownPaymentPercent] = useState(20);
     const [interestRate, setInterestRate] = useState(6.5);
     const [loanTermYears, setLoanTermYears] = useState(30);
-    const [startDate, setStartDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(() => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    });
 
     // Closing Costs
     const [closingCostsPercent, setClosingCostsPercent] = useState(3);
@@ -111,7 +122,10 @@ export default function DownPaymentCalculator() {
         let emiRes: EMIResult;
 
         if (loanPrincipal > 0) {
-            emiRes = calculateEMI(loanPrincipal, interestRate, loanTermYears * 12, [], startDate);
+            // Parse YYYY-MM-DD string to Date object
+            const [year, month, day] = startDate.split('-').map(Number);
+            const dateObj = new Date(year, month - 1, day);
+            emiRes = calculateEMI(loanPrincipal, interestRate, loanTermYears * 12, [], dateObj);
         } else {
             emiRes = { emi: 0, totalInterest: 0, totalPayment: 0, amortization: [] };
         }
@@ -198,7 +212,11 @@ export default function DownPaymentCalculator() {
         setDownPayment(defaults.downPayment);
         setInterestRate(defaults.interestRate);
         setLoanTermYears(defaults.loanTermYears);
-        setStartDate(new Date());
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        setStartDate(`${year}-${month}-${day}`);
         setClosingCostsPercent(defaults.closingCostsPercent);
         setClosingCostsAmount(defaults.closingCostsAmount);
         setFinanceClosingCosts(defaults.financeClosingCosts);
@@ -240,6 +258,7 @@ export default function DownPaymentCalculator() {
                         <button
                             onClick={handleReset}
                             className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
+                            aria-label="Reset calculator to default values"
                         >
                             <RotateCcw className="w-4 h-4 mr-1" />
                             Reset
@@ -262,7 +281,7 @@ export default function DownPaymentCalculator() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Down Payment ($)
+                                    Down Payment ({currencySymbol})
                                 </label>
                                 <CurrencyInput
                                     value={downPayment}
@@ -349,78 +368,70 @@ export default function DownPaymentCalculator() {
                             </div>
                         </div>
 
-                        {/* Start Date */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Start Date
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Calendar size={16} className="text-gray-500" />
+                        {/* Advanced Options Toggle */}
+                        <button
+                            onClick={() => setShowAdvanced(!showAdvanced)}
+                            className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors w-full justify-center py-2 mt-4"
+                            aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
+                            aria-expanded={showAdvanced}
+                        >
+                            {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            {showAdvanced ? 'Hide Advanced Options' : 'Show Advanced Options'}
+                        </button>
+
+                        {/* Advanced Options Content */}
+                        {showAdvanced && (
+                            <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800 animate-in slide-in-from-top-2 mt-2">
+                                {/* Start Date */}
+                                <div>
+                                    <LocalizedDatePicker
+                                        label="Start Date"
+                                        value={startDate}
+                                        onChange={setStartDate}
+                                    />
                                 </div>
-                                <input
-                                    type="date"
-                                    value={startDate.toISOString().split('T')[0]}
-                                    onChange={(e) => setStartDate(new Date(e.target.value))}
-                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-900 dark:text-white"
-                                />
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">Property Tax (Annual %)</label>
+                                    <NumberInput
+                                        value={propertyTaxRate}
+                                        onChange={setPropertyTaxRate}
+                                        suffix="%"
+                                        className="text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">Home Insurance ({currencySymbol}/mo)</label>
+                                    <CurrencyInput
+                                        value={homeInsurance}
+                                        onChange={setHomeInsurance}
+                                        className="text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">HOA Fees ({currencySymbol}/mo)</label>
+                                    <CurrencyInput
+                                        value={hoaFees}
+                                        onChange={setHoaFees}
+                                        className="text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">PMI Rate (Annual %)</label>
+                                    <NumberInput
+                                        value={pmiRate}
+                                        onChange={setPmiRate}
+                                        suffix="%"
+                                        className="text-sm"
+                                    />
+                                    <p className="text-[10px] text-gray-400 mt-1">Applied if Down Payment &lt; 20%</p>
+                                </div>
                             </div>
+                        )}
+
+                        {/* Calculate Button */}
+                        <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-6">
+                            <CalculateButton onClick={performCalculation} label="Calculate Down Payment" />
                         </div>
-                    </div>
-
-                    {/* Advanced Options Toggle */}
-                    <button
-                        onClick={() => setShowAdvanced(!showAdvanced)}
-                        className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors w-full justify-center py-2 mt-4"
-                    >
-                        {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        {showAdvanced ? 'Hide Advanced Options' : 'Show Advanced Options'}
-                    </button>
-
-                    {/* Advanced Options Content */}
-                    {showAdvanced && (
-                        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800 animate-in slide-in-from-top-2 mt-2">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Property Tax (Annual %)</label>
-                                <NumberInput
-                                    value={propertyTaxRate}
-                                    onChange={setPropertyTaxRate}
-                                    suffix="%"
-                                    className="text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Home Insurance ($/mo)</label>
-                                <CurrencyInput
-                                    value={homeInsurance}
-                                    onChange={setHomeInsurance}
-                                    className="text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">HOA Fees ($/mo)</label>
-                                <CurrencyInput
-                                    value={hoaFees}
-                                    onChange={setHoaFees}
-                                    className="text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">PMI Rate (Annual %)</label>
-                                <NumberInput
-                                    value={pmiRate}
-                                    onChange={setPmiRate}
-                                    suffix="%"
-                                    className="text-sm"
-                                />
-                                <p className="text-[10px] text-gray-400 mt-1">Applied if Down Payment &lt; 20%</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Calculate Button */}
-                    <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-6">
-                        <CalculateButton onClick={performCalculation} label="Calculate Down Payment" />
                     </div>
                 </div>
             </div>
@@ -431,21 +442,21 @@ export default function DownPaymentCalculator() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
                         <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Total Monthly Payment</p>
-                        <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">${result.totalMonthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                        <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{currencySymbol}{result.totalMonthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                         <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-1">
-                            Principal & Interest: ${result.emi.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            Principal & Interest: {currencySymbol}{result.emi.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </p>
                     </div>
                     <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800">
                         <p className="text-sm text-green-600 dark:text-green-400 mb-1">Cash to Close</p>
-                        <p className="text-3xl font-bold text-green-900 dark:text-green-100">${result.cashToClose.toLocaleString()}</p>
+                        <p className="text-3xl font-bold text-green-900 dark:text-green-100">{currencySymbol}{result.cashToClose.toLocaleString()}</p>
                         <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1">
                             Down Payment + {financeClosingCosts ? '0 (Financed)' : 'Closing Costs'}
                         </p>
                     </div>
                     <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-800">
                         <p className="text-sm text-purple-600 dark:text-purple-400 mb-1">Loan Amount</p>
-                        <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">${result.loanAmount.toLocaleString()}</p>
+                        <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{currencySymbol}{result.loanAmount.toLocaleString()}</p>
                         <p className="text-xs text-purple-600/80 dark:text-purple-400/80 mt-1">
                             {financeClosingCosts ? 'Includes Closing Costs' : 'Base Loan Amount'}
                         </p>
@@ -461,6 +472,7 @@ export default function DownPaymentCalculator() {
                             <button
                                 key={scenario.percent}
                                 onClick={() => handleDownPaymentPercentChange(scenario.percent)}
+                                aria-label={`Apply ${scenario.percent}% down payment scenario`}
                                 className={`p-4 rounded-xl border text-left transition-all hover:shadow-md ${Math.abs(scenario.percent - downPaymentPercent) < 0.1
                                     ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 ring-1 ring-blue-500'
                                     : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
@@ -473,15 +485,15 @@ export default function DownPaymentCalculator() {
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Upfront:</span>
-                                        <span className="font-medium text-gray-900 dark:text-gray-100">${scenario.downPayment.toLocaleString()}</span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">{currencySymbol}{scenario.downPayment.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Monthly (P&I+PMI):</span>
-                                        <span className="font-medium text-gray-900 dark:text-gray-100">${scenario.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-100">{currencySymbol}{scenario.monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="flex justify-between text-xs text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
                                         <span>Total Interest:</span>
-                                        <span>${scenario.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                        <span>{currencySymbol}{scenario.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                     </div>
                                 </div>
                             </button>
@@ -493,7 +505,7 @@ export default function DownPaymentCalculator() {
                 <div className="grid grid-cols-1 gap-6">
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                         <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Monthly Payment Breakdown</h3>
-                        <div className="mb-6 w-full h-[300px]">
+                        <div className="mb-6 w-full h-[300px]" role="img" aria-label="Pie chart showing monthly payment breakdown including principal, interest, taxes, insurance, and fees">
                             <ChartBreakup
                                 data={[
                                     { name: 'Principal & Interest', value: result.emi, color: '#3B82F6' },
@@ -504,8 +516,9 @@ export default function DownPaymentCalculator() {
                                 ]}
                                 legendType='none'
                                 centerLabel="Total"
-                                centerValue={`$${result.totalMonthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                                centerValue={`${currencySymbol}${result.totalMonthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
                                 variant="donut"
+                                currencySymbol={currencySymbol}
                             />
                         </div>
                         <div className="space-y-3">
@@ -514,21 +527,21 @@ export default function DownPaymentCalculator() {
                                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Principal & Interest</span>
                                 </div>
-                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.emi.toLocaleString()}</span>
+                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{result.emi.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between items-center p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Property Tax</span>
                                 </div>
-                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyTax.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{result.monthlyTax.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                             </div>
                             <div className="flex justify-between items-center p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Home Insurance</span>
                                 </div>
-                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyInsurance.toLocaleString()}</span>
+                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{result.monthlyInsurance.toLocaleString()}</span>
                             </div>
                             {result.monthlyPMI > 0 && (
                                 <div className="flex justify-between items-center p-2 rounded-lg bg-yellow-50 dark:bg-yellow-900/20">
@@ -536,7 +549,7 @@ export default function DownPaymentCalculator() {
                                         <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">PMI (Mortgage Insurance)</span>
                                     </div>
-                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyPMI.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{result.monthlyPMI.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                 </div>
                             )}
                             {result.monthlyHOA > 0 && (
@@ -545,7 +558,7 @@ export default function DownPaymentCalculator() {
                                         <div className="w-3 h-3 rounded-full bg-gray-500"></div>
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">HOA Fees</span>
                                     </div>
-                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${result.monthlyHOA.toLocaleString()}</span>
+                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{result.monthlyHOA.toLocaleString()}</span>
                                 </div>
                             )}
                         </div>
@@ -553,7 +566,9 @@ export default function DownPaymentCalculator() {
 
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-96">
                         <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Balance Over Time</h3>
-                        <ChartBalance data={result.amortization} />
+                        <div role="img" aria-label="Line chart showing loan balance decreasing over time">
+                            <ChartBalance data={result.amortization} currencySymbol={currencySymbol} />
+                        </div>
                     </div>
                 </div>
 
@@ -561,7 +576,7 @@ export default function DownPaymentCalculator() {
                 <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden mt-8">
                     <AmortizationTable
                         schedule={result.amortization}
-                        currencySymbol="$"
+                        currencySymbol={currencySymbol}
                         calculatorName="Down Payment Calculator"
                         loanDetails={{
                             loanAmount: result.loanAmount,
@@ -575,5 +590,5 @@ export default function DownPaymentCalculator() {
                 </div>
             </div>
         </div>
-    );
+    )
 }

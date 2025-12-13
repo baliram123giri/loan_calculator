@@ -15,9 +15,10 @@ interface ChartBreakupProps {
     centerValue?: string;
     variant?: 'donut' | 'pie';
     legendType?: 'circle' | 'rect' | 'line' | 'none';
+    currencySymbol?: string;
 }
 
-export default function ChartBreakup({ data, centerLabel, centerValue, variant = 'donut', legendType = 'rect' }: ChartBreakupProps) {
+export default function ChartBreakup({ data, centerLabel, centerValue, variant = 'donut', legendType = 'rect', currencySymbol = "$" }: ChartBreakupProps) {
     const DEFAULT_COLORS = ['#16a34a', '#ea580c', '#3b82f6', '#a855f7', '#eab308'];
     const isDonut = variant === 'donut';
 
@@ -44,7 +45,7 @@ export default function ChartBreakup({ data, centerLabel, centerValue, variant =
                         ))}
                     </Pie>
                     <Tooltip
-                        formatter={(value: number) => `$${value.toLocaleString()}`}
+                        formatter={(value: number) => `${currencySymbol}${value.toLocaleString()}`}
                         contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
                     <Legend verticalAlign="bottom" height={36} />
