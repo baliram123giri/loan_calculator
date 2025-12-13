@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Plus, Trash2, TrendingUp, AlertCircle, CheckCircle, RotateCcw, Download } from 'lucide-react';
+import { Plus, Trash2, TrendingUp, AlertCircle, CheckCircle, RotateCcw, Download, Briefcase } from 'lucide-react';
 import {
     calculateDTI,
     type IncomeSource,
@@ -11,8 +11,17 @@ import {
 } from '@/lib/calculations/dti';
 import { InputNumber } from './Shared/InputNumber';
 import { CalculateButton } from './Shared/CalculateButton';
+import { ResetButton } from './Shared/ResetButton';
+import { useCurrency } from '@/context/CurrencyContext';
+import { loadUnicodeFont } from '@/utils/pdfUtils'; // Import loadUnicodeFont
+import { useToast } from '@/components/Toast';
 
 export default function DTICalculator() {
+    const { currency } = useCurrency();
+    const currencySymbol = currency.symbol;
+    const { showToast } = useToast();
+    const [hasCalculated, setHasCalculated] = useState(false);
+
     // Income state
     const [income, setIncome] = useState<IncomeSource>({
         primary: 5000,
@@ -37,34 +46,27 @@ export default function DTICalculator() {
     ]);
 
     // State for DTI result
-    const [dtiResult, setDtiResult] = useState<DTIResult>(() => {
-        return calculateDTI({
-            primary: 5000,
-            secondary: 0,
-            bonus: 0,
-            rental: 0,
-            other: 0,
-        }, {
-            mortgageOrRent: 1200,
-            propertyTax: 200,
-            homeInsurance: 100,
-            hoaFees: 0,
-        }, [
-            { id: '1', name: 'Car Loan', monthlyPayment: 350, balance: 15000, interestRate: 5.5, type: 'auto' },
-            { id: '2', name: 'Student Loan', monthlyPayment: 250, balance: 25000, interestRate: 4.5, type: 'student' },
-        ]);
+    const [dtiResult, setDtiResult] = useState<DTIResult>({
+        frontEndRatio: 0,
+        backEndRatio: 0,
+        totalMonthlyIncome: 0,
+        totalHousingCosts: 0,
+        totalMonthlyDebts: 0,
+        healthStatus: 'good',
+        qualification: {
+            conventional: false,
+            fha: false,
+            va: false,
+        },
+        recommendations: [],
     });
 
     // Calculate DTI - manual calculation function
     const performCalculation = useCallback(() => {
         const result = calculateDTI(income, housing, debts);
         setDtiResult(result);
+        setHasCalculated(true);
     }, [income, housing, debts]);
-
-    // Calculate once on mount
-    useEffect(() => {
-        performCalculation();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Add new debt
     const addDebt = () => {
@@ -135,178 +137,191 @@ export default function DTICalculator() {
         setIncome(defaults.income);
         setHousing(defaults.housing);
         setDebts(defaults.debts);
+        setHasCalculated(true);
 
-        // Immediately recalculate with default values
         const result = calculateDTI(defaults.income, defaults.housing, defaults.debts);
         setDtiResult(result);
     };
 
+
+
     const exportToPDF = async () => {
-        const jsPDF = (await import('jspdf')).default;
-        const doc = new jsPDF();
+        try {
+            const jsPDF = (await import('jspdf')).default;
+            const doc = new jsPDF();
+            await loadUnicodeFont(doc);
 
-        // Header with gradient-like bar
-        doc.setFillColor(99, 102, 241); // Indigo-600
-        doc.rect(0, 0, 210, 24, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.text('Debt-to-Income Ratio Report', 14, 16);
+            // Header with gradient-like bar
+            doc.setFillColor(99, 102, 241); // Indigo-600
+            doc.rect(0, 0, 210, 24, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text('Debt-to-Income Ratio Report', 14, 16);
 
-        let yPos = 34;
+            let yPos = 34;
 
-        // DTI Ratios Section
-        doc.setFillColor(239, 246, 255); // Blue-50
-        doc.setDrawColor(191, 219, 254); // Blue-200
-        doc.roundedRect(14, yPos, 182, 50, 3, 3, 'FD');
+            // DTI Ratios Section
+            doc.setFillColor(239, 246, 255); // Blue-50
+            doc.setDrawColor(191, 219, 254); // Blue-200
+            doc.roundedRect(14, yPos, 182, 50, 3, 3, 'FD');
 
-        doc.setTextColor(30, 58, 138); // Blue-900
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('DTI Ratios', 20, yPos + 10);
+            doc.setTextColor(30, 58, 138); // Blue-900
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('DTI Ratios', 20, yPos + 10);
 
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(55, 65, 81); // Gray-700
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(55, 65, 81); // Gray-700
 
-        // Front-End Ratio
-        doc.setFont('helvetica', 'bold');
-        doc.text('Front-End Ratio:', 20, yPos + 22);
-        doc.setFont('helvetica', 'normal');
-        const frontEndColor = dtiResult.frontEndRatio <= 28 ? [34, 197, 94] : dtiResult.frontEndRatio <= 31 ? [234, 179, 8] : [239, 68, 68];
-        doc.setTextColor(frontEndColor[0], frontEndColor[1], frontEndColor[2]);
-        doc.text(`${dtiResult.frontEndRatio.toFixed(1)}%`, 70, yPos + 22);
-        doc.setTextColor(107, 114, 128);
-        doc.text(`(Housing: $${dtiResult.totalHousingCosts.toLocaleString()} / Income: $${dtiResult.totalMonthlyIncome.toLocaleString()})`, 90, yPos + 22);
+            // Front-End Ratio
+            doc.setFont('helvetica', 'bold');
+            doc.text('Front-End Ratio:', 20, yPos + 22);
+            doc.setFont('helvetica', 'normal');
+            const frontEndColor = dtiResult.frontEndRatio <= 28 ? [34, 197, 94] : dtiResult.frontEndRatio <= 31 ? [234, 179, 8] : [239, 68, 68];
+            doc.setTextColor(frontEndColor[0], frontEndColor[1], frontEndColor[2]);
+            doc.text(`${dtiResult.frontEndRatio.toFixed(1)}%`, 70, yPos + 22);
+            doc.setTextColor(107, 114, 128);
+            doc.setFont('NotoSans', 'normal');
+            doc.text(`(Housing: ${currencySymbol}${dtiResult.totalHousingCosts.toLocaleString()} / Income: ${currencySymbol}${dtiResult.totalMonthlyIncome.toLocaleString()})`, 90, yPos + 22);
+            doc.setFont('helvetica', 'normal');
 
-        // Back-End Ratio
-        doc.setTextColor(55, 65, 81);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Back-End Ratio:', 20, yPos + 32);
-        doc.setFont('helvetica', 'normal');
-        const backEndColor = dtiResult.backEndRatio <= 36 ? [34, 197, 94] : dtiResult.backEndRatio <= 43 ? [234, 179, 8] : [239, 68, 68];
-        doc.setTextColor(backEndColor[0], backEndColor[1], backEndColor[2]);
-        doc.text(`${dtiResult.backEndRatio.toFixed(1)}%`, 70, yPos + 32);
-        doc.setTextColor(107, 114, 128);
-        doc.text(`(Total Debts: $${dtiResult.totalMonthlyDebts.toLocaleString()} / Income: $${dtiResult.totalMonthlyIncome.toLocaleString()})`, 90, yPos + 32);
+            // Back-End Ratio
+            doc.setTextColor(55, 65, 81);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Back-End Ratio:', 20, yPos + 32);
+            doc.setFont('helvetica', 'normal');
+            const backEndColor = dtiResult.backEndRatio <= 36 ? [34, 197, 94] : dtiResult.backEndRatio <= 43 ? [234, 179, 8] : [239, 68, 68];
+            doc.setTextColor(backEndColor[0], backEndColor[1], backEndColor[2]);
+            doc.text(`${dtiResult.backEndRatio.toFixed(1)}%`, 70, yPos + 32);
+            doc.setTextColor(107, 114, 128);
+            doc.setFont('NotoSans', 'normal');
+            doc.text(`(Total Debts: ${currencySymbol}${dtiResult.totalMonthlyDebts.toLocaleString()} / Income: ${currencySymbol}${dtiResult.totalMonthlyIncome.toLocaleString()})`, 90, yPos + 32);
+            doc.setFont('helvetica', 'normal');
 
-        // Health Status
-        doc.setTextColor(55, 65, 81);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Financial Health:', 20, yPos + 42);
-        doc.setFont('helvetica', 'normal');
-        const healthBadge = getHealthBadge(dtiResult.healthStatus);
-        const healthColor = dtiResult.healthStatus === 'excellent' || dtiResult.healthStatus === 'good' ? [34, 197, 94] :
-            dtiResult.healthStatus === 'moderate' ? [234, 179, 8] : [239, 68, 68];
-        doc.setTextColor(healthColor[0], healthColor[1], healthColor[2]);
-        doc.text(healthBadge.text, 70, yPos + 42);
+            // Health Status
+            doc.setTextColor(55, 65, 81);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Financial Health:', 20, yPos + 42);
+            doc.setFont('helvetica', 'normal');
+            const healthBadge = getHealthBadge(dtiResult.healthStatus);
+            const healthColor = dtiResult.healthStatus === 'excellent' || dtiResult.healthStatus === 'good' ? [34, 197, 94] :
+                dtiResult.healthStatus === 'moderate' ? [234, 179, 8] : [239, 68, 68];
+            doc.setTextColor(healthColor[0], healthColor[1], healthColor[2]);
+            doc.text(healthBadge.text, 70, yPos + 42);
 
-        yPos += 60;
+            yPos += 60;
 
-        // Income Breakdown
-        doc.setFillColor(240, 253, 244); // Green-50
-        doc.setDrawColor(187, 247, 208); // Green-200
-        doc.roundedRect(14, yPos, 88, 45, 3, 3, 'FD');
+            // Income Breakdown
+            doc.setFillColor(240, 253, 244); // Green-50
+            doc.setDrawColor(187, 247, 208); // Green-200
+            doc.roundedRect(14, yPos, 88, 45, 3, 3, 'FD');
 
-        doc.setTextColor(6, 78, 59); // Green-900
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Monthly Income', 20, yPos + 10);
+            doc.setTextColor(6, 78, 59); // Green-900
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Monthly Income', 20, yPos + 10);
 
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(55, 65, 81);
-        let incomeY = yPos + 18;
-        if (income.primary > 0) {
-            doc.text(`Primary: $${income.primary.toLocaleString()}`, 20, incomeY);
-            incomeY += 6;
-        }
-        if (income.secondary > 0) {
-            doc.text(`Secondary: $${income.secondary.toLocaleString()}`, 20, incomeY);
-            incomeY += 6;
-        }
-        if (income.bonus > 0) {
-            doc.text(`Bonus: $${income.bonus.toLocaleString()}`, 20, incomeY);
-            incomeY += 6;
-        }
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(22, 163, 74);
-        doc.text(`Total: $${dtiResult.totalMonthlyIncome.toLocaleString()}`, 20, yPos + 40);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(55, 65, 81);
+            let incomeY = yPos + 18;
+            doc.setFont('NotoSans', 'normal');
+            if (income.primary > 0) {
+                doc.text(`Primary: ${currencySymbol}${income.primary.toLocaleString()}`, 20, incomeY);
+                incomeY += 6;
+            }
+            if (income.secondary > 0) {
+                doc.text(`Secondary: ${currencySymbol}${income.secondary.toLocaleString()}`, 20, incomeY);
+                incomeY += 6;
+            }
+            if (income.bonus > 0) {
+                doc.text(`Bonus: ${currencySymbol}${income.bonus.toLocaleString()}`, 20, incomeY);
+                incomeY += 6;
+            }
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(22, 163, 74);
+            doc.setFont('NotoSans', 'bold');
+            doc.text(`Total: ${currencySymbol}${dtiResult.totalMonthlyIncome.toLocaleString()}`, 20, yPos + 40);
 
-        // Housing Costs
-        doc.setFillColor(254, 249, 195); // Yellow-100
-        doc.setDrawColor(253, 224, 71); // Yellow-300
-        doc.roundedRect(108, yPos, 88, 45, 3, 3, 'FD');
+            // Housing Costs
+            doc.setFillColor(254, 249, 195); // Yellow-100
+            doc.setDrawColor(253, 224, 71); // Yellow-300
+            doc.roundedRect(108, yPos, 88, 45, 3, 3, 'FD');
 
-        doc.setTextColor(120, 53, 15); // Yellow-900
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Housing Costs', 114, yPos + 10);
+            doc.setTextColor(120, 53, 15); // Yellow-900
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Housing Costs', 114, yPos + 10);
 
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(55, 65, 81);
-        let housingY = yPos + 18;
-        doc.text(`Mortgage/Rent: $${housing.mortgageOrRent.toLocaleString()}`, 114, housingY);
-        housingY += 6;
-        if (housing.propertyTax > 0) {
-            doc.text(`Property Tax: $${housing.propertyTax.toLocaleString()}`, 114, housingY);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(55, 65, 81);
+            let housingY = yPos + 18;
+            doc.setFont('NotoSans', 'normal');
+            doc.text(`Mortgage/Rent: ${currencySymbol}${housing.mortgageOrRent.toLocaleString()}`, 114, housingY);
             housingY += 6;
+            if (housing.propertyTax > 0) {
+                doc.text(`Property Tax: ${currencySymbol}${housing.propertyTax.toLocaleString()}`, 114, housingY);
+                housingY += 6;
+            }
+            if (housing.homeInsurance > 0) {
+                doc.text(`Insurance: ${currencySymbol}${housing.homeInsurance.toLocaleString()}`, 114, housingY);
+                housingY += 6;
+            }
+            doc.setFont('NotoSans', 'bold');
+            doc.setTextColor(202, 138, 4);
+            doc.text(`Total: ${currencySymbol}${dtiResult.totalHousingCosts.toLocaleString()}`, 114, yPos + 40);
+
+            yPos += 55;
+
+            // Loan Qualification
+            doc.setFillColor(243, 244, 246); // Gray-100
+            doc.setDrawColor(209, 213, 219); // Gray-300
+            doc.roundedRect(14, yPos, 182, 35, 3, 3, 'FD');
+
+            doc.setTextColor(17, 24, 39); // Gray-900
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Loan Qualification Status', 20, yPos + 10);
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            const qualY = yPos + 20;
+
+            doc.setTextColor(55, 65, 81);
+            doc.text('Conventional (28/36):', 20, qualY);
+            doc.setTextColor(dtiResult.qualification.conventional ? 34 : 239, dtiResult.qualification.conventional ? 197 : 68, dtiResult.qualification.conventional ? 94 : 68);
+            doc.text(dtiResult.qualification.conventional ? 'YES - Qualified' : 'NO - Not Qualified', 70, qualY);
+
+            doc.setTextColor(55, 65, 81);
+            doc.text('FHA (31/43):', 110, qualY);
+            doc.setTextColor(dtiResult.qualification.fha ? 34 : 239, dtiResult.qualification.fha ? 197 : 68, dtiResult.qualification.fha ? 94 : 68);
+            doc.text(dtiResult.qualification.fha ? 'YES - Qualified' : 'NO - Not Qualified', 145, qualY);
+
+            doc.setTextColor(55, 65, 81);
+            doc.text('VA (41):', 20, qualY + 8);
+            doc.setTextColor(dtiResult.qualification.va ? 34 : 239, dtiResult.qualification.va ? 197 : 68, dtiResult.qualification.va ? 94 : 68);
+            doc.text(dtiResult.qualification.va ? 'YES - Qualified' : 'NO - Not Qualified', 70, qualY + 8);
+
+            // Save PDF
+            const timestamp = Date.now();
+            doc.save(`DTI_Report_${timestamp}.pdf`);
+            showToast('PDF exported successfully!', 'success');
+        } catch (error) {
+            console.error('Failed to export PDF:', error);
+            showToast('Failed to export PDF. Please try again.', 'error');
         }
-        if (housing.homeInsurance > 0) {
-            doc.text(`Insurance: $${housing.homeInsurance.toLocaleString()}`, 114, housingY);
-            housingY += 6;
-        }
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(202, 138, 4);
-        doc.text(`Total: $${dtiResult.totalHousingCosts.toLocaleString()}`, 114, yPos + 40);
-
-        yPos += 55;
-
-        // Loan Qualification
-        doc.setFillColor(243, 244, 246); // Gray-100
-        doc.setDrawColor(209, 213, 219); // Gray-300
-        doc.roundedRect(14, yPos, 182, 35, 3, 3, 'FD');
-
-        doc.setTextColor(17, 24, 39); // Gray-900
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Loan Qualification Status', 20, yPos + 10);
-
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        const qualY = yPos + 20;
-
-        doc.setTextColor(55, 65, 81);
-        doc.text('Conventional (28/36):', 20, qualY);
-        doc.setTextColor(dtiResult.qualification.conventional ? 34 : 239, dtiResult.qualification.conventional ? 197 : 68, dtiResult.qualification.conventional ? 94 : 68);
-        doc.text(dtiResult.qualification.conventional ? 'YES - Qualified' : 'NO - Not Qualified', 70, qualY);
-
-        doc.setTextColor(55, 65, 81);
-        doc.text('FHA (31/43):', 110, qualY);
-        doc.setTextColor(dtiResult.qualification.fha ? 34 : 239, dtiResult.qualification.fha ? 197 : 68, dtiResult.qualification.fha ? 94 : 68);
-        doc.text(dtiResult.qualification.fha ? 'YES - Qualified' : 'NO - Not Qualified', 145, qualY);
-
-        doc.setTextColor(55, 65, 81);
-        doc.text('VA (41):', 20, qualY + 8);
-        doc.setTextColor(dtiResult.qualification.va ? 34 : 239, dtiResult.qualification.va ? 197 : 68, dtiResult.qualification.va ? 94 : 68);
-        doc.text(dtiResult.qualification.va ? 'YES - Qualified' : 'NO - Not Qualified', 70, qualY + 8);
-
-        // Save PDF
-        const timestamp = Date.now();
-        doc.save(`DTI_Report_${timestamp}.pdf`);
     };
 
     return (
         <div className="w-full space-y-8">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">DTI Calculator</h2>
-                <button
-                    onClick={resetToDefaults}
-                    className="flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer"
-                >
-                    <RotateCcw className="w-4 h-4 mr-1" />
-                    Reset
-                </button>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Briefcase className="w-6 h-6 text-blue-600" />
+                    DTI Calculator
+                </h2>
+                <ResetButton onClick={resetToDefaults} />
             </div>
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Left Column - Inputs */}
@@ -473,143 +488,159 @@ export default function DTICalculator() {
 
                 {/* Right Column - Results */}
                 <div className="space-y-6">
-                    {/* DTI Ratios Card */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-blue-200 dark:border-gray-700">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-                            Your DTI Ratios
-                        </h3>
-
-                        {/* Front-End Ratio */}
-                        <div className="mb-6">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Front-End Ratio</span>
-                                <span className={`text-2xl font-bold ${getDTIColor(dtiResult.frontEndRatio)}`}>
-                                    {dtiResult.frontEndRatio.toFixed(1)}%
-                                </span>
+                    {!hasCalculated ? (
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center h-full min-h-[400px]">
+                            <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6">
+                                <Briefcase className="w-10 h-10 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                                <div
-                                    className={`h-3 rounded-full transition-all ${dtiResult.frontEndRatio <= 28 ? 'bg-green-500' :
-                                        dtiResult.frontEndRatio <= 31 ? 'bg-yellow-500' :
-                                            'bg-red-500'
-                                        }`}
-                                    style={{ width: `${Math.min(dtiResult.frontEndRatio, 100)}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                Housing costs: ${dtiResult.totalHousingCosts.toLocaleString()} / Income: ${dtiResult.totalMonthlyIncome.toLocaleString()}
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                                Ready to Calculate?
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 max-w-sm">
+                                Enter your income and debts details, then click "Calculate DTI" to see your Debt-to-Income ratio and loan qualification status.
                             </p>
                         </div>
+                    ) : (
+                        <>
+                            {/* DTI Ratios Card */}
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-blue-200 dark:border-gray-700">
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                                    Your DTI Ratios
+                                </h3>
 
-                        {/* Back-End Ratio */}
-                        <div className="mb-6">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Back-End Ratio</span>
-                                <span className={`text-2xl font-bold ${getDTIColor(dtiResult.backEndRatio)}`}>
-                                    {dtiResult.backEndRatio.toFixed(1)}%
-                                </span>
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                                <div
-                                    className={`h-3 rounded-full transition-all ${dtiResult.backEndRatio <= 36 ? 'bg-green-500' :
-                                        dtiResult.backEndRatio <= 43 ? 'bg-yellow-500' :
-                                            dtiResult.backEndRatio <= 50 ? 'bg-orange-500' :
-                                                'bg-red-500'
-                                        }`}
-                                    style={{ width: `${Math.min(dtiResult.backEndRatio, 100)}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                Total debts: ${dtiResult.totalMonthlyDebts.toLocaleString()} / Income: ${dtiResult.totalMonthlyIncome.toLocaleString()}
-                            </p>
-                        </div>
-
-                        {/* Health Status Badge */}
-                        <div className="flex items-center justify-center gap-2 mt-4">
-                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getHealthBadge(dtiResult.healthStatus).color}`}>
-                                {getHealthBadge(dtiResult.healthStatus).text}
-                            </span>
-                        </div>
-
-                        {/* Export PDF Button */}
-                        <div className="mt-6">
-                            <button
-                                onClick={exportToPDF}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 cursor-pointer"
-                            >
-                                <Download className="w-5 h-5" />
-                                Export PDF Report
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Loan Qualification Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                            Loan Qualification
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-gray-900 dark:text-white">Conventional Loan</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">28% / 36% limits</p>
-                                </div>
-                                {dtiResult.qualification.conventional ? (
-                                    <CheckCircle className="w-6 h-6 text-green-600" />
-                                ) : (
-                                    <AlertCircle className="w-6 h-6 text-red-600" />
-                                )}
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-gray-900 dark:text-white">FHA Loan</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">31% / 43% limits</p>
-                                </div>
-                                {dtiResult.qualification.fha ? (
-                                    <CheckCircle className="w-6 h-6 text-green-600" />
-                                ) : (
-                                    <AlertCircle className="w-6 h-6 text-red-600" />
-                                )}
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                <div>
-                                    <p className="font-medium text-gray-900 dark:text-white">VA Loan</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">41% back-end limit</p>
-                                </div>
-                                {dtiResult.qualification.va ? (
-                                    <CheckCircle className="w-6 h-6 text-green-600" />
-                                ) : (
-                                    <AlertCircle className="w-6 h-6 text-red-600" />
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Recommendations Card */}
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                            Recommendations
-                        </h3>
-                        <div className="space-y-3">
-                            {dtiResult.recommendations.map((rec, index) => {
-                                // Extract emoji if present (emojis are typically 1-2 characters)
-                                const emojiMatch = rec.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
-                                const emoji = emojiMatch ? emojiMatch[0] : null;
-                                const text = emoji ? rec.slice(emoji.length).trim() : rec;
-
-                                return (
-                                    <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        {emoji && (
-                                            <span className="text-xl flex-shrink-0 leading-none">{emoji}</span>
-                                        )}
-                                        <p className={`text-sm text-gray-700 dark:text-gray-300 leading-relaxed ${!emoji ? 'ml-0' : ''}`}>
-                                            {text}
-                                        </p>
+                                {/* Front-End Ratio */}
+                                <div className="mb-6">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Front-End Ratio</span>
+                                        <span className={`text-2xl font-bold ${getDTIColor(dtiResult.frontEndRatio)}`}>
+                                            {dtiResult.frontEndRatio.toFixed(1)}%
+                                        </span>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                        <div
+                                            className={`h-3 rounded-full transition-all ${dtiResult.frontEndRatio <= 28 ? 'bg-green-500' :
+                                                dtiResult.frontEndRatio <= 31 ? 'bg-yellow-500' :
+                                                    'bg-red-500'
+                                                }`}
+                                            style={{ width: `${Math.min(dtiResult.frontEndRatio, 100)}%` }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                        Housing costs: {currencySymbol}{dtiResult.totalHousingCosts.toLocaleString()} / Income: {currencySymbol}{dtiResult.totalMonthlyIncome.toLocaleString()}
+                                    </p>
+                                </div>
+
+                                {/* Back-End Ratio */}
+                                <div className="mb-6">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Back-End Ratio</span>
+                                        <span className={`text-2xl font-bold ${getDTIColor(dtiResult.backEndRatio)}`}>
+                                            {dtiResult.backEndRatio.toFixed(1)}%
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                        <div
+                                            className={`h-3 rounded-full transition-all ${dtiResult.backEndRatio <= 36 ? 'bg-green-500' :
+                                                dtiResult.backEndRatio <= 43 ? 'bg-yellow-500' :
+                                                    dtiResult.backEndRatio <= 50 ? 'bg-orange-500' :
+                                                        'bg-red-500'
+                                                }`}
+                                            style={{ width: `${Math.min(dtiResult.backEndRatio, 100)}%` }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                        Total debts: {currencySymbol}{dtiResult.totalMonthlyDebts.toLocaleString()} / Income: {currencySymbol}{dtiResult.totalMonthlyIncome.toLocaleString()}
+                                    </p>
+                                </div>
+
+                                {/* Health Status Badge */}
+                                <div className="flex items-center justify-center gap-2 mt-4">
+                                    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getHealthBadge(dtiResult.healthStatus).color}`}>
+                                        {getHealthBadge(dtiResult.healthStatus).text}
+                                    </span>
+                                </div>
+
+                                {/* Export PDF Button */}
+                                <div className="mt-6">
+                                    <button
+                                        onClick={exportToPDF}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                                    >
+                                        <Download className="w-5 h-5" />
+                                        Export PDF Report
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Loan Qualification Card */}
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                                    Loan Qualification
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        <div>
+                                            <p className="font-medium text-gray-900 dark:text-white">Conventional Loan</p>
+                                            <p className="text-xs text-gray-600 dark:text-gray-400">28% / 36% limits</p>
+                                        </div>
+                                        {dtiResult.qualification.conventional ? (
+                                            <CheckCircle className="w-6 h-6 text-green-600" />
+                                        ) : (
+                                            <AlertCircle className="w-6 h-6 text-red-600" />
+                                        )}
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        <div>
+                                            <p className="font-medium text-gray-900 dark:text-white">FHA Loan</p>
+                                            <p className="text-xs text-gray-600 dark:text-gray-400">31% / 43% limits</p>
+                                        </div>
+                                        {dtiResult.qualification.fha ? (
+                                            <CheckCircle className="w-6 h-6 text-green-600" />
+                                        ) : (
+                                            <AlertCircle className="w-6 h-6 text-red-600" />
+                                        )}
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        <div>
+                                            <p className="font-medium text-gray-900 dark:text-white">VA Loan</p>
+                                            <p className="text-xs text-gray-600 dark:text-gray-400">41% back-end limit</p>
+                                        </div>
+                                        {dtiResult.qualification.va ? (
+                                            <CheckCircle className="w-6 h-6 text-green-600" />
+                                        ) : (
+                                            <AlertCircle className="w-6 h-6 text-red-600" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Recommendations Card */}
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                                    Recommendations
+                                </h3>
+                                <div className="space-y-3">
+                                    {dtiResult.recommendations.map((rec, index) => {
+                                        // Extract emoji if present (emojis are typically 1-2 characters)
+                                        const emojiMatch = rec.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
+                                        const emoji = emojiMatch ? emojiMatch[0] : null;
+                                        const text = emoji ? rec.slice(emoji.length).trim() : rec;
+
+                                        return (
+                                            <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                                {emoji && (
+                                                    <span className="text-xl flex-shrink-0 leading-none">{emoji}</span>
+                                                )}
+                                                <p className={`text-sm text-gray-700 dark:text-gray-300 leading-relaxed ${!emoji ? 'ml-0' : ''}`}>
+                                                    {text}
+                                                </p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
