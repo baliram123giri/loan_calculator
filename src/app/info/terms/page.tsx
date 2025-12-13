@@ -2,10 +2,10 @@ import React from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Terms of Service - Loanly | Usage Terms',
-    description: 'Read Loanly\'s terms of service. Understand your rights and responsibilities when using our free financial calculators.',
+    title: 'Terms of Service - calcbz.com | Usage Terms',
+    description: 'Read calcbz.com\'s terms of service. Understand your rights and responsibilities when using our free financial calculators.',
     alternates: {
-        canonical: 'https://loanly.com/info/terms'
+        canonical: 'https://calcbz.com/info/terms'
     }
 };
 
@@ -24,14 +24,14 @@ export default function TermsPage() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">1. Acceptance of Terms</h2>
                     <p className="text-gray-700 dark:text-gray-300">
-                        By accessing and using Loanly ("the Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.
+                        By accessing and using Calcbz ("the Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.
                     </p>
                 </section>
 
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">2. Description of Service</h2>
                     <p className="text-gray-700 dark:text-gray-300 mb-4">
-                        Loanly provides free online financial calculators for informational and educational purposes. Our calculators include:
+                        Calcbz provides free online financial calculators for informational and educational purposes. Our calculators include:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
                         <li>Mortgage calculators</li>
@@ -46,7 +46,7 @@ export default function TermsPage() {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">3. No Financial Advice</h2>
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-6 border border-yellow-200 dark:border-yellow-800">
                         <p className="text-gray-700 dark:text-gray-300 mb-4">
-                            <strong>IMPORTANT:</strong> Loanly provides calculators and tools for informational purposes only. We do NOT provide:
+                            <strong>IMPORTANT:</strong> Calcbz provides calculators and tools for informational purposes only. We do NOT provide:
                         </p>
                         <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
                             <li>Financial advice or recommendations</li>
@@ -92,7 +92,7 @@ export default function TermsPage() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">6. Intellectual Property</h2>
                     <p className="text-gray-700 dark:text-gray-300">
-                        All content on Loanly, including text, graphics, logos, and software, is the property of Loanly and protected by United States and international copyright laws. You may use our calculators for personal, non-commercial purposes. You may not:
+                        All content on Calcbz, including text, graphics, logos, and software, is the property of Calcbz and protected by United States and international copyright laws. You may use our calculators for personal, non-commercial purposes. You may not:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300 mt-4">
                         <li>Copy, modify, or distribute our content without permission</li>
@@ -118,7 +118,7 @@ export default function TermsPage() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">8. Limitation of Liability</h2>
                     <p className="text-gray-700 dark:text-gray-300">
-                        TO THE MAXIMUM EXTENT PERMITTED BY LAW, LOANLY SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM:
+                        TO THE MAXIMUM EXTENT PERMITTED BY LAW, CALCBZ SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300 mt-4">
                         <li>Your use or inability to use the Service</li>
@@ -148,7 +148,7 @@ export default function TermsPage() {
                         If you have questions about these Terms of Service, please contact us at:
                     </p>
                     <p className="text-blue-600 hover:text-blue-700 mt-2">
-                        <a href="mailto:legal@loanly.com">legal@loanly.com</a>
+                        <a href="mailto:legal@calcbz.com">legal@calcbz.com</a>
                     </p>
                 </section>
             </div>

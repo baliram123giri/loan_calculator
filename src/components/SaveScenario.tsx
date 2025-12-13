@@ -54,7 +54,7 @@ export default function SaveScenario({
 
     const loadScenarios = () => {
         try {
-            const stored = localStorage.getItem('loanly_scenarios');
+            const stored = localStorage.getItem('calcbz_scenarios');
             if (stored) {
                 setSavedScenarios(JSON.parse(stored));
             }
@@ -85,10 +85,10 @@ export default function SaveScenario({
         };
 
         try {
-            const stored = localStorage.getItem('loanly_scenarios');
+            const stored = localStorage.getItem('calcbz_scenarios');
             const scenarios: SavedScenario[] = stored ? JSON.parse(stored) : [];
             scenarios.unshift(scenario);
-            localStorage.setItem('loanly_scenarios', JSON.stringify(scenarios));
+            localStorage.setItem('calcbz_scenarios', JSON.stringify(scenarios));
 
             setScenarioTitle('');
             setShowSaveModal(false);
@@ -109,11 +109,11 @@ export default function SaveScenario({
 
     const handleDelete = (id: string) => {
         try {
-            const stored = localStorage.getItem('loanly_scenarios');
+            const stored = localStorage.getItem('calcbz_scenarios');
             if (stored) {
                 const scenarios: SavedScenario[] = JSON.parse(stored);
                 const filtered = scenarios.filter(s => s.id !== id);
-                localStorage.setItem('loanly_scenarios', JSON.stringify(filtered));
+                localStorage.setItem('calcbz_scenarios', JSON.stringify(filtered));
                 setSavedScenarios(filtered);
                 setShowDeleteConfirm(null);
                 showToast('Scenario deleted successfully!', 'success');

@@ -119,10 +119,10 @@ export default function NavBar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 flex-shrink-0">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">
-                            L
+                            C
                         </div>
                         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 hidden sm:block">
-                            Loanly
+                            Calcbz
                         </h1>
                     </Link>
 

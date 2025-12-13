@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                to: 'support@loanly.com',
-                from: 'noreply@loanly.com',
+                to: 'support@calcbz.com',
+                from: 'noreply@calcbz.com',
                 replyTo: email,
                 subject: `Contact Form: ${subject}`,
                 html: `

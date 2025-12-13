@@ -78,6 +78,7 @@ export const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
                         </div>
                     )}
                     <input
+                        aria-label={label}
                         type={isCurrency ? "text" : "number"}
                         inputMode={isCurrency ? "numeric" : undefined}
                         className={cn(

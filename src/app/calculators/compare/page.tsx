@@ -3,7 +3,7 @@ import LoanComparison from '@/components/LoanComparison';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Compare Loans | Loanly',
+    title: 'Compare Loans | calcbz.com',
     description: 'Compare two loan scenarios side-by-side to find the best option.',
 };
 

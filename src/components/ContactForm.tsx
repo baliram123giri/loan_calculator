@@ -45,7 +45,7 @@ export default function ContactForm() {
             setTimeout(() => setStatus('idle'), 5000);
         } catch (error) {
             setStatus('error');
-            setErrorMessage('Failed to send message. Please try emailing us directly at support@loanly.com');
+            setErrorMessage('Failed to send message. Please try emailing us directly at support@calcbz.com');
         }
     };
 

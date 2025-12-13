@@ -1,4 +1,4 @@
-# Loanly - EMI/Loan Calculator
+# calcbz.com - EMI/Loan Calculator
 
 A modern, interactive EMI (Equated Monthly Installment) calculator built with Next.js, TypeScript, and Tailwind CSS. Calculate loan payments, visualize amortization schedules, and explore prepayment scenarios.
 

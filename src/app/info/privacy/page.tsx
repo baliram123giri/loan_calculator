@@ -2,10 +2,10 @@ import React from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy - Loanly | Your Data, Your Control',
-    description: 'Read Loanly\'s privacy policy. We respect your privacy and don\'t collect, store, or share your personal information. Learn how we protect your data.',
+    title: 'Privacy Policy - Calcbz | Your Data, Your Control',
+    description: 'Read Calcbz\'s privacy policy. We respect your privacy and don\'t collect, store, or share your personal information. Learn how we protect your data.',
     alternates: {
-        canonical: 'https://loanly.com/info/privacy'
+        canonical: 'https://calcbz.com/info/privacy'
     }
 };
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-100 dark:border-blue-800">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Privacy Promise</h2>
                     <p className="text-gray-700 dark:text-gray-300">
-                        At Loanly, we believe your financial calculations are your business, not ours. We don't collect, store, or share your personal information. Your data stays on your device, period.
+                        At Calcbz, we believe your financial calculations are your business, not ours. We don't collect, store, or share your personal information. Your data stays on your device, period.
                     </p>
                 </div>
 
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
                         If you have questions about this privacy policy, please contact us at:
                     </p>
                     <p className="text-blue-600 hover:text-blue-700 mt-2">
-                        <a href="mailto:privacy@loanly.com">privacy@loanly.com</a>
+                        <a href="mailto:privacy@calcbz.com">privacy@calcbz.com</a>
                     </p>
                 </section>
             </div>

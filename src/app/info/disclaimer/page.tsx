@@ -3,10 +3,10 @@ import { Metadata } from 'next';
 import { AlertTriangle } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'Disclaimer - Loanly | Important Information',
-    description: 'Read Loanly\'s disclaimer. Understand the limitations and proper use of our financial calculators.',
+    title: 'Disclaimer - Calcbz | Important Information',
+    description: 'Read Calcbz\'s disclaimer. Understand the limitations and proper use of our financial calculators.',
     alternates: {
-        canonical: 'https://loanly.com/info/disclaimer'
+        canonical: 'https://calcbz.com/info/disclaimer'
     }
 };
 
@@ -29,7 +29,7 @@ export default function DisclaimerPage() {
                     Please Read Carefully
                 </h2>
                 <p className="text-gray-700 dark:text-gray-300">
-                    The information and calculators provided on Loanly are for general informational and educational purposes only. They should not be considered as professional financial, investment, tax, or legal advice.
+                    The information and calculators provided on Calcbz are for general informational and educational purposes only. They should not be considered as professional financial, investment, tax, or legal advice.
                 </p>
             </div>
 
@@ -37,7 +37,7 @@ export default function DisclaimerPage() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">No Professional Relationship</h2>
                     <p className="text-gray-700 dark:text-gray-300">
-                        Using our calculators does not create any professional relationship between you and Loanly. We are not:
+                        Using our calculators does not create any professional relationship between you and Calcbz. We are not:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300 mt-4">
                         <li>Financial advisors or planners</li>
@@ -123,7 +123,7 @@ export default function DisclaimerPage() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your Responsibility</h2>
                     <p className="text-gray-700 dark:text-gray-300">
-                        By using Loanly, you acknowledge and agree that:
+                        By using Calcbz, you acknowledge and agree that:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300 mt-4">
                         <li>You are solely responsible for your financial decisions</li>
@@ -140,8 +140,8 @@ export default function DisclaimerPage() {
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300">
                         If you have questions about this disclaimer or our calculators, please contact us at{' '}
-                        <a href="mailto:support@loanly.com" className="text-blue-600 hover:text-blue-700">
-                            support@loanly.com
+                        <a href="mailto:support@calcbz.com" className="text-blue-600 hover:text-blue-700">
+                            support@calcbz.com
                         </a>
                     </p>
                 </div>

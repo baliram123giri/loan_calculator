@@ -3,10 +3,10 @@ import { Metadata } from 'next';
 import { HelpCircle, ChevronRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'FAQ - Loanly | Frequently Asked Questions',
-    description: 'Find answers to common questions about Loanly\'s financial calculators. Learn how to use our mortgage, loan, interest, and tax calculators.',
+    title: 'FAQ - Calcbz | Frequently Asked Questions',
+    description: 'Find answers to common questions about Calcbz\'s financial calculators. Learn how to use our mortgage, loan, interest, and tax calculators.',
     alternates: {
-        canonical: 'https://loanly.com/info/faq'
+        canonical: 'https://calcbz.com/info/faq'
     }
 };
 
@@ -16,8 +16,8 @@ export default function FAQPage() {
             category: 'General Questions',
             questions: [
                 {
-                    q: 'Is Loanly really free?',
-                    a: 'Yes! Loanly is completely free to use. There are no subscriptions, no hidden fees, no premium features, and no credit card required. All our calculators are available to everyone at no cost.'
+                    q: 'Is Calcbz really free?',
+                    a: 'Yes! Calcbz is completely free to use. There are no subscriptions, no hidden fees, no premium features, and no credit card required. All our calculators are available to everyone at no cost.'
                 },
                 {
                     q: 'Do I need to create an account?',
@@ -28,7 +28,7 @@ export default function FAQPage() {
                     a: 'Absolutely. Your calculations stay on your device. We don\'t collect, store, or share your financial information. See our Privacy Policy for complete details.'
                 },
                 {
-                    q: 'Can I use Loanly on my phone?',
+                    q: 'Can I use Calcbz on my phone?',
                     a: 'Yes! All our calculators are mobile-responsive and work great on phones, tablets, and desktop computers.'
                 }
             ]
@@ -110,7 +110,7 @@ export default function FAQPage() {
             questions: [
                 {
                     q: 'The calculator isn\'t working. What should I do?',
-                    a: 'Try refreshing the page or clearing your browser cache. If the problem persists, please contact us at support@loanly.com with details about the issue and what browser you\'re using.'
+                    a: 'Try refreshing the page or clearing your browser cache. If the problem persists, please contact us at support@calcbz.com with details about the issue and what browser you\'re using.'
                 },
                 {
                     q: 'Why can\'t I see my saved calculations?',
@@ -118,7 +118,7 @@ export default function FAQPage() {
                 },
                 {
                     q: 'Which browsers are supported?',
-                    a: 'Loanly works on all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, please use the latest version of your browser.'
+                    a: 'Calcbz works on all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, please use the latest version of your browser.'
                 }
             ]
         }
@@ -134,7 +134,7 @@ export default function FAQPage() {
             </div>
 
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-12">
-                Find answers to common questions about using Loanly's financial calculators.
+                Find answers to common questions about using Calcbz's financial calculators.
             </p>
 
             <div className="space-y-12">

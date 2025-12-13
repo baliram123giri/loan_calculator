@@ -3,10 +3,10 @@ import { Metadata } from 'next';
 import { Calculator, Users, TrendingUp } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'About Us - Loanly | Free US Financial Calculators',
-    description: 'Learn about Loanly, your trusted source for free financial calculators. We help Americans make informed decisions about mortgages, loans, interest, and taxes.',
+    title: 'About Us - calcbz.com | Free US Financial Calculators',
+    description: 'Learn about calcbz.com, your trusted source for free financial calculators. We help Americans make informed decisions about mortgages, loans, interest, and taxes.',
     alternates: {
-        canonical: 'https://loanly.com/info/about'
+        canonical: 'https://calcbz.com/info/about'
     }
 };
 
@@ -14,7 +14,7 @@ export default function AboutPage() {
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                About Loanly
+                About Calcbz
             </h1>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -25,10 +25,10 @@ export default function AboutPage() {
                 <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 mb-8">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Story</h2>
                     <p className="text-gray-700 dark:text-gray-300 mb-4">
-                        Loanly was born from a simple frustration: why is it so hard to get straightforward answers about money? Whether you're buying your first home, taking out a car loan, or trying to understand how compound interest works, the financial world can feel unnecessarily complicated.
+                        Calcbz was born from a simple frustration: why is it so hard to get straightforward answers about money? Whether you're buying your first home, taking out a car loan, or trying to understand how compound interest works, the financial world can feel unnecessarily complicated.
                     </p>
                     <p className="text-gray-700 dark:text-gray-300 mb-4">
-                        We built Loanly to change that. Our calculators cut through the jargon and give you clear, accurate numbers you can trust. No hidden fees, no email required, no credit card needed—just honest tools that help you make better financial decisions.
+                        We built Calcbz to change that. Our calculators cut through the jargon and give you clear, accurate numbers you can trust. No hidden fees, no email required, no credit card needed—just honest tools that help you make better financial decisions.
                     </p>
                     <p className="text-gray-700 dark:text-gray-300">
                         Every calculator is designed specifically for the US market, accounting for how mortgages, taxes, and interest actually work in America. We're not just converting formulas from other countries—we're building tools that reflect the real financial landscape Americans navigate every day.
@@ -84,7 +84,7 @@ export default function AboutPage() {
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 p-8">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Commitment</h2>
                     <p className="text-gray-700 dark:text-gray-300 mb-4">
-                        We're committed to keeping Loanly free and accessible. We don't sell your data, show intrusive ads, or require you to create an account. Our calculators work offline once loaded, and your calculations stay private on your device.
+                        We're committed to keeping Calcbz free and accessible. We don't sell your data, show intrusive ads, or require you to create an account. Our calculators work offline once loaded, and your calculations stay private on your device.
                     </p>
                     <p className="text-gray-700 dark:text-gray-300">
                         While our calculators are accurate and based on standard financial formulas, they're for informational purposes only. For personalized financial advice, please consult with a licensed financial advisor or tax professional.

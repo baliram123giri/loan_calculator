@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://loanly.com'; // Update with actual domain
+    const baseUrl = 'https://calcbz.com'; // Update with actual domain
     const currentDate = new Date();
 
     return [

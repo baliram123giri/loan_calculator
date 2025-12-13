@@ -80,7 +80,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     const [currency, setCurrencyState] = useState<Currency>(currencies[0]);
 
     useEffect(() => {
-        const savedCurrencyCode = localStorage.getItem('loanly_currency');
+        const savedCurrencyCode = localStorage.getItem('calcbz_currency');
         if (savedCurrencyCode) {
             const foundCurrency = currencies.find(c => c.code === savedCurrencyCode);
             if (foundCurrency) {
@@ -91,7 +91,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
     const setCurrency = (newCurrency: Currency) => {
         setCurrencyState(newCurrency);
-        localStorage.setItem('loanly_currency', newCurrency.code);
+        localStorage.setItem('calcbz_currency', newCurrency.code);
     };
 
     return (

@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Loanly - US Finance Calculator Suite",
+  title: "Calcbz - US Finance Calculator Suite",
   description: "Free online calculators for US Mortgages, Loans, Interest, and Taxes.",
-  metadataBase: new URL('https://loanly.com'), // Replace with actual domain when deployed, effectively needed for relative OG images
+  metadataBase: new URL('https://calcbz.com'), // Replace with actual domain when deployed, effectively needed for relative OG images
 };
 
 export default function RootLayout({

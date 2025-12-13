@@ -7,11 +7,11 @@ export interface CalculatorMetadata {
     canonical: string;
 }
 
-const BASE_URL = 'https://loanly.com'; // Update with actual domain
+const BASE_URL = 'https://calcbz.com'; // Update with actual domain
 
 export const calculatorMetadata: Record<string, CalculatorMetadata> = {
     mortgage: {
-        title: 'Free US Mortgage Calculator | Monthly Payment Estimator - Loanly',
+        title: 'Free US Mortgage Calculator | Monthly Payment Estimator - calcbz.com',
         description: 'Calculate your monthly mortgage payments with our free US mortgage calculator. Get accurate estimates including principal, interest, taxes, and insurance. Compare rates and see amortization schedules.',
         keywords: [
             'mortgage calculator',
@@ -26,7 +26,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/mortgage`
     },
     loan: {
-        title: 'Personal Loan Calculator | Calculate Monthly Payments - Loanly',
+        title: 'Personal Loan Calculator | Calculate Monthly Payments - calcbz.com',
         description: 'Free personal loan calculator for car loans, student loans, and more. Calculate monthly payments, total interest, and compare loan options. Get instant results with our easy-to-use tool.',
         keywords: [
             'loan calculator',
@@ -40,7 +40,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/loan`
     },
     'simple-interest': {
-        title: 'Simple Interest Calculator | Calculate Interest Earnings - Loanly',
+        title: 'Simple Interest Calculator | Calculate Interest Earnings - calcbz.com',
         description: 'Calculate simple interest on your savings or investments. See yearly breakdowns, total interest earned, and final amounts. Perfect for CDs, bonds, and simple interest accounts.',
         keywords: [
             'simple interest calculator',
@@ -53,7 +53,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/simple-interest`
     },
     'compound-interest': {
-        title: 'Compound Interest Calculator with APY | Investment Growth - Loanly',
+        title: 'Compound Interest Calculator with APY | Investment Growth - calcbz.com',
         description: 'Calculate compound interest with daily, monthly, or yearly compounding. See your investment growth over time with APY calculations. Perfect for savings accounts and investment planning.',
         keywords: [
             'compound interest calculator',
@@ -66,7 +66,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/compound-interest`
     },
     'sales-tax': {
-        title: 'US Sales Tax Calculator | Calculate Tax by State - Loanly',
+        title: 'US Sales Tax Calculator | Calculate Tax by State - calcbz.com',
         description: 'Calculate sales tax for any US state. Get accurate tax amounts and total prices instantly. Includes common state tax rates for quick reference.',
         keywords: [
             'sales tax calculator',
@@ -79,7 +79,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/sales-tax`
     },
     'property-tax': {
-        title: 'Property Tax Calculator | Estimate Annual Tax Bill - Loanly',
+        title: 'Property Tax Calculator | Estimate Annual Tax Bill - calcbz.com',
         description: 'Estimate your annual property tax bill based on home value and local tax rates. Calculate monthly and yearly property taxes for budgeting and home buying decisions.',
         keywords: [
             'property tax calculator',
@@ -92,7 +92,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/property-tax`
     },
     'dti-calculator': {
-        title: 'DTI Calculator – Debt-to-Income Ratio Calculator | Free Tool - Loanly',
+        title: 'DTI Calculator – Debt-to-Income Ratio Calculator | Free Tool - calcbz.com',
         description: 'Calculate your debt-to-income (DTI) ratio to determine loan qualification and financial health. Free DTI calculator with personalized recommendations and loan qualification status for conventional, FHA, and VA loans.',
         keywords: [
             'DTI calculator',
@@ -108,7 +108,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/dti-calculator`
     },
     'real-estate-calculator': {
-        title: 'Free Real Estate Investment Calculator (USA) | Rental Property Analysis - Loanly',
+        title: 'Free Real Estate Investment Calculator (USA) | Rental Property Analysis - calcbz.com',
         description: 'Calculate Cash on Cash Return, Cap Rate, and Cash Flow for US rental properties. Best free tool for real estate investors to analyze deals.',
         keywords: [
             'Real Estate Calculator',
@@ -122,7 +122,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/real-estate-calculator`
     },
     'refinance-calculator': {
-        title: 'Refinance Calculator | Mortgage Refinance Savings & Break-Even - Loanly',
+        title: 'Refinance Calculator | Mortgage Refinance Savings & Break-Even - calcbz.com',
         description: 'Calculate your mortgage refinance savings. Compare current vs new loan, see monthly and lifetime savings, and find your break-even point with our free refinance calculator.',
         keywords: [
             'refinance calculator',
@@ -135,7 +135,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/refinance-calculator`
     },
     'rental-property-calculator': {
-        title: 'Rental Property Calculator | ROI, Cash Flow & Cap Rate Analysis - Loanly',
+        title: 'Rental Property Calculator | ROI, Cash Flow & Cap Rate Analysis - calcbz.com',
         description: 'Free rental property calculator for real estate investors. Calculate cash flow, cash-on-cash return, cap rate, NOI, and DSCR. Analyze rental properties with 30-year projections and tax benefits.',
         keywords: [
             'rental property calculator',
@@ -155,7 +155,7 @@ export const calculatorMetadata: Record<string, CalculatorMetadata> = {
         canonical: `${BASE_URL}/calculators/rental-property-calculator`
     },
     apr: {
-        title: 'APR Calculator | Annual Percentage Rate Calculator - Loanly',
+        title: 'APR Calculator | Annual Percentage Rate Calculator - calcbz.com',
         description: 'Calculate the true cost of your loan with our free APR Calculator. Factor in fees and closing costs to see the effective annual percentage rate. Compare loan offers accurately.',
         keywords: [
             'APR calculator',
@@ -186,7 +186,7 @@ export function generateCalculatorMetadata(
             title: meta.title,
             description: meta.description,
             url: meta.canonical,
-            siteName: 'Loanly',
+            siteName: 'calcbz.com',
             locale: 'en_US',
             type: 'website',
         },

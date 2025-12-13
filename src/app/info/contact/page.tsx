@@ -4,10 +4,10 @@ import { Mail, MessageSquare, HelpCircle } from 'lucide-react';
 import ContactForm from '@/components/ContactForm';
 
 export const metadata: Metadata = {
-    title: 'Contact Us - Loanly | Get in Touch',
-    description: 'Have questions about our financial calculators? Contact the Loanly team. We\'re here to help with your mortgage, loan, and tax calculation needs.',
+    title: 'Contact Us - Calcbz | Get in Touch',
+    description: 'Have questions about our financial calculators? Contact the Calcbz team. We\'re here to help with your mortgage, loan, and tax calculation needs.',
     alternates: {
-        canonical: 'https://loanly.com/info/contact'
+        canonical: 'https://calcbz.com/info/contact'
     }
 };
 
@@ -29,8 +29,8 @@ export default function ContactPage() {
                     <p className="text-gray-700 dark:text-gray-300 mb-4">
                         For general inquiries, feedback, or support questions:
                     </p>
-                    <a href="mailto:support@loanly.com" className="text-blue-600 hover:text-blue-700 font-medium">
-                        support@loanly.com
+                    <a href="mailto:support@calcbz.com" className="text-blue-600 hover:text-blue-700 font-medium">
+                        support@calcbz.com
                     </a>
                 </div>
 

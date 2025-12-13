@@ -36,7 +36,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
         description: 'Calculate average annual return (CAGR), total return, and real return adjusted for inflation. Free online Rate of Return calculator for investors.',
         keywords: 'average return calculator, rate of return calculator, CAGR calculator, investment return, annualized return calculator, portfolio growth',
         openGraph: {
-            title: 'Average Return Calculator | Loanly',
+            title: 'Average Return Calculator | calcbz.com',
             description: initial && final ? `Check out this calculation: ${initial} → ${final}` : 'Determine the true performance of your investments.',
             images: [
                 {
@@ -49,7 +49,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
         },
         twitter: {
             card: 'summary_large_image',
-            title: 'Average Return Calculator | Loanly',
+            title: 'Average Return Calculator | calcbz.com',
             description: initial && final ? `Check out this calculation: ${initial} → ${final}` : 'Determine the true performance of your investments.',
             images: [ogUrl],
         }

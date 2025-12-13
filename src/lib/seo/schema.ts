@@ -4,13 +4,13 @@ export interface StructuredData {
     [key: string]: any;
 }
 
-const BASE_URL = 'https://loanly.com'; // Update with actual domain
+const BASE_URL = 'https://calcbz.com'; // Update with actual domain
 
 export function generateWebApplicationSchema(): StructuredData {
     return {
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
-        name: 'Loanly',
+        name: 'calcbz.com',
         url: BASE_URL,
         description: 'Free US finance calculators for mortgages, loans, interest, and taxes',
         applicationCategory: 'FinanceApplication',
