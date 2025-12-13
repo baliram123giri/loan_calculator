@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { flushSync } from 'react-dom';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -34,6 +35,7 @@ ChartJS.register(
 );
 
 const AutoLeaseCalculator = () => {
+    const { currency } = useCurrency();
     // Inputs
     const [msrp, setMsrp] = useState<number>(35000);
     const [negotiatedPrice, setNegotiatedPrice] = useState<number>(33500);
@@ -466,18 +468,18 @@ const AutoLeaseCalculator = () => {
                                     <div>
                                         <p className="text-blue-100 text-sm font-medium mb-1">Estimated Monthly Payment</p>
                                         <h2 className="text-4xl font-bold">
-                                            ${monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            {currency.symbol}{monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </h2>
                                         <p className="text-blue-200 text-xs mt-1">
                                             {isTaxMonthly
-                                                ? `(Includes $${monthlyTax.toFixed(2)} tax)`
+                                                ? `(Includes ${currency.symbol}${monthlyTax.toFixed(2)} tax)`
                                                 : '(Tax paid upfront)'}
                                         </p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-blue-100 text-sm font-medium mb-1">Total Lease Cost</p>
                                         <p className="text-2xl font-bold">
-                                            ${totalLeaseCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                            {currency.symbol}{totalLeaseCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                         </p>
                                     </div>
                                 </div>
@@ -485,7 +487,7 @@ const AutoLeaseCalculator = () => {
                                     <div className="mt-4 pt-4 border-t border-blue-500/30">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-blue-100">Upfront Taxes Due</span>
-                                            <span className="font-bold">${upfrontTax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                            <span className="font-bold">{currency.symbol}{upfrontTax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                         </div>
                                     </div>
                                 )}
@@ -524,15 +526,15 @@ const AutoLeaseCalculator = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                                         <span className="text-sm text-gray-600">Residual Value</span>
-                                        <span className="text-sm font-semibold text-gray-900">${residualValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                        <span className="text-sm font-semibold text-gray-900">{currency.symbol}{residualValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                                         <span className="text-sm text-gray-600">Total Finance Charge</span>
-                                        <span className="text-sm font-semibold text-gray-900">${financeCharge.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                        <span className="text-sm font-semibold text-gray-900">{currency.symbol}{financeCharge.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                                         <span className="text-sm text-gray-600">Total Depreciation</span>
-                                        <span className="text-sm font-semibold text-gray-900">${(depreciationFee * leaseTerm).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                        <span className="text-sm font-semibold text-gray-900">{currency.symbol}{(depreciationFee * leaseTerm).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                                         <span className="text-sm text-gray-600">Equivalent APR</span>
@@ -548,6 +550,7 @@ const AutoLeaseCalculator = () => {
             <div className="mt-12">
                 <AmortizationTable
                     schedule={amortizationSchedule}
+                    currencySymbol={currency.symbol}
                     calculatorName="Auto Lease"
                     loanDetails={{
                         loanAmount: negotiatedPrice + (areFeesUpfront ? 0 : fees) - (downPayment + tradeInValue), // Adjusted Cap Cost effectively

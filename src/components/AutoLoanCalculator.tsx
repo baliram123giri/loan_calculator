@@ -13,7 +13,7 @@ import { Doughnut } from 'react-chartjs-2';
 import CurrencyInput from './CurrencyInput';
 import NumberInput from './NumberInput';
 import { CalculateButton } from './Shared/CalculateButton';
-import { DatePicker } from './Shared/DatePicker';
+import LocalizedDatePicker from './LocalizedDatePicker';
 import { ResetButton } from './Shared/ResetButton';
 import AmortizationTable from './AmortizationTable';
 import { AmortizationRow } from '@/lib/calc/emi';
@@ -276,10 +276,10 @@ const AutoLoanCalculator: React.FC<AutoLoanCalculatorProps> = ({ title = "Auto L
                                             <label htmlFor="includeTax" className="text-sm text-gray-700">Include taxes and fees in loan</label>
                                         </div>
                                         <div>
-                                            <DatePicker
+                                            <LocalizedDatePicker
                                                 label="Start Date"
                                                 value={startDate}
-                                                onChange={(e) => setStartDate(e.target.value)}
+                                                onChange={(val) => setStartDate(val)}
                                             />
                                         </div>
                                     </div>
