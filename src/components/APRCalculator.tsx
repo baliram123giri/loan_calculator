@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { calculateLoanSummary } from '@/lib/calc/aprCalc';
 import { generatePaymentAmortization } from '@/lib/calc/paymentCalc';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { useCurrency } from '@/context/CurrencyContext';
 import CurrencyInput from './CurrencyInput';
 
 import AmortizationTable from './AmortizationTable';
@@ -15,6 +16,9 @@ import { ResetButton } from './Shared/ResetButton';
 import { ChevronDown, ChevronUp, Info, Briefcase } from 'lucide-react';
 
 export default function APRCalculator() {
+    const { currency } = useCurrency();
+    const currencySymbol = currency.symbol;
+
     // State for inputs
     const [principal, setPrincipal] = useState(200000);
     const [interestRate, setInterestRate] = useState(5.0);
@@ -41,7 +45,7 @@ export default function APRCalculator() {
     const [amortizationSchedule, setAmortizationSchedule] = useState<any[]>([]);
     const [activeChart, setActiveChart] = useState<'balance' | 'composition'>('balance');
     const [viewMode, setViewMode] = useState<'schedule' | 'analysis'>('schedule');
-    const [hasCalculated, setHasCalculated] = useState(true);
+    const [hasCalculated, setHasCalculated] = useState(false);
 
     // Calculate results - manual calculation function
     const performCalculation = React.useCallback(() => {
@@ -80,11 +84,6 @@ export default function APRCalculator() {
         setAmortizationSchedule(schedule.amortization);
         setHasCalculated(true);
     }, [principal, interestRate, termValue, termType, fees]);
-
-    // Calculate once on mount
-    useEffect(() => {
-        performCalculation();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const chartData = [
         { name: 'Principal', value: principal, color: '#3b82f6' }, // Blue
@@ -274,7 +273,7 @@ export default function APRCalculator() {
                                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
                                     <h3 className="text-gray-500 dark:text-gray-400 font-medium mb-1">Monthly Payment</h3>
                                     <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                                        ${result.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        {currencySymbol}{result.monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
                                     <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                                         Principal & Interest
@@ -286,7 +285,7 @@ export default function APRCalculator() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
                                     <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Cost Breakdown</h3>
-                                    <div className="h-64 flex items-center justify-center">
+                                    <div className="h-64 w-full flex items-center justify-center">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
                                                 <Pie
@@ -303,7 +302,7 @@ export default function APRCalculator() {
                                                     ))}
                                                 </Pie>
                                                 <Tooltip
-                                                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                                                    formatter={(value: number) => `${currencySymbol}${value.toLocaleString()}`}
                                                     contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                                                 />
                                                 <Legend verticalAlign="bottom" height={36} />
@@ -318,25 +317,25 @@ export default function APRCalculator() {
                                         <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
                                             <span className="text-gray-600 dark:text-gray-400">Total Principal</span>
                                             <span className="font-semibold text-gray-900 dark:text-white">
-                                                ${principal.toLocaleString()}
+                                                {currencySymbol}{principal.toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
                                             <span className="text-gray-600 dark:text-gray-400">Total Interest</span>
                                             <span className="font-semibold text-gray-900 dark:text-white">
-                                                ${result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                                {currencySymbol}{result.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
                                             <span className="text-gray-600 dark:text-gray-400">Total Fees</span>
                                             <span className="font-semibold text-gray-900 dark:text-white">
-                                                ${result.totalFees.toLocaleString()}
+                                                {currencySymbol}{result.totalFees.toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center pt-2">
                                             <span className="text-lg font-bold text-gray-900 dark:text-white">Total Cost</span>
                                             <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                                                ${result.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                                {currencySymbol}{result.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                             </span>
                                         </div>
                                     </div>
@@ -377,6 +376,7 @@ export default function APRCalculator() {
                         {viewMode === 'schedule' ? (
                             <AmortizationTable
                                 schedule={amortizationSchedule}
+                                currencySymbol={currencySymbol}
                                 calculatorName="APR Calculator"
                                 loanDetails={{
                                     loanAmount: principal,

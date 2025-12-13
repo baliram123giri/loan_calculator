@@ -1,9 +1,12 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { AmortizationRow } from '@/lib/calc/emi';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { loadUnicodeFont } from '@/utils/pdfUtils';
+import { useToast } from '@/components/Toast';
 
 interface AmortizationTableProps {
     schedule: AmortizationRow[];
@@ -31,6 +34,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
     const [currentPage, setCurrentPage] = useState(1);
     const [yearView, setYearView] = useState<'CY' | 'FY' | 'none'>('none');
     const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set());
+    const { showToast } = useToast();
     const rowsPerPage = 12;
 
     const totalPages = Math.ceil(schedule.length / rowsPerPage);
@@ -280,6 +284,7 @@ export default function AmortizationTable({ schedule, currencySymbol = "$", calc
             : `Amortization_Schedule_${timestamp}.pdf`;
 
         doc.save(filename);
+        showToast('PDF exported successfully!', 'success');
     };
 
     return (
