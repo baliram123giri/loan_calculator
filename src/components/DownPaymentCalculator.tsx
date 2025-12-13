@@ -267,86 +267,72 @@ export default function DownPaymentCalculator() {
 
                     <div className="space-y-4">
                         {/* Home Price */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Home Price
-                            </label>
-                            <CurrencyInput
-                                value={homePrice}
-                                onChange={setHomePrice}
-                            />
-                        </div>
+                        <CurrencyInput
+                            label="Home Price"
+                            value={homePrice}
+                            onChange={setHomePrice}
+                        />
 
                         {/* Down Payment */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Down Payment ({currencySymbol})
-                                </label>
-                                <CurrencyInput
-                                    value={downPayment}
-                                    onChange={handleDownPaymentAmountChange}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Percent (%)
-                                </label>
-                                <NumberInput
-                                    value={downPaymentPercent}
-                                    onChange={handleDownPaymentPercentChange}
-                                    suffix="%"
-                                    max={100}
-                                />
-                            </div>
+                            <CurrencyInput
+                                label={`Down Payment (${currencySymbol})`}
+                                value={downPayment}
+                                onChange={handleDownPaymentAmountChange}
+                            />
+                            <NumberInput
+                                label="Percent (%)"
+                                value={downPaymentPercent}
+                                onChange={handleDownPaymentPercentChange}
+                                suffix="%"
+                                max={100}
+                            />
                         </div>
 
                         {/* Interest Rate & Term */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Interest Rate
-                                </label>
-                                <NumberInput
-                                    value={interestRate}
-                                    onChange={setInterestRate}
-                                    suffix="%"
-                                    max={100}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Loan Term
-                                </label>
-                                <NumberInput
-                                    value={loanTermYears}
-                                    onChange={setLoanTermYears}
-                                    suffix="Years"
-                                    max={50}
-                                />
-                            </div>
+                            <NumberInput
+                                label="Interest Rate"
+                                value={interestRate}
+                                onChange={setInterestRate}
+                                suffix="%"
+                                max={100}
+                            />
+                            <NumberInput
+                                label="Loan Term"
+                                value={loanTermYears}
+                                onChange={setLoanTermYears}
+                                suffix="Years"
+                                max={50}
+                            />
                         </div>
 
                         {/* Closing Costs */}
                         <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl space-y-3">
                             <div className="flex items-center justify-between">
-                                <label className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
                                     Closing Costs
-                                    <div className="group relative">
+                                    <button
+                                        type="button"
+                                        className="group relative"
+                                        aria-label="Information about closing costs"
+                                    >
                                         <Info size={14} className="text-gray-400 cursor-help" />
                                         <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
                                             Fees for processing the loan (appraisal, title, etc.). Typically 2-5% of home price.
                                         </div>
-                                    </div>
-                                </label>
+                                    </button>
+                                </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <CurrencyInput
+                                    label="Amount"
                                     value={closingCostsAmount}
                                     onChange={handleClosingCostsAmountChange}
                                     className="bg-white dark:bg-gray-900"
                                 />
                                 <NumberInput
+                                    label="Percentage"
                                     value={closingCostsPercent}
                                     onChange={handleClosingCostsPercentChange}
                                     suffix="%"
@@ -390,34 +376,28 @@ export default function DownPaymentCalculator() {
                                         onChange={setStartDate}
                                     />
                                 </div>
+                                <NumberInput
+                                    label="Property Tax (Annual %)"
+                                    value={propertyTaxRate}
+                                    onChange={setPropertyTaxRate}
+                                    suffix="%"
+                                    className="text-sm"
+                                />
+                                <CurrencyInput
+                                    label={`Home Insurance (${currencySymbol}/mo)`}
+                                    value={homeInsurance}
+                                    onChange={setHomeInsurance}
+                                    className="text-sm"
+                                />
+                                <CurrencyInput
+                                    label={`HOA Fees (${currencySymbol}/mo)`}
+                                    value={hoaFees}
+                                    onChange={setHoaFees}
+                                    className="text-sm"
+                                />
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Property Tax (Annual %)</label>
                                     <NumberInput
-                                        value={propertyTaxRate}
-                                        onChange={setPropertyTaxRate}
-                                        suffix="%"
-                                        className="text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Home Insurance ({currencySymbol}/mo)</label>
-                                    <CurrencyInput
-                                        value={homeInsurance}
-                                        onChange={setHomeInsurance}
-                                        className="text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">HOA Fees ({currencySymbol}/mo)</label>
-                                    <CurrencyInput
-                                        value={hoaFees}
-                                        onChange={setHoaFees}
-                                        className="text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">PMI Rate (Annual %)</label>
-                                    <NumberInput
+                                        label="PMI Rate (Annual %)"
                                         value={pmiRate}
                                         onChange={setPmiRate}
                                         suffix="%"
@@ -505,7 +485,7 @@ export default function DownPaymentCalculator() {
                 <div className="grid grid-cols-1 gap-6">
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                         <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Monthly Payment Breakdown</h3>
-                        <div className="mb-6 w-full h-[300px]" role="img" aria-label="Pie chart showing monthly payment breakdown including principal, interest, taxes, insurance, and fees">
+                        <div className="mb-6 w-full h-[300px]" aria-label="Pie chart showing monthly payment breakdown including principal, interest, taxes, insurance, and fees">
                             <ChartBreakup
                                 data={[
                                     { name: 'Principal & Interest', value: result.emi, color: '#3B82F6' },
@@ -566,7 +546,7 @@ export default function DownPaymentCalculator() {
 
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 h-96">
                         <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">Balance Over Time</h3>
-                        <div role="img" aria-label="Line chart showing loan balance decreasing over time">
+                        <div aria-label="Line chart showing loan balance decreasing over time">
                             <ChartBalance data={result.amortization} currencySymbol={currencySymbol} />
                         </div>
                     </div>
